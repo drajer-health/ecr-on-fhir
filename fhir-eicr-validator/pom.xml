@@ -3,9 +3,15 @@
 	xmlns:xsi="http://www.w3.org/2001/XMLSchema-instance"
 	xsi:schemaLocation="http://maven.apache.org/POM/4.0.0 http://maven.apache.org/xsd/maven-4.0.0.xsd">
 	<modelVersion>4.0.0</modelVersion>
+<<<<<<< HEAD:fhir-eicr-validator/pom.xml
 	<groupId>com.drajer</groupId>
 	<artifactId>eicr-fhir-validator</artifactId>
 	<name>EicrFHIRValidator</name>
+=======
+	<groupId>com.drajer.fhir</groupId>
+	<artifactId>fhirvalidator</artifactId>
+	<name>FHIRValidator</name>
+>>>>>>> 6314ba662f1e7babd0db08bb3b30b607ffa92d0a:fhir-validator/pom.xml
 	<version>0.0.1-SNAPSHOT</version>
 	<packaging>war</packaging>
 	<description>EICR FHIR Validtor</description>
