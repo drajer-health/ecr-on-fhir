@@ -56,7 +56,7 @@ public class Validator {
 	 * @param igFile The igFile the validator is loaded with.
 	 * @throws Exception If the validator cannot be created
 	 */
-	public Validator(String igFile) throws Exception {
+	public Validator(List<String> igFiles) throws Exception {
 		final String fhirSpecVersion = "4.0";
 		final String definitions = VersionUtilities.packageForVersion(fhirSpecVersion) + "#"
 				+ VersionUtilities.getCurrentVersion(fhirSpecVersion);
@@ -65,7 +65,11 @@ public class Validator {
 		final String fhirVersion = "4.0.1";
 		logger.info("initializing hl7Validator inside  Validator");
 		hl7Validator = new ValidationEngine(definitions);
-		hl7Validator.loadIg(igFile, true);
+		for(String igFile:igFiles) {
+			logger.info("Loading IG:::::{} ",igFile);
+			hl7Validator.loadIg(igFile, true);
+		}
+		//hl7Validator.loadIg(igFile, true);
 		hl7Validator.connectToTSServer(txServer, txLog, FhirPublication.fromCode(fhirVersion));
 		hl7Validator.setNative(false);
 		hl7Validator.setAnyExtensionsAllowed(true);

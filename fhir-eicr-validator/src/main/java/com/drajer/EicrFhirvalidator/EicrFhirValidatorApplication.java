@@ -1,5 +1,8 @@
 package com.drajer.EicrFhirvalidator;
 
+import java.util.ArrayList;
+import java.util.List;
+
 import javax.annotation.PostConstruct;
 
 import org.slf4j.Logger;
@@ -44,7 +47,11 @@ public class EicrFhirValidatorApplication extends SpringBootServletInitializer {
 		logger.info("inside the initializeValidator");
 		try {
 			Resource res = resourceLoader.getResource("classpath:igs/package");
-			return new Validator(res.getURI().getPath());
+			Resource ecrRes = resourceLoader.getResource("classpath:ecrigs/package");
+			List<String> resList = new ArrayList<>();
+			resList.add(res.getURI().getPath());
+			resList.add(ecrRes.getURI().getPath());
+			return new Validator(resList);
 		} catch (Exception e) {
 			logger.error("There was an error initializing the validator:", e);
 			e.printStackTrace();

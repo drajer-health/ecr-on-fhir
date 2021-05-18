@@ -1,0 +1,35 @@
+{
+  "name": "hl7.fhir.us.ecr",
+  "version": "1.1.0",
+  "tools-version": 3,
+  "type": "fhir.ig",
+  "date": "20210427003833",
+  "license": "CC0-1.0",
+  "canonical": "http://hl7.org/fhir/us/ecr",
+  "notForPublication": true,
+  "url": "https://build.fhir.org/ig/HL7/case-reporting/",
+  "title": "HL7 FHIR® Implementation Guide: Electronic Case Reporting (eCR) - US Realm",
+  "description": "# Introduction and Purpose\n\nWith the adoption and maturing of Electronic Health Records (EHRs) there are opportunities to better support public health surveillance as well as the delivery of relevant public health information to clinical care. Electronic Case Reporting (eCR) can provide more complete and timely case data, support disease / condition monitoring, and assist in outbreak management and control. It can also improve bidirectional communications through the delivery of public health information in the context of a patient\u0027s condition and local disease trends and by facilitating ad hoc communications. eCR will also reduce healthcare provider burden by automating the completion of legal reporting requirements.\n\nWith the advent of FHIR standards, there is a need for FHIR implementation guidance to specify appropriate resources and transactions needed for the eCR process. FHIR offers opportunities to further enable automated triggering and reporting of cases from EHRs, to ease implementation and integration, to support the acquisition of investigation supplemental data, and to connect public health information (e.g., guidelines) with clinical workflows. Over time, FHIR may also support the distribution of reporting rules to clinical care to better align data authorities and make broader clinical data available to public health decision support services inside the clinical care environment.\n\nFor more supporting information, use cases, and other background context and material, see Volume 1 of both the [HL7 CDA R2 Electronic Initial Case Report (eICR) Standard for Trial Use (STU) IG](http://www.hl7.org/implement/standards/product_brief.cfm?product_id\u003d436) (see the link under \"STU Documents\" for STU 2.0) and the [HL7 CDA R2 Reportability Response (RR) STU IG](https://www.hl7.org/implement/standards/product_brief.cfm?product_id\u003d470).\n\n# Stakeholders\n* Regulatory Agencies\n* Standards Development Organizations\n* Vendors: EHR, PHR; Health Care IT; Clinical Decision Support Systems, Public Health Surveillance Systems\n* Providers: Ambulatory and Healthcare Institutions (hospitals, long term care, mental health)\n* Local, State, Tribal and Federal Public Health Agencies (built Tue, Apr 27, 2021 00:38+0000+00:00)",
+  "fhirVersions": [
+    "4.0.1"
+  ],
+  "dependencies": {
+    "hl7.fhir.r4.core": "4.0.1",
+    "hl7.fhir.us.core": "3.1.1",
+    "us.cdc.phinvads": "0.7.0",
+    "us.nlm.vsac": "0.4.0",
+    "hl7.fhir.us.vr-common-library": "0.1.0",
+    "hl7.fhir.us.odh": "1.0.0"
+  },
+  "author": "HL7 Public Health Work Group (http://www.hl7.org/Special/committees/pher/index.cfm)",
+  "maintainers": [
+    {
+      "name": "HL7 International - Public Health",
+      "url": "http://www.hl7.org/Special/committees/pher"
+    }
+  ],
+  "directories": {
+    "lib": "package",
+    "example": "example"
+  }
+}
