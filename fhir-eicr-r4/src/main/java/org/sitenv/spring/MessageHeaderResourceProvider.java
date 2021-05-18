@@ -8,9 +8,15 @@ import ca.uhn.fhir.rest.api.server.RequestDetails;
 import ca.uhn.fhir.rest.server.exceptions.UnprocessableEntityException;
 import ca.uhn.fhir.validation.FhirValidator;
 import ca.uhn.fhir.validation.ValidationResult;
+
+import java.io.File;
+import java.io.FileInputStream;
+import java.io.IOException;
+import java.io.InputStream;
 import java.util.ArrayList;
 import java.util.Date;
 import java.util.List;
+import java.util.Properties;
 import java.util.UUID;
 
 import javax.servlet.http.HttpServletRequest;
@@ -37,13 +43,15 @@ import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.beans.factory.annotation.Value;
+import org.springframework.context.ApplicationContext;
 import org.springframework.context.annotation.AnnotationConfigApplicationContext;
 import org.springframework.context.support.AbstractApplicationContext;
+import org.springframework.util.ResourceUtils;
 
 public class MessageHeaderResourceProvider {
 
 	//need to read from conf file
-	private static final String validatorEndpoint = "http://localhost:8888/fhir_validator/r4/resource/validate";
+	//private static final String validatorEndpoint = "http://ecr.drajer.com/fhir-eicr-validator/r4/resource/validate";
 	
 	protected FhirContext r4Context = FhirContext.forR4();
 
@@ -69,6 +77,8 @@ public class MessageHeaderResourceProvider {
 		OperationOutcome outcome = new OperationOutcome();
 		boolean errorExists = false;
 		try {
+			Properties prop = fetchProperties();
+			String validatorEndpoint = prop.getProperty("validator.endpoint");
 			outcome = new CommonUtil().validateResource(bundle,validatorEndpoint, r4Context);
 			if (outcome.hasIssue()) {
 				List<OperationOutcomeIssueComponent> issueCompList = outcome.getIssue();
@@ -167,5 +177,17 @@ public class MessageHeaderResourceProvider {
 	    String randomUUID = uuid.toString();
 	    return randomUUID;
 	  }
+	
+	public static Properties fetchProperties(){
+        Properties properties = new Properties();
+        try {
+            File file = ResourceUtils.getFile("classpath:application.properties");
+            InputStream in = new FileInputStream(file);
+            properties.load(in);
+        } catch (IOException e) {
+            logger.error(e.getMessage());
+        }
+        return properties;
+    }
 
 }
