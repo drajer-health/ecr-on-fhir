@@ -8,20 +8,25 @@ Prerequisites:
 
 Clone the Repository
 Clone the respository using the below command in command prompt
+
 `git clone https://github.com/drajer-health/ecr-on-fhir.git`
 
 Installation Instructions
 Postgres Configuration:
 Load Schema and data into database
 Create the database by running the below command in command prompt. Enter the password for postgres database when prompted. Default password will be ‘postgres’
+
 `$ createdb -h localhost -p 5432 -U postgres <database_name>`
 
 Create Build:
 Build ECR on FHIR Backend Service:
 Change the database configurations in the file application.properties located under src/main/resources 
+
+```
 jdbc.url=jdbc:postgresql://localhost:5432/<database_name>
 jdbc.username=<username>
 jdbc.password=<password>
+```
 
 update the ‘validator.ednpoint’ property in application.properties file to point the fhir-validator running in your local or any external system
 validator.endpoint=http://localhost:8080/fhir-validator/r4/resource/validate
