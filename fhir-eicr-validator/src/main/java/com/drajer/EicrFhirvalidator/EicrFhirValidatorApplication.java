@@ -48,9 +48,13 @@ public class EicrFhirValidatorApplication extends SpringBootServletInitializer {
 		try {
 			Resource res = resourceLoader.getResource("classpath:igs/package");
 			Resource ecrRes = resourceLoader.getResource("classpath:ecrigs/package");
+			Resource uscoreRes = resourceLoader.getResource("classpath:uscoreigs/package");
+			Resource odhRes = resourceLoader.getResource("classpath:odhigs/package");
 			List<String> resList = new ArrayList<>();
 			resList.add(res.getURI().getPath());
 			resList.add(ecrRes.getURI().getPath());
+			resList.add(uscoreRes.getURI().getPath());
+			resList.add(odhRes.getURI().getPath());
 			return new Validator(resList);
 		} catch (Exception e) {
 			logger.error("There was an error initializing the validator:", e);

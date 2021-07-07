@@ -1,6 +1,5 @@
 package com.drajer.EicrFhirvalidator.component;
 
-import java.io.ByteArrayInputStream;
 import java.io.IOException;
 import java.io.InputStream;
 import java.net.URL;
@@ -23,11 +22,9 @@ import org.hl7.fhir.r5.model.Resource;
 import org.hl7.fhir.r5.model.StructureDefinition;
 import org.hl7.fhir.utilities.TextFile;
 import org.hl7.fhir.utilities.VersionUtilities;
-import org.hl7.fhir.utilities.npm.FilesystemPackageCacheManager;
-import org.hl7.fhir.utilities.npm.ToolsVersion;
-import org.hl7.fhir.utilities.npm.NpmPackage;
-
-
+import org.hl7.fhir.utilities.cache.FilesystemPackageCacheManager;
+import org.hl7.fhir.utilities.cache.NpmPackage;
+import org.hl7.fhir.utilities.cache.ToolsVersion;
 import org.hl7.fhir.utilities.json.JSONUtil;
 import org.hl7.fhir.validation.ValidationEngine;
 import org.slf4j.Logger;
@@ -69,7 +66,6 @@ public class Validator {
 			logger.info("Loading IG:::::{} ",igFile);
 			hl7Validator.loadIg(igFile, true);
 		}
-		//hl7Validator.loadIg(igFile, true);
 		hl7Validator.connectToTSServer(txServer, txLog, FhirPublication.fromCode(fhirVersion));
 		hl7Validator.setNative(false);
 		hl7Validator.setAnyExtensionsAllowed(true);
@@ -83,13 +79,13 @@ public class Validator {
 	}
 
 	public OperationOutcome validate(byte[] resource, String profile) throws Exception {
-		ArrayList<String> patientProfiles = new ArrayList<String>(Arrays.asList(profile.split(",")));
+		ArrayList<String> patientProfiles = new ArrayList<>(Arrays.asList(profile.split(",")));
 		try {
 			Manager.FhirFormat fmt = FormatUtilities.determineFormat(resource);
-			return hl7Validator.validate(fmt,new ByteArrayInputStream(resource), patientProfiles);
+			return hl7Validator.validate(null, resource, fmt, patientProfiles);
+
 		} catch (Exception e) {
 			logger.info("error while validating resource", e);
-			e.printStackTrace();
 		}
 		return null;
 	}
