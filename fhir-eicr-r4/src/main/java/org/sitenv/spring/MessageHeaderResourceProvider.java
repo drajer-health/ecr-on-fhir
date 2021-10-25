@@ -2,84 +2,78 @@ package org.sitenv.spring;
 
 import ca.uhn.fhir.context.FhirContext;
 import ca.uhn.fhir.model.api.annotation.Description;
+import ca.uhn.fhir.parser.IParser;
 import ca.uhn.fhir.rest.annotation.Operation;
 import ca.uhn.fhir.rest.annotation.OperationParam;
 import ca.uhn.fhir.rest.api.server.RequestDetails;
 import ca.uhn.fhir.rest.server.exceptions.UnprocessableEntityException;
-import ca.uhn.fhir.validation.FhirValidator;
-import ca.uhn.fhir.validation.ValidationResult;
-
-import java.io.File;
-import java.io.FileInputStream;
-import java.io.IOException;
-import java.io.InputStream;
-import java.util.ArrayList;
-import java.util.Date;
-import java.util.List;
-import java.util.Properties;
-import java.util.UUID;
-
-import javax.servlet.http.HttpServletRequest;
 import org.hl7.fhir.instance.model.api.IBaseResource;
-import org.hl7.fhir.r4.model.Bundle;
+import org.hl7.fhir.r4.model.*;
 import org.hl7.fhir.r4.model.Bundle.BundleEntryComponent;
-import org.hl7.fhir.r4.model.Communication;
-import org.hl7.fhir.r4.model.MessageHeader;
-import org.hl7.fhir.r4.model.Meta;
-import org.hl7.fhir.r4.model.OperationOutcome;
 import org.hl7.fhir.r4.model.OperationOutcome.IssueSeverity;
 import org.hl7.fhir.r4.model.OperationOutcome.OperationOutcomeIssueComponent;
-import org.hl7.fhir.r4.model.Reference;
-import org.hl7.fhir.r4.model.Resource;
 import org.sitenv.spring.configuration.AppConfig;
 import org.sitenv.spring.model.DafBundle;
 import org.sitenv.spring.model.DafCommunication;
-import org.sitenv.spring.model.DafPlanDefinition;
 import org.sitenv.spring.service.BundleService;
 import org.sitenv.spring.service.CommunicationService;
 import org.sitenv.spring.service.PlanDefinitionService;
 import org.sitenv.spring.util.CommonUtil;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
-import org.springframework.beans.factory.annotation.Autowired;
-import org.springframework.beans.factory.annotation.Value;
-import org.springframework.context.ApplicationContext;
 import org.springframework.context.annotation.AnnotationConfigApplicationContext;
 import org.springframework.context.support.AbstractApplicationContext;
 import org.springframework.util.ResourceUtils;
+
+import javax.servlet.http.HttpServletRequest;
+import java.io.File;
+import java.io.FileInputStream;
+import java.io.IOException;
+import java.io.InputStream;
+import java.util.*;
 
 public class MessageHeaderResourceProvider {
 
 	//need to read from conf file
 	//private static final String validatorEndpoint = "http://ecr.drajer.com/fhir-eicr-validator/r4/resource/validate";
-	
+
 	protected FhirContext r4Context = FhirContext.forR4();
 
 	private static final Logger logger = LoggerFactory.getLogger(MessageHeaderResourceProvider.class);
-	
+
 	AbstractApplicationContext context;
 	PlanDefinitionService planDefinition;
 	BundleService bundleService;
 	CommunicationService communicationService;
-	
+
 	public MessageHeaderResourceProvider() {
 		context = new AnnotationConfigApplicationContext(AppConfig.class);
 		planDefinition = (PlanDefinitionService) context.getBean("PlanDefinitionService");
 		bundleService = (BundleService) context.getBean("BundleService");
 		communicationService = (CommunicationService) context.getBean("CommunicationService");
 	}
-	
+
 	@Operation(name = "$process-message", idempotent = false)
 	public Bundle processMessage(HttpServletRequest theServletRequest, RequestDetails theRequestDetails,
-			@OperationParam(name = "content", min = 1, max = 1) @Description(formalDefinition = "The message to process (or, if using asynchronous messaging, it may be a response message to accept)") Bundle theMessageToProcess) {
+								 @OperationParam(name = "content", min = 1, max = 1) @Description(formalDefinition = "The message to process (or, if using asynchronous messaging, it may be a response message to accept)") Bundle theMessageToProcess) {
 		logger.info("Validating the Bundle");
 		Bundle bundle	 = theMessageToProcess;
 		OperationOutcome outcome = new OperationOutcome();
 		boolean errorExists = false;
 		try {
+			String request = r4Context.newJsonParser().encodeResourceToString(bundle);
 			Properties prop = fetchProperties();
 			String validatorEndpoint = prop.getProperty("validator.endpoint");
 			outcome = new CommonUtil().validateResource(bundle,validatorEndpoint, r4Context);
+
+			IParser ip = r4Context.newJsonParser(),
+					op = r4Context.newXmlParser();
+			IBaseResource ri = null;
+			ri = ip.parseResource(request);
+			String output = op.setPrettyPrint(true).encodeResourceToString(ri);
+
+			System.out.println("XML Output === "+ output );
+
 			if (outcome.hasIssue()) {
 				List<OperationOutcomeIssueComponent> issueCompList = outcome.getIssue();
 				for (OperationOutcomeIssueComponent issueComp : issueCompList) {
@@ -92,6 +86,8 @@ public class MessageHeaderResourceProvider {
 				DafBundle dafBundle = new DafBundle();
 				bundle.setId(getUUID());
 				dafBundle.setEicrData(r4Context.newJsonParser().encodeResourceToString(bundle));
+				//dafBundle.setEicrValidateResult(outcome.get);
+				dafBundle.setEicrDataProcessStatus("RECEIVED");
 				dafBundle.setCreatedDate(new Date());
 				bundleService.createBundle(dafBundle);
 				MessageHeader messageHeader = null;
@@ -114,19 +110,19 @@ public class MessageHeaderResourceProvider {
 					}
 				}
 				if(patientId!= null) {
-					commId = constructAndSaveCommunication(patientId);	
+					commId = constructAndSaveCommunication(patientId);
 				}
 				if(messageHeader == null) {
-					messageHeader = constructMessageHeaderResource();	
+					messageHeader = constructMessageHeaderResource();
 				}
 				if(commId != null) {
 					List<Reference> referenceList = new ArrayList<Reference>();
 					Reference commRef = new Reference();
 					commRef.setReference("Communication/"+commId);
 					referenceList.add(commRef);
-					messageHeader.setFocus(referenceList);	
+					messageHeader.setFocus(referenceList);
 				}
-				
+
 				Bundle respbundle = new Bundle();
 				respbundle.setId(getUUID());
 				List<BundleEntryComponent> entryCompList = new ArrayList<>();
@@ -155,7 +151,7 @@ public class MessageHeaderResourceProvider {
 		messageHeader.setId(getUUID());
 		return messageHeader;
 	}
-	
+
 	private String constructAndSaveCommunication(String patientId) {
 		String communication ="{\"resourceType\" : \"Communication\",\"meta\" : {\"versionId\" : \"1\",\"profile\" : [\"http://hl7.org/fhir/us/medmorph/StructureDefinition/us-ph-communication\"]},\"extension\" : [{\"url\" : \"http://hl7.org/fhir/us/medmorph/StructureDefinition/ext-responseMessageStatus\",\"valueCodeableConcept\" : {\"coding\" : [{\"system\" :\"http://hl7.org/fhir/us/medmorph/CodeSystem/us-ph-response-message-processing-status\",\"code\" : \"RRVS1\"}]}}],\"identifier\" : [{\"system\" : \"http://example.pha.org/\",\"value\" : \"12345\"}],\"status\" : \"completed\",\"category\" : [{\"coding\" : [{\"system\" : \"http://hl7.org/fhir/us/medmorph/CodeSystem/us-ph-messageheader-message-types\",\"code\" : \"cancer-response-message\"}]}],\"reasonCode\" : [{\"coding\" : [{\"system\" : \"http://hl7.org/fhir/us/medmorph/CodeSystem/us-ph-messageheader-message-types\",\"code\" : \"cancer-report-message\"}]}]}";
 		Communication comm = (Communication) r4Context.newJsonParser().parseResource(communication);
@@ -173,21 +169,20 @@ public class MessageHeaderResourceProvider {
 	}
 
 	public String getUUID() {
-	    UUID uuid = UUID.randomUUID();
-	    String randomUUID = uuid.toString();
-	    return randomUUID;
-	  }
-	
+		UUID uuid = UUID.randomUUID();
+		String randomUUID = uuid.toString();
+		return randomUUID;
+	}
 	public static Properties fetchProperties(){
-        Properties properties = new Properties();
-        try {
-            File file = ResourceUtils.getFile("classpath:application.properties");
-            InputStream in = new FileInputStream(file);
-            properties.load(in);
-        } catch (IOException e) {
-            logger.error(e.getMessage());
-        }
-        return properties;
-    }
+		Properties properties = new Properties();
+		try {
+			File file = ResourceUtils.getFile("classpath:application.properties");
+			InputStream in = new FileInputStream(file);
+			properties.load(in);
+		} catch (IOException e) {
+			logger.error(e.getMessage());
+		}
+		return properties;
+	}
 
 }
