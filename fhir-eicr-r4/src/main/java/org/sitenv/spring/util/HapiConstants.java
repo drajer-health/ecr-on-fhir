@@ -17,4 +17,5 @@ public final class HapiConstants {
     public static final String FHIR_CORE_BIRTH_SEX_SYSTEM = "http://hl7.org/fhir/v3/AdministrativeGender";
 
     public static final String COMMUNICATION_LANGUAGE_SYSTEM = "http://tools.ietf.org/html/bcp47";
+    public static final String EICR_DATA_PROCESS_STATUS = "";
 }

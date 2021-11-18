@@ -66,10 +66,10 @@ public class MessageHeaderResourceProvider {
 			String validatorEndpoint = prop.getProperty("validator.endpoint");
 			outcome = new CommonUtil().validateResource(bundle,validatorEndpoint, r4Context);
 
+			//Convert JSON to XML
 			IParser ip = r4Context.newJsonParser(),
 					op = r4Context.newXmlParser();
-			IBaseResource ri = null;
-			ri = ip.parseResource(request);
+			IBaseResource ri = ip.parseResource(request);
 			String output = op.setPrettyPrint(true).encodeResourceToString(ri);
 
 			System.out.println("XML Output === "+ output );
