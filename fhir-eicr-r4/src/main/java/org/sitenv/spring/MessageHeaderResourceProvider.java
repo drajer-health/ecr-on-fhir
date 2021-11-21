@@ -15,6 +15,7 @@ import org.hl7.fhir.r4.model.OperationOutcome.OperationOutcomeIssueComponent;
 import org.sitenv.spring.configuration.AppConfig;
 import org.sitenv.spring.model.DafBundle;
 import org.sitenv.spring.model.DafCommunication;
+import org.sitenv.spring.service.AmazonClientService;
 import org.sitenv.spring.service.BundleService;
 import org.sitenv.spring.service.CommunicationService;
 import org.sitenv.spring.service.PlanDefinitionService;
@@ -45,12 +46,14 @@ public class MessageHeaderResourceProvider {
 	PlanDefinitionService planDefinition;
 	BundleService bundleService;
 	CommunicationService communicationService;
-
+	AmazonClientService amazonClientService;
+	
 	public MessageHeaderResourceProvider() {
 		context = new AnnotationConfigApplicationContext(AppConfig.class);
 		planDefinition = (PlanDefinitionService) context.getBean("PlanDefinitionService");
 		bundleService = (BundleService) context.getBean("BundleService");
 		communicationService = (CommunicationService) context.getBean("CommunicationService");
+		amazonClientService = (AmazonClientService) context.getBean("AmazonClientService");
 	}
 
 	@Operation(name = "$process-message", idempotent = false)
@@ -72,8 +75,17 @@ public class MessageHeaderResourceProvider {
 			IBaseResource ri = ip.parseResource(request);
 			String output = op.setPrettyPrint(true).encodeResourceToString(ri);
 
-			System.out.println("XML Output === "+ output );
-
+			System.out.println("XML Output === "+ "<?xml version=\"1.0\" encoding=\"UTF-8\"?>\n"+output );
+			try {
+			    // write to s3 
+				//Check for Message Id and Error Handling 
+				amazonClientService.uploads3bucket(getUUID() , "<?xml version=\"1.0\" encoding=\"UTF-8\"?>\n"+output);
+			}catch(Exception e) {
+				e.printStackTrace();
+			}
+			System.out.println("Continuing... " );
+			
+			
 			if (outcome.hasIssue()) {
 				List<OperationOutcomeIssueComponent> issueCompList = outcome.getIssue();
 				for (OperationOutcomeIssueComponent issueComp : issueCompList) {

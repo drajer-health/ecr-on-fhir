@@ -448,6 +448,13 @@
 			<version>1.60</version>
 		</dependency>
 
+		<!--  Spring AWS S3 Library -->
+		 <dependency>
+            <groupId>com.amazonaws</groupId>
+            <artifactId>aws-java-sdk</artifactId>
+            <version>1.12.111</version>
+         </dependency>
+         
 	</dependencies>
 	<build>
 		<plugins>
