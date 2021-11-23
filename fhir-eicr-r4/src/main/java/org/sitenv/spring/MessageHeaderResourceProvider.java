@@ -75,7 +75,8 @@ public class MessageHeaderResourceProvider {
 			IBaseResource ri = ip.parseResource(request);
 			String output = op.setPrettyPrint(true).encodeResourceToString(ri);
 
-			System.out.println("XML Output === "+ "<?xml version=\"1.0\" encoding=\"UTF-8\"?>\n"+output );
+			//System.out.println("XML Output === "+ "<?xml version=\"1.0\" encoding=\"UTF-8\"?>\n"+output );
+			
 			try {
 			    // write to s3 
 				//Check for Message Id and Error Handling 
