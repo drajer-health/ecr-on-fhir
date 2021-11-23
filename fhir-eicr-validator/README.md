@@ -11,16 +11,6 @@ Clone the respository using the below command in command prompt
 ```git clone https://github.com/drajer-health/ecr-on-fhir.git```
 
 Create Build:
-Build R4 Bundle Validation Backend Service:
-
-Then navigate to  fhir-eicr-r4 service directory `/ecr-on-fhir/fhir-eicr-validator/ ` and run Maven build to build application war file.
-
-```
-$ mvn clean install
-```
-
-
-This will generate a war file under target/fhireicrvalidator.war. Copy this to your tomcat webapp directory for deployment.
 
 Build FHIR ValidatorService:
 Navigate to  fhir-eicr-validator service directory `/ecr-on-fhir/fhir-eicr-validator/ ` and run Maven build to build application war file.
