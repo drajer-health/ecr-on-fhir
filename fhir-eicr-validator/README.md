@@ -31,7 +31,7 @@ ENDPOINTS:
 Request Method: POST
 Request Headers:
 
-1.	Content-Type: application/json
+2.	Content-Type: application/json
 
 Request Body: <Bundle Resource>
 ```
