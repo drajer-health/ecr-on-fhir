@@ -25,10 +25,11 @@ public class KeyCloackTokenValidationClient {
     public boolean validateToken(HttpServletRequest request) {
 
         Properties prop = fetchProperties();
-        String authUrl = prop.getProperty("keycloak.auth.server");
-        String realm = prop.getProperty("keycloak.realm");
-        String clientId = prop.getProperty("keycloak.client.id");
-        String clientSecret = prop.getProperty("keycloak.client.secret");
+        String authUrl = System.getProperty("keycloak.auth.server") == null ?  prop.getProperty("keycloak.auth.server") : System.getProperty("keycloak.auth.server");
+        String realm = System.getProperty("keycloak.realm") == null ?  prop.getProperty("keycloak.realm") : System.getProperty("keycloak.realm");
+        String clientId = System.getProperty("keycloak.client.id") == null ?  prop.getProperty("keycloak.client.id") : System.getProperty("keycloak.client.id");
+        String clientSecret = System.getProperty("keycloak.client.secret") == null ?  prop.getProperty("keycloak.client.secret") : System.getProperty("keycloak.client.secret");
+
 
         LOGGER.info("Entry - validateToken Method in KeyCloackTokenValidationClient ");
         boolean validationResponse = false;
