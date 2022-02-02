@@ -66,7 +66,9 @@ public class MessageHeaderResourceProvider {
 		try {
 			String request = r4Context.newJsonParser().encodeResourceToString(bundle);
 			Properties prop = fetchProperties();
-			String validatorEndpoint = prop.getProperty("validator.endpoint");
+			//String validatorEndpoint = prop.getProperty("validator.endpoint");
+			String validatorEndpoint = System.getProperty("validator.endpoint") == null ?  prop.getProperty("validator.endpoint") : System.getProperty("validator.endpoint");
+
 			outcome = new CommonUtil().validateResource(bundle,validatorEndpoint, r4Context);
 
 			//Convert JSON to XML
