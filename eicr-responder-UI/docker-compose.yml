@@ -1,0 +1,62 @@
+version: '3.4'
+services:
+  postgresdb:
+    image: postgres:14.1-alpine
+    container_name: postgres_cont
+    restart: always
+    environment:
+      - POSTGRES_USER=postgres
+      - POSTGRES_PASSWORD=manager1
+    ports:
+      - '5432:5432'
+    volumes: 
+      - db:/var/lib/postgresql/data
+    networks:
+      - dbpost  
+  eicr_responder_service:
+    container_name: eicr_responder_service_cont
+    image: eicr_responder_service_image
+    build:
+      context: ../eicr-responder
+      dockerfile: ../eicr-responder/Dockerfile  
+    depends_on:
+      - postgresdb
+    environment:
+      - DB_HOST=jdbc:postgresql://postgresdb
+      - DB_PORT=5432
+      - DB_USERNAME=postgres
+      - DB_PASSWORD=manager1       
+    links:
+      - postgresdb        
+    ports:
+      - 80:80
+      - 443:443
+      - 8080:8080 
+    external_links:
+      - eicr_responder_service
+    networks:
+      - backend
+      - dbpost
+  eicr_responder_web:
+    container_name: eicr_responder_web_cont
+    image: eicr_responder_web_image
+    build:
+      context: .
+      dockerfile: Dockerfile
+    ports:
+      - 4200:80
+    external_links:
+        - eicr_responder_web
+    networks:
+      - frontend 
+      - backend  
+    # env_file:
+    #   - ./backend.env
+    # command: /bin/sh -c "envsubst '$${SERVER_NAME},$${PORT_BACK_SSL}' < /usr/share/nginx/html/assets/config.templ.json > /usr/share/nginx/html/assets/config.json && exec nginx -g 'daemon off;'"     
+networks:
+  backend:
+  frontend:
+  dbpost:
+volumes:
+  db:
+    driver: local
