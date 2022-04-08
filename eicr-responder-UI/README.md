@@ -27,6 +27,7 @@ Run `ng e2e` to execute the end-to-end tests via a platform of your choice. To u
 ## Test applicaiton is running 
 
 http://localhost:4200/#/configurepha
+
 http://localhost:4200/#/phalist
 
 ## Further help
