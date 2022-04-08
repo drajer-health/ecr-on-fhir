@@ -74,7 +74,3 @@ Request Headers:
 
 1.	Content-Type: application/json
 
-Request Body: <Bundle Resource>
-```
-
-The above requests will provide the response in Bundle Resource after validating the input Bundle
