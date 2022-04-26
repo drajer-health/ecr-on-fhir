@@ -1,0 +1,99 @@
+<div class="center">
+  <h1>Add PHA Routing</h1>
+</div>
+<div class="row">
+  <div class="col-sm-2"> </div>
+  <div class="col-sm-6">
+    <div [hidden]="submitted">
+
+      <form [formGroup]="routingForm" (ngSubmit)="onSubmit()">
+        <!-- <mat-form-field appearance="standard">
+            <mat-label>State Agency</mat-label>
+            <input matInput placeholder="State Agency" formControlName="agencycode">
+            <mat-hint>eg: VA , MD, PA ....</mat-hint>
+             <mat-error>State Agency is required</mat-error> 
+        </mat-form-field> -->
+        <!--<mat-error *ngIf="(routingForm.get('firstname'))!.errors?.minlength"> -->
+        <!--    Please enter more than 10 character	 -->
+        <!-- </mat-error>			-->
+
+        <mat-form-field appearance="fill">
+          <mat-label>State Agency</mat-label>
+          <mat-select required formControlName="agencycode">
+            <mat-option *ngFor="let statesList of statesLists" [value]="statesList.value">
+              {{statesList.viewValue}}
+            </mat-option>
+          </mat-select>
+          <mat-error>State Agency is required</mat-error>
+        </mat-form-field>
+
+
+
+        <mat-form-field appearance="fill">
+          <mat-label>Receiver Protocol</mat-label>
+          <mat-select required formControlName="receiverprotocol">
+            <mat-option *ngFor="let receiverprotocol of recProtocols" [value]="receiverprotocol.value">
+              {{receiverprotocol.viewValue}}
+            </mat-option>
+          </mat-select>
+          <mat-error>Receiver Protocol is required</mat-error>
+        </mat-form-field>
+
+
+        <!-- <mat-form-field appearance="fill">
+  <mat-label>Receiver Protocol</mat-label>
+  <select matNativeControl required formControlName="receiverprotocol">
+    <option value="Direct">Direct</option>
+    <option value="CCDA">CCDA</option>
+    <option value="FHIR">FHIR</option>
+  </select>
+</mat-form-field> -->
+
+        <!-- <mat-form-field appearance="standard">
+            <mat-label>Receiver Protocol</mat-label>
+			<input matInput placeholder="Receiver Protocol" formControlName="receiverprotocol">
+			<mat-error>Receiver Protocol is required</mat-error> 
+        </mat-form-field>	 -->
+
+        <mat-form-field appearance="fill">
+          <mat-label>Content Type</mat-label>
+          <mat-select required formControlName="protocoltype">
+            <mat-option *ngFor="let protocolType of protocolTypes" [value]="protocolType.value">
+              {{protocolType.viewValue}}
+            </mat-option>
+          </mat-select>
+          <mat-error>Protocol Type is required</mat-error>
+        </mat-form-field>
+
+        <!-- <mat-form-field appearance="fill">
+          <mat-label>Protocol Type</mat-label>
+          <select matNativeControl required formControlName="protocoltype">
+            <option value="CCDA">CCDA</option>
+            <option value="FHIR">FHIR</option>
+          </select>
+        </mat-form-field>         -->
+        <!-- <mat-form-field appearance="standard">
+            <mat-label>Protocol Type</mat-label>
+			<input matInput placeholder="Protocol Type" formControlName="protocoltype">
+			<mat-error>Protocol Type is required</mat-error> 
+        </mat-form-field>	 -->
+
+        <mat-form-field appearance="standard">
+          <mat-label>Endpoint URL</mat-label>
+          <input matInput placeholder="Endpoint URL" formControlName="endpointurl">
+          <mat-error>Endpoint URL is required</mat-error>
+        </mat-form-field>
+
+        <mat-form-field appearance="standard">
+          <mat-label>No. Of Retry</mat-label>
+          <input matInput placeholder="No. Of Retry" formControlName="retrycount">
+          <mat-error>Retry Count should be a number and less than 100.</mat-error>
+        </mat-form-field>
+        <p>
+          <button mat-raised-button color="primary" type="submit">Submit</button>
+        </p>
+
+      </form>
+    </div>
+  </div>
+</div>
