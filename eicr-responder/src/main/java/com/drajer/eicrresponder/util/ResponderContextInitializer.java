@@ -169,52 +169,54 @@ public class ResponderContextInitializer {
 			// add metadata to responderRequest
 			responderRequest.setMetadata((MetaData) bodyMap.get(EicrResponderParserContant.META_DATA_FILE).get(0));
 			// log information
-			logger.info("odyMap.get(EicrResponderParserContant.META_DATA_FILE)::::"+bodyMap.get(EicrResponderParserContant.META_DATA_FILE));
+			logger.info("EicrResponderParserContant.META_DATA_FILE::::"+bodyMap.get(EicrResponderParserContant.META_DATA_FILE));
 			saveDataLog(bodyMap.get(EicrResponderParserContant.META_DATA_FILE));
 
-			// create bundles for pha and fhir from XML
-			createBundle(files, responderRequest);
+			if (jurisdictions.size() > 0) {
+				// create bundles for pha and fhir from XML
+				createBundle(files, responderRequest);
 
-			// send request to pha
-			List<ResponseEntity<String>> resonseEntityPha = new ArrayList<ResponseEntity<String>>();
-			StringBuilder processMsg = new StringBuilder();
+				// send request to pha
+				List<ResponseEntity<String>> resonseEntityPha = new ArrayList<ResponseEntity<String>>();
+				StringBuilder processMsg = new StringBuilder();
 
-			logger.info("commonUtil.sendToPha()::::" + CommonUtil.sendToPha());
-			if (CommonUtil.sendToPha()) {
-				logger.info("jurisdictions.size()::::" + jurisdictions.size());
-				if (jurisdictions.size() < 1) {
-					return ResponseEntity.status(HttpStatus.EXPECTATION_FAILED).body("No Valid PHA end point found.");
+				logger.info("commonUtil.sendToPha()::::" + CommonUtil.sendToPha());
+				if (CommonUtil.sendToPha()) {
+					logger.info("jurisdictions.size()::::" + jurisdictions.size());
+					if (jurisdictions.size() < 1) {
+						return ResponseEntity.status(HttpStatus.EXPECTATION_FAILED).body("No Valid PHA end point found.");
+					}
+					resonseEntityPha = submitProcessMessage(responderRequest);
+					logger.info("resonseEntityPha 3333 ::::" + resonseEntityPha.toString());
+					resonseEntityPha.stream().forEach((resonseEntity -> {
+						if (resonseEntity.getStatusCode() != HttpStatus.OK)
+							processMsg.append(resonseEntity.getBody()).append(System.getProperty("line.separator"));
+					}));
 				}
-				resonseEntityPha = submitProcessMessage(responderRequest);
-				logger.info("resonseEntityPha 3333 ::::" + resonseEntityPha.toString());
-				resonseEntityPha.stream().forEach((resonseEntity -> {
-					if (resonseEntity.getStatusCode() != HttpStatus.OK)
-						processMsg.append(resonseEntity.getBody()).append(System.getProperty("line.separator"));
-				}));
-			}
-			logger.info("processMsg value sendToPha 4444::::" + processMsg);
+				logger.info("processMsg value sendToPha 4444::::" + processMsg);
 
-			// send request to fhir
-			FhirRequestConverter fhirRequestConverter = new FhirRequestConverter();
-			FhirRequest fhirRequest = fhirRequestConverter
-					.convertToFhirRequest(bodyMap.get(EicrResponderParserContant.META_DATA_FILE));
-			logger.info("fhirService object:::::"+fhirService);
-			ResponseEntity<String> resonseEntityFhir = fhirService.submitToFhir(fhirRequest, responderRequest);
-			logger.info("resonseEntityFhir toString::::" + resonseEntityFhir.toString());
-			logger.info("resonseEntityFhir getStatusCode::::" + resonseEntityFhir.getStatusCode());
+				// send request to fhir
+				FhirRequestConverter fhirRequestConverter = new FhirRequestConverter();
+				FhirRequest fhirRequest = fhirRequestConverter
+						.convertToFhirRequest(bodyMap.get(EicrResponderParserContant.META_DATA_FILE));
+				logger.info("fhirService object:::::"+fhirService);
+				ResponseEntity<String> resonseEntityFhir = fhirService.submitToFhir(fhirRequest, responderRequest);
+				logger.info("resonseEntityFhir toString::::" + resonseEntityFhir.toString());
+				logger.info("resonseEntityFhir getStatusCode::::" + resonseEntityFhir.getStatusCode());
 
-			if (resonseEntityFhir.getStatusCode() != HttpStatus.OK) {
-				processMsg.append(resonseEntityFhir.getBody()).append(System.getProperty("line.separator"));
-			}
-			logger.info("processMsg value ::::" + processMsg);
-			if (org.apache.commons.lang3.StringUtils.isNotBlank(processMsg)) {
-				return ResponseEntity.status(HttpStatus.EXPECTATION_FAILED).body(processMsg.toString());
+				if (resonseEntityFhir.getStatusCode() != HttpStatus.OK) {
+					processMsg.append(resonseEntityFhir.getBody()).append(System.getProperty("line.separator"));
+				}
+				logger.info("processMsg value ::::" + processMsg);
+				if (org.apache.commons.lang3.StringUtils.isNotBlank(processMsg)) {
+					return ResponseEntity.status(HttpStatus.EXPECTATION_FAILED).body(processMsg.toString());
+				}				
+			}else {
+				message = "No Jurisdiction found.";
 			}
 		} catch (Exception e) {
-			message = "Failed to upload files!";
-//			e.printStackTrace();
 			logger.error(e.getMessage());
-			return ResponseEntity.status(HttpStatus.EXPECTATION_FAILED).body(message);
+			return ResponseEntity.status(HttpStatus.OK).body(message);
 		}
 		return ResponseEntity.status(HttpStatus.OK).body(message);
 	}
