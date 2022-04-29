@@ -171,7 +171,7 @@ public class ResponderContextInitializer {
 			// log information
 			logger.info("EicrResponderParserContant.META_DATA_FILE::::"+bodyMap.get(EicrResponderParserContant.META_DATA_FILE));
 			saveDataLog(bodyMap.get(EicrResponderParserContant.META_DATA_FILE));
-
+			
 			if (jurisdictions.size() > 0) {
 				// create bundles for pha and fhir from XML
 				createBundle(files, responderRequest);
@@ -211,13 +211,14 @@ public class ResponderContextInitializer {
 				if (org.apache.commons.lang3.StringUtils.isNotBlank(processMsg)) {
 					return ResponseEntity.status(HttpStatus.EXPECTATION_FAILED).body(processMsg.toString());
 				}				
-			}else {
-				message = "No Jurisdiction found.";
+			}{
+				message="No Jurisdictions found.";
 			}
 		} catch (Exception e) {
 			logger.error(e.getMessage());
 			return ResponseEntity.status(HttpStatus.OK).body(message);
 		}
+		logger.info("sendToPha message "+message);
 		return ResponseEntity.status(HttpStatus.OK).body(message);
 	}
 
@@ -316,6 +317,8 @@ public class ResponderContextInitializer {
 		if (list.size() > 0) {
 			metaData = (MetaData) list.get(0);
 			responderDataLog.setEicrId(Long.parseLong(metaData.getMessageId()));
+			logger.info("saveDataLog metaData getJurisdictions size::::"+metaData.getJurisdictions().size());
+			if (metaData.getJurisdictions().size() > 0)
 			responderDataLog.setEndpointUrl(metaData.getJurisdictions().get(0).getPhaEndpointUrl());
 			responderDataLog.setEicrReceivedDatatime(Timestamp.from(Instant.now()));
 			responderDataLog.setProcessedStatus("Processing");
