@@ -49,13 +49,14 @@ public class AmazonClientServiceImpl implements AmazonClientService {
 	}
 
 	public String uploads3bucket(String messageId, String xml) {
-
+		logger.error("in uploads3bucket:    " );
 		String s3Key = messageId ; // RequestId/EICR_FHIR.xml
 		ObjectMetadata meta = new ObjectMetadata();
 		meta.setContentLength(xml.getBytes().length);
 		meta.setContentType("application/xml");
 
 		try {
+			logger.error("in bucketName:    " +bucketName);
 			s3client.putObject(bucketName, s3Key, new ByteArrayInputStream(xml.getBytes()), meta);
 			logger.debug("Successfully uploaded to s3 " + bucketName + "/" + s3Key);
 		} catch (AmazonServiceException ase) {

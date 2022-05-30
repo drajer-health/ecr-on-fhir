@@ -46,6 +46,7 @@ import com.drajer.eicrresponder.model.MetaData;
 import com.drajer.eicrresponder.model.ResponderRequest;
 import com.drajer.eicrresponder.parser.EicrResponderParserContant;
 import com.drajer.eicrresponder.service.Interface.FhirService;
+import com.drajer.eicrresponder.service.Interface.PostS3Service;
 import com.fasterxml.jackson.core.exc.StreamReadException;
 import com.fasterxml.jackson.databind.DatabindException;
 import com.fasterxml.jackson.databind.ObjectMapper;
@@ -76,6 +77,9 @@ public class ResponderContextInitializer {
 
 	@Autowired
 	ProcessJurisdictions processJurs;
+	
+	@Autowired
+	PostS3Service postS3Service;
 
 	/**
 	 * @param restTemplateBuilder
@@ -116,10 +120,9 @@ public class ResponderContextInitializer {
 				HttpEntity<?> entity  = new HttpEntity<>(request, headers);
 				ResponseEntity<String> phaResponse = restTemplate.postForEntity(jurisdiction.getPhaEndpointUrl(), entity, String.class);
 				
-				logger.info("PHA response 111::::", phaResponse);
+				logger.info("PHA response submitProcessMessage::::", phaResponse);
 				responses.add(phaResponse);
 			} catch (Exception e) {
-				e.printStackTrace();
 				if (e.getMessage().length() > 200) {
 					logger.error("Error sending pha: "+e.getMessage().substring(0,200));			
 				}else {
@@ -153,7 +156,7 @@ public class ResponderContextInitializer {
 			
 			// read jurisdiction from metadata.xml
 			List<Jurisdiction> jurisdictions = processJurisdictions(files);
-												
+			
 			// add jurisdiction to responder request object
 			responderRequest.setPhaJurisdiction(jurisdictions);
 
@@ -210,7 +213,9 @@ public class ResponderContextInitializer {
 				logger.info("processMsg value ::::" + processMsg);
 				if (org.apache.commons.lang3.StringUtils.isNotBlank(processMsg)) {
 					return ResponseEntity.status(HttpStatus.EXPECTATION_FAILED).body(processMsg.toString());
-				}				
+				}
+				
+				postS3Service.postToS3(responderRequest);
 			}{
 				message="No Jurisdictions found.";
 			}
@@ -243,7 +248,6 @@ public class ResponderContextInitializer {
 					logger.info("after adding jurisdiction metaDataObj json...." + metaData.toString());
 				} catch (Exception e) {
 					logger.info("error processing meta data...."  );// + e.getMessage());
-//					e.printStackTrace();
 				}
 				bodyMap.add(EicrResponderParserContant.META_DATA_FILE, metaData);
 			}
@@ -301,7 +305,7 @@ public class ResponderContextInitializer {
 						logger.info("Unable to findJurisdiction in xml file");
 					}
 				} catch (Exception e) {
-					//e.printStackTrace();
+					logger.error("Error while finding jurisdiction"+e.getMessage());
 				}
 			}
 		});
@@ -381,7 +385,6 @@ public class ResponderContextInitializer {
 			CommonUtil.saveFile(CommonUtil.getTempFilePath()+CommonUtil.getUUID()+".json", output);
 		} catch (Exception e) {
 			logger.error("Error while create bundle  getBundle" + e.getMessage());
-			e.printStackTrace();
 		}
 		return output;
 	}
@@ -397,6 +400,11 @@ public class ResponderContextInitializer {
 		List<String> validFiles = new ArrayList<String>();
 		StringBuilder inValidFiles = new StringBuilder();
 		Arrays.asList(files).stream().forEach(file -> {
+			try {
+				logger.info("file getAbsolutePath :::"+file.getResource().getFile().getAbsolutePath());
+			} catch (IOException e) {
+				logger.info("Error while getting absolute path::"+e.getLocalizedMessage());
+			}
 			if (file.getOriginalFilename().equalsIgnoreCase(EicrResponderParserContant.RR_XML)) {
 				validFiles.add(EicrResponderParserContant.RR_XML);
 			}
