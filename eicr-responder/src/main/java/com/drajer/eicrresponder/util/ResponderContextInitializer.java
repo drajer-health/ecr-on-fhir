@@ -46,6 +46,7 @@ import com.drajer.eicrresponder.model.MetaData;
 import com.drajer.eicrresponder.model.ResponderRequest;
 import com.drajer.eicrresponder.parser.EicrResponderParserContant;
 import com.drajer.eicrresponder.service.Interface.FhirService;
+import com.drajer.eicrresponder.service.Interface.PostS3Service;
 import com.fasterxml.jackson.core.exc.StreamReadException;
 import com.fasterxml.jackson.databind.DatabindException;
 import com.fasterxml.jackson.databind.ObjectMapper;
@@ -66,6 +67,7 @@ public class ResponderContextInitializer {
 	private DocumentBuilder builder;
 	private final String SAVE_RESPONDER_DATA_LOG = "responderlog";
 	private static final String RESPONDER_ENDPOINT = "responder.endpoint";
+	private static final String SUCCESS_MESSAGE ="Send Message to PHA successfull";
 	protected FhirContext r4Context = FhirContext.forR4();
 	
 	@Autowired
@@ -76,6 +78,9 @@ public class ResponderContextInitializer {
 
 	@Autowired
 	ProcessJurisdictions processJurs;
+	
+	@Autowired
+	PostS3Service postS3Service;
 
 	/**
 	 * @param restTemplateBuilder
@@ -116,10 +121,9 @@ public class ResponderContextInitializer {
 				HttpEntity<?> entity  = new HttpEntity<>(request, headers);
 				ResponseEntity<String> phaResponse = restTemplate.postForEntity(jurisdiction.getPhaEndpointUrl(), entity, String.class);
 				
-				logger.info("PHA response 111::::", phaResponse);
+				logger.info("PHA response submitProcessMessage::::", phaResponse);
 				responses.add(phaResponse);
 			} catch (Exception e) {
-				e.printStackTrace();
 				if (e.getMessage().length() > 200) {
 					logger.error("Error sending pha: "+e.getMessage().substring(0,200));			
 				}else {
@@ -138,7 +142,7 @@ public class ResponderContextInitializer {
 	 * @param files
 	 * @return ResponseEntity<String>
 	 */
-	public ResponseEntity<String> sendToPha(MultipartFile[] files) {
+	public ResponseEntity<String> sendToPha(MultipartFile[] files,String folderName) {
 		String message = "Sent file to PHA";
 		try {
 			logger.info("Sending files to PHA FHIR 1111.....");
@@ -150,13 +154,14 @@ public class ResponderContextInitializer {
 			message = checkFilesValid(files);
 			if (!message.isEmpty())
 			return ResponseEntity.status(HttpStatus.EXPECTATION_FAILED).body(message);
+			message = SUCCESS_MESSAGE;
 			
 			// read jurisdiction from metadata.xml
 			List<Jurisdiction> jurisdictions = processJurisdictions(files);
-												
+	
 			// add jurisdiction to responder request object
 			responderRequest.setPhaJurisdiction(jurisdictions);
-
+						
 			// add jurisdiction values to metadata object
 			MultiValueMap<String, Object> bodyMap = processMetaData(files, jurisdictions);
 			logger.info("META_DATA_FILE after adding Jurisdiction 2222::::"
@@ -169,53 +174,61 @@ public class ResponderContextInitializer {
 			// add metadata to responderRequest
 			responderRequest.setMetadata((MetaData) bodyMap.get(EicrResponderParserContant.META_DATA_FILE).get(0));
 			// log information
-			logger.info("odyMap.get(EicrResponderParserContant.META_DATA_FILE)::::"+bodyMap.get(EicrResponderParserContant.META_DATA_FILE));
+			logger.info("EicrResponderParserContant.META_DATA_FILE::::"+bodyMap.get(EicrResponderParserContant.META_DATA_FILE));
 			saveDataLog(bodyMap.get(EicrResponderParserContant.META_DATA_FILE));
+			
+			if (jurisdictions.size() > 0) {
+				// create bundles for pha and fhir from XML
+				createBundle(files, responderRequest);
 
-			// create bundles for pha and fhir from XML
-			createBundle(files, responderRequest);
+				// send request to pha
+				List<ResponseEntity<String>> resonseEntityPha = new ArrayList<ResponseEntity<String>>();
+				StringBuilder processMsg = new StringBuilder();
 
-			// send request to pha
-			List<ResponseEntity<String>> resonseEntityPha = new ArrayList<ResponseEntity<String>>();
-			StringBuilder processMsg = new StringBuilder();
-
-			logger.info("commonUtil.sendToPha()::::" + CommonUtil.sendToPha());
-			if (CommonUtil.sendToPha()) {
-				logger.info("jurisdictions.size()::::" + jurisdictions.size());
-				if (jurisdictions.size() < 1) {
-					return ResponseEntity.status(HttpStatus.EXPECTATION_FAILED).body("No Valid PHA end point found.");
+				logger.info("commonUtil.sendToPha()::::" + CommonUtil.sendToPha());
+				if (CommonUtil.sendToPha()) {
+					logger.info("jurisdictions.size()::::" + jurisdictions.size());
+					if (jurisdictions.size() < 1) {
+						return ResponseEntity.status(HttpStatus.EXPECTATION_FAILED).body("No Valid PHA end point found.");
+					}
+					resonseEntityPha = submitProcessMessage(responderRequest);
+					logger.info("resonseEntityPha 3333 ::::" + resonseEntityPha.toString());
+					resonseEntityPha.stream().forEach((resonseEntity -> {
+						if (resonseEntity.getStatusCode() != HttpStatus.OK)
+							processMsg.append(resonseEntity.getBody()).append(System.getProperty("line.separator"));
+					}));
 				}
-				resonseEntityPha = submitProcessMessage(responderRequest);
-				logger.info("resonseEntityPha 3333 ::::" + resonseEntityPha.toString());
-				resonseEntityPha.stream().forEach((resonseEntity -> {
-					if (resonseEntity.getStatusCode() != HttpStatus.OK)
-						processMsg.append(resonseEntity.getBody()).append(System.getProperty("line.separator"));
-				}));
-			}
-			logger.info("processMsg value sendToPha 4444::::" + processMsg);
+				logger.info("processMsg value sendToPha 4444::::" + processMsg);
 
-			// send request to fhir
-			FhirRequestConverter fhirRequestConverter = new FhirRequestConverter();
-			FhirRequest fhirRequest = fhirRequestConverter
-					.convertToFhirRequest(bodyMap.get(EicrResponderParserContant.META_DATA_FILE));
-			logger.info("fhirService object:::::"+fhirService);
-			ResponseEntity<String> resonseEntityFhir = fhirService.submitToFhir(fhirRequest, responderRequest);
-			logger.info("resonseEntityFhir toString::::" + resonseEntityFhir.toString());
-			logger.info("resonseEntityFhir getStatusCode::::" + resonseEntityFhir.getStatusCode());
+				// send request to fhir
+				FhirRequestConverter fhirRequestConverter = new FhirRequestConverter();
+				FhirRequest fhirRequest = fhirRequestConverter
+						.convertToFhirRequest(bodyMap.get(EicrResponderParserContant.META_DATA_FILE));
+				logger.info("fhirService object:::::"+fhirService);
+				ResponseEntity<String> resonseEntityFhir = fhirService.submitToFhir(fhirRequest, responderRequest);
+				logger.info("resonseEntityFhir toString::::" + resonseEntityFhir.toString());
+				logger.info("resonseEntityFhir getStatusCode::::" + resonseEntityFhir.getStatusCode());
 
-			if (resonseEntityFhir.getStatusCode() != HttpStatus.OK) {
-				processMsg.append(resonseEntityFhir.getBody()).append(System.getProperty("line.separator"));
-			}
-			logger.info("processMsg value ::::" + processMsg);
-			if (org.apache.commons.lang3.StringUtils.isNotBlank(processMsg)) {
-				return ResponseEntity.status(HttpStatus.EXPECTATION_FAILED).body(processMsg.toString());
+				if (resonseEntityFhir.getStatusCode() != HttpStatus.OK) {
+					processMsg.append(resonseEntityFhir.getBody()).append(System.getProperty("line.separator"));
+				}
+				logger.info("processMsg value ::::" + processMsg);
+				if (org.apache.commons.lang3.StringUtils.isNotBlank(processMsg)) {
+					return ResponseEntity.status(HttpStatus.EXPECTATION_FAILED).body(processMsg.toString());
+				}
+				
+				String[] s3PostResponse = postS3Service.postToS3(responderRequest, folderName);
+				if (Arrays.asList(s3PostResponse).toString().contains("Error")){
+					message="Error uploading files to S3.";
+				}
+			}else{
+				message="No Jurisdictions found.";
 			}
 		} catch (Exception e) {
-			message = "Failed to upload files!";
-//			e.printStackTrace();
 			logger.error(e.getMessage());
-			return ResponseEntity.status(HttpStatus.EXPECTATION_FAILED).body(message);
+			return ResponseEntity.status(HttpStatus.OK).body(message);
 		}
+		logger.info("sendToPha message "+message);
 		return ResponseEntity.status(HttpStatus.OK).body(message);
 	}
 
@@ -240,7 +253,6 @@ public class ResponderContextInitializer {
 					logger.info("after adding jurisdiction metaDataObj json...." + metaData.toString());
 				} catch (Exception e) {
 					logger.info("error processing meta data...."  );// + e.getMessage());
-//					e.printStackTrace();
 				}
 				bodyMap.add(EicrResponderParserContant.META_DATA_FILE, metaData);
 			}
@@ -298,7 +310,7 @@ public class ResponderContextInitializer {
 						logger.info("Unable to findJurisdiction in xml file");
 					}
 				} catch (Exception e) {
-					//e.printStackTrace();
+					logger.error("Error while finding jurisdiction"+e.getMessage());
 				}
 			}
 		});
@@ -314,6 +326,8 @@ public class ResponderContextInitializer {
 		if (list.size() > 0) {
 			metaData = (MetaData) list.get(0);
 			responderDataLog.setEicrId(Long.parseLong(metaData.getMessageId()));
+			logger.info("saveDataLog metaData getJurisdictions size::::"+metaData.getJurisdictions().size());
+			if (metaData.getJurisdictions().size() > 0)
 			responderDataLog.setEndpointUrl(metaData.getJurisdictions().get(0).getPhaEndpointUrl());
 			responderDataLog.setEicrReceivedDatatime(Timestamp.from(Instant.now()));
 			responderDataLog.setProcessedStatus("Processing");
@@ -376,7 +390,6 @@ public class ResponderContextInitializer {
 			CommonUtil.saveFile(CommonUtil.getTempFilePath()+CommonUtil.getUUID()+".json", output);
 		} catch (Exception e) {
 			logger.error("Error while create bundle  getBundle" + e.getMessage());
-			e.printStackTrace();
 		}
 		return output;
 	}
@@ -392,6 +405,11 @@ public class ResponderContextInitializer {
 		List<String> validFiles = new ArrayList<String>();
 		StringBuilder inValidFiles = new StringBuilder();
 		Arrays.asList(files).stream().forEach(file -> {
+			try {
+				logger.info("file getAbsolutePath :::"+file.getResource().getFile().getAbsolutePath());
+			} catch (IOException e) {
+				logger.info("Error while getting absolute path::"+e.getLocalizedMessage());
+			}
 			if (file.getOriginalFilename().equalsIgnoreCase(EicrResponderParserContant.RR_XML)) {
 				validFiles.add(EicrResponderParserContant.RR_XML);
 			}

@@ -35,8 +35,9 @@ public class ReceiveDataController {
 	 * @return ResponseEntity<String> Send bundle to health care and PHA
 	 */
 	@PostMapping("/receiveeicrrdata")
-	public ResponseEntity<String> uploadFiles(@RequestParam("files") MultipartFile[] files) {
+	public ResponseEntity<String> uploadFiles(@RequestParam("files") MultipartFile[] files,String folderName) {
 		logger.info("Invoke send bundle....");
-		return responderService.sendResponder(files);
+		logger.info("ReceiveDataController folderName:    " +folderName);
+		return responderService.sendResponder(files,folderName);
 	}
 }
