@@ -1,5 +1,6 @@
 package com.drajer.eicrresponder.service.impl;
 
+import java.util.Arrays;
 import java.util.UUID;
 
 import javax.transaction.Transactional;
@@ -40,7 +41,7 @@ public class PostS3ServiceImpl implements PostS3Service {
 	AmazonClientService amazonClientService;
 
 	@Override
-	public String[] postToS3(ResponderRequest responderRequest) {
+	public String[] postToS3(ResponderRequest responderRequest,String folderName) {
 		String[] s3PostResponse = new String[3];
 
 		// create reporting bundle
@@ -54,7 +55,7 @@ public class PostS3ServiceImpl implements PostS3Service {
 				logger.info("before uploads3bucket::::" + amazonClientService);
 				s3PostResponse[0] = amazonClientService.uploads3bucket(
 						UUID.randomUUID().toString() + "/" + EicrResponderParserContant.RR_XML,
-						"<?xml version=\"1.0\" encoding=\"UTF-8\"?>\n" + getOutput(request));
+						"<?xml version=\"1.0\" encoding=\"UTF-8\"?>\n" + getOutput(request),folderName);
 				logger.info("after upload RR_XML response::::" + s3PostResponse[0]);
 
 				reportingBundle = getBundle((String) responderRequest.getEicrObject(), responderRequest.getMetadata(),
@@ -62,7 +63,7 @@ public class PostS3ServiceImpl implements PostS3Service {
 				request = r4Context.newJsonParser().encodeResourceToString(reportingBundle);
 				s3PostResponse[1] = amazonClientService.uploads3bucket(
 						UUID.randomUUID().toString() + "/" + EicrResponderParserContant.EICR_FHIR_XML,
-						"<?xml version=\"1.0\" encoding=\"UTF-8\"?>\n" + getOutput(request));
+						"<?xml version=\"1.0\" encoding=\"UTF-8\"?>\n" + getOutput(request),folderName);
 				logger.info("after upload EICR_FHIR_XML response ::::" + s3PostResponse[1]);
 
 				ObjectMapper mapper = new ObjectMapper();
@@ -72,15 +73,15 @@ public class PostS3ServiceImpl implements PostS3Service {
 				logger.info("before metadata josn uploads3bucket ::::"+reportingBundle.fhirType());
 				s3PostResponse[2] = amazonClientService.uploads3bucket(
 						UUID.randomUUID().toString() + "/" + EicrResponderParserContant.META_DATA_JSON,
-						"<?xml version=\"1.0\" encoding=\"UTF-8\"?>\n" + xml);
+						"<?xml version=\"1.0\" encoding=\"UTF-8\"?>\n" + xml, folderName);
 				logger.info("after upload META_DATA_JSON response ::::" + s3PostResponse[2]);
 
-				logger.info("after uploads3bucket::::");
 			} catch (Exception e) {
 				e.printStackTrace();
 				logger.info("Error posting to s3 bucket" + e.getMessage());
 			}
 		}
+		logger.info("s3PostResponse postToS3::::"+Arrays.asList(s3PostResponse).toString());
 		return s3PostResponse;
 	}
 

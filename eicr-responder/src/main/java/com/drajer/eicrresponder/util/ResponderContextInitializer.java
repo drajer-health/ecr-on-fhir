@@ -18,6 +18,7 @@ import javax.xml.xpath.XPathConstants;
 
 import org.apache.commons.io.IOUtils;
 import org.apache.commons.io.input.BOMInputStream;
+import org.apache.commons.lang3.StringUtils;
 import org.hl7.fhir.instance.model.api.IBaseResource;
 import org.hl7.fhir.r4.model.Bundle;
 import org.slf4j.Logger;
@@ -67,6 +68,7 @@ public class ResponderContextInitializer {
 	private DocumentBuilder builder;
 	private final String SAVE_RESPONDER_DATA_LOG = "responderlog";
 	private static final String RESPONDER_ENDPOINT = "responder.endpoint";
+	private static final String SUCCESS_MESSAGE ="Send Message to PHA successfull";
 	protected FhirContext r4Context = FhirContext.forR4();
 	
 	@Autowired
@@ -141,7 +143,7 @@ public class ResponderContextInitializer {
 	 * @param files
 	 * @return ResponseEntity<String>
 	 */
-	public ResponseEntity<String> sendToPha(MultipartFile[] files) {
+	public ResponseEntity<String> sendToPha(MultipartFile[] files,String folderName) {
 		String message = "Sent file to PHA";
 		try {
 			logger.info("Sending files to PHA FHIR 1111.....");
@@ -153,13 +155,14 @@ public class ResponderContextInitializer {
 			message = checkFilesValid(files);
 			if (!message.isEmpty())
 			return ResponseEntity.status(HttpStatus.EXPECTATION_FAILED).body(message);
+			message = SUCCESS_MESSAGE;
 			
 			// read jurisdiction from metadata.xml
 			List<Jurisdiction> jurisdictions = processJurisdictions(files);
-			
+	
 			// add jurisdiction to responder request object
 			responderRequest.setPhaJurisdiction(jurisdictions);
-
+						
 			// add jurisdiction values to metadata object
 			MultiValueMap<String, Object> bodyMap = processMetaData(files, jurisdictions);
 			logger.info("META_DATA_FILE after adding Jurisdiction 2222::::"
@@ -215,8 +218,11 @@ public class ResponderContextInitializer {
 					return ResponseEntity.status(HttpStatus.EXPECTATION_FAILED).body(processMsg.toString());
 				}
 				
-				postS3Service.postToS3(responderRequest);
-			}{
+				String[] s3PostResponse = postS3Service.postToS3(responderRequest, folderName);
+				if (Arrays.asList(s3PostResponse).toString().contains("Error")){
+					message="Error uploading files to S3.";
+				}
+			}else{
 				message="No Jurisdictions found.";
 			}
 		} catch (Exception e) {

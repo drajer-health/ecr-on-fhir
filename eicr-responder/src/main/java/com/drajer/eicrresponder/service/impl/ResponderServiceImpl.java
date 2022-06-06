@@ -29,8 +29,8 @@ public class ResponderServiceImpl implements ResponderService {
 	 * return ResponseEntity<String
 	 */
 	@Override
-	public ResponseEntity<String> sendResponder(MultipartFile[] files) {
+	public ResponseEntity<String> sendResponder(MultipartFile[] files,String folderName) {
 		logger.info("Sending RR Bundle....");
-		return responderContextInitializer.sendToPha(files);
+		return responderContextInitializer.sendToPha(files, folderName);
 	}
 }

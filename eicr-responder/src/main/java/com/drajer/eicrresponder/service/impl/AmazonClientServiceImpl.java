@@ -48,7 +48,7 @@ public class AmazonClientServiceImpl implements AmazonClientService {
 				.withCredentials(new AWSStaticCredentialsProvider(credentials)).build();
 	}
 
-	public String uploads3bucket(String messageId, String xml) {
+	public String uploads3bucket(String messageId, String xml,String folderName) {
 		logger.info("in uploads3bucket:    " );
 		String s3Key = messageId ; // RequestId/EICR_FHIR.xml
 		ObjectMetadata meta = new ObjectMetadata();
@@ -56,6 +56,7 @@ public class AmazonClientServiceImpl implements AmazonClientService {
 		meta.setContentType("application/xml");
 
 		try {
+			bucketName = bucketName.concat("/").concat(folderName);
 			logger.info("in bucketName:    " +bucketName);
 			s3client.putObject(bucketName, s3Key, new ByteArrayInputStream(xml.getBytes()), meta);
 			logger.debug("Successfully uploaded to s3 " + bucketName + "/" + s3Key);

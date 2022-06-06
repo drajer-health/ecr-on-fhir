@@ -10,5 +10,5 @@ import org.springframework.web.multipart.MultipartFile;
  */
 public interface ResponderService {
 
-	ResponseEntity<String> sendResponder(@RequestParam("files") MultipartFile[] files);
+	ResponseEntity<String> sendResponder(@RequestParam("files") MultipartFile[] files,String folderName);
 }
