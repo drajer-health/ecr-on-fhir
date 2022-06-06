@@ -1,14 +1,10 @@
 package com.drajer.eicrresponder.service.impl;
 
 import java.util.Arrays;
-import java.util.UUID;
-
 import javax.transaction.Transactional;
 
 import org.hl7.fhir.instance.model.api.IBaseResource;
 import org.hl7.fhir.r4.model.Bundle;
-import org.json.JSONObject;
-import org.json.XML;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 import org.springframework.beans.factory.annotation.Autowired;
@@ -54,26 +50,24 @@ public class PostS3ServiceImpl implements PostS3Service {
 				// Check for Message Id and Error Handling
 				logger.info("before uploads3bucket::::" + amazonClientService);
 				s3PostResponse[0] = amazonClientService.uploads3bucket(
-						UUID.randomUUID().toString() + "/" + EicrResponderParserContant.RR_XML,
-						"<?xml version=\"1.0\" encoding=\"UTF-8\"?>\n" + getOutput(request),folderName);
+					 EicrResponderParserContant.RR_JSON,
+					 getOutput(request),folderName);
 				logger.info("after upload RR_XML response::::" + s3PostResponse[0]);
 
 				reportingBundle = getBundle((String) responderRequest.getEicrObject(), responderRequest.getMetadata(),
 						"eicr");
 				request = r4Context.newJsonParser().encodeResourceToString(reportingBundle);
 				s3PostResponse[1] = amazonClientService.uploads3bucket(
-						UUID.randomUUID().toString() + "/" + EicrResponderParserContant.EICR_FHIR_XML,
-						"<?xml version=\"1.0\" encoding=\"UTF-8\"?>\n" + getOutput(request),folderName);
+						EicrResponderParserContant.EICR_FHIR_JSON,
+						getOutput(request),folderName);
 				logger.info("after upload EICR_FHIR_XML response ::::" + s3PostResponse[1]);
 
 				ObjectMapper mapper = new ObjectMapper();
 				String jsonStr = mapper.writeValueAsString(responderRequest.getMetadata());
-				JSONObject json = new JSONObject(jsonStr);
-				String xml = XML.toString(json);				
 				logger.info("before metadata josn uploads3bucket ::::"+reportingBundle.fhirType());
 				s3PostResponse[2] = amazonClientService.uploads3bucket(
-						UUID.randomUUID().toString() + "/" + EicrResponderParserContant.META_DATA_JSON,
-						"<?xml version=\"1.0\" encoding=\"UTF-8\"?>\n" + xml, folderName);
+						EicrResponderParserContant.META_DATA_JSON,
+						jsonStr, folderName);
 				logger.info("after upload META_DATA_JSON response ::::" + s3PostResponse[2]);
 
 			} catch (Exception e) {
@@ -86,14 +80,10 @@ public class PostS3ServiceImpl implements PostS3Service {
 	}
 
 	private String getOutput(String request) {
-		// write to s3
-//		logger.info("request after encodeResourceToString:::::"+request);
-		// to store in S3 convert to XML
-		// Convert JSON to XML
-		IParser ip = r4Context.newJsonParser(), op = r4Context.newXmlParser();
+		IParser ip = r4Context.newJsonParser();
 		IBaseResource ri = ip.parseResource(request);
 		logger.info("before encodeResourceToString::::" + ri);
-		String output = op.setPrettyPrint(true).encodeResourceToString(ri); //
+		String output = ip.setPrettyPrint(true).encodeResourceToString(ri); //
 		return output;
 	}
 

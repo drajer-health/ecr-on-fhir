@@ -37,6 +37,7 @@ public class ReceiveDataController {
 	@PostMapping("/receiveeicrrdata")
 	public ResponseEntity<String> uploadFiles(@RequestParam("files") MultipartFile[] files,String folderName) {
 		logger.info("Invoke send bundle....");
+		logger.info("ReceiveDataController folderName:    " +folderName);
 		return responderService.sendResponder(files,folderName);
 	}
 }

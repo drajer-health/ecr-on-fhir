@@ -20,6 +20,8 @@ public class EicrResponderParserContant {
 	public static final XPathExpression EICR_PARTICIPANT_EXP;
 	public static final String RR_XML = "RR_FHIR.xml";
 	public static final String EICR_FHIR_XML = "EICR_FHIR.xml";
+	public static final String RR_JSON = "RR_FHIR.json";
+	public static final String EICR_FHIR_JSON = "EICR_FHIR.json";	
 	public static final String META_DATA_JSON = "metadata.json";
 	public static final String JUD_PARTICIPANT_ROLE = "participantRole";
 	public static final String JUD_ADDR = "addr";

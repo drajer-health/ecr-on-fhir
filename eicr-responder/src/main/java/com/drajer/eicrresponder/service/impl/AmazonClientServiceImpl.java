@@ -54,12 +54,14 @@ public class AmazonClientServiceImpl implements AmazonClientService {
 		ObjectMetadata meta = new ObjectMetadata();
 		meta.setContentLength(xml.getBytes().length);
 		meta.setContentType("application/xml");
+		
+		String fullPath = bucketName+"/"+folderName;
 
 		try {
-			bucketName = bucketName.concat("/").concat(folderName);
-			logger.info("in bucketName:    " +bucketName);
-			s3client.putObject(bucketName, s3Key, new ByteArrayInputStream(xml.getBytes()), meta);
-			logger.debug("Successfully uploaded to s3 " + bucketName + "/" + s3Key);
+			logger.info("uploads3bucket folderName:    " +folderName);
+			logger.info("in fullPath:    " +fullPath);
+			s3client.putObject(fullPath, s3Key, new ByteArrayInputStream(xml.getBytes()), meta);
+			logger.debug("Successfully uploaded to s3 " + fullPath + "/" + s3Key);
 		} catch (AmazonServiceException ase) {
 			logger.error("Error Message:    " + ase.getMessage());
 			logger.error("HTTP Status Code: " + ase.getStatusCode());
@@ -72,7 +74,7 @@ public class AmazonClientServiceImpl implements AmazonClientService {
 			logger.error("StackTrace:       " + ace.getStackTrace());
 			return "Fail to upload Client Exception; messageId " + messageId + "Error Message: " + ace.getMessage();
 		}
-		return "Successfully uploaded to s3 " + bucketName + "/" + s3Key;
+		return "Successfully uploaded to s3 " + fullPath + "/" + s3Key;
 	}
 
 }
