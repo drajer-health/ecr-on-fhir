@@ -1,7 +1,10 @@
 package org.sitenv.spring.service;
 
+import org.sitenv.spring.model.MetaData;
+
 public interface AmazonClientService {
 
-	String uploads3bucket(String messageId, String xml);
+	String uploadBundle3bucket(String messageId, String xml);
+	String uploadMetaDataS3bucket(String messageId, MetaData metaData);
 	
 }

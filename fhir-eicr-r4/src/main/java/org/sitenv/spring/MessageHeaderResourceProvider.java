@@ -15,6 +15,7 @@ import org.hl7.fhir.r4.model.OperationOutcome.OperationOutcomeIssueComponent;
 import org.sitenv.spring.configuration.AppConfig;
 import org.sitenv.spring.model.DafBundle;
 import org.sitenv.spring.model.DafCommunication;
+import org.sitenv.spring.model.MetaData;
 import org.sitenv.spring.service.AmazonClientService;
 import org.sitenv.spring.service.BundleService;
 import org.sitenv.spring.service.CommunicationService;
@@ -62,32 +63,49 @@ public class MessageHeaderResourceProvider {
 		logger.info("Validating the Bundle");
 		Bundle bundle	 = theMessageToProcess;
 		OperationOutcome outcome = new OperationOutcome();
+		MetaData metaData = new MetaData();
+
 		boolean errorExists = false;
 		try {
-			String request = r4Context.newJsonParser().encodeResourceToString(bundle);
-			Properties prop = fetchProperties();
-			//String validatorEndpoint = prop.getProperty("validator.endpoint");
-			String validatorEndpoint = System.getProperty("validator.endpoint") == null ?  prop.getProperty("validator.endpoint") : System.getProperty("validator.endpoint");
+			String requestBdl="";
 
+			for (BundleEntryComponent next : bundle.getEntry()) {
+				if(next.getResource() instanceof MessageHeader){
+					MessageHeader msgHeader	= (MessageHeader) next.getResource();
+					metaData.setMessageId(((IdType)msgHeader.getIdElement()).getIdPart());
+					metaData.setSenderUrl(msgHeader.getSource().getEndpoint());
+				}
+				if (next.getResource() instanceof Bundle) {
+					Bundle nextBdl = (Bundle) next.getResource();
+					requestBdl  = r4Context.newJsonParser().encodeResourceToString(nextBdl);
+					//System.out.println("Bundle Entry Resource == > "+ requestBdl);
+				}
+			}
+
+			Properties prop = fetchProperties();
+			String validatorEndpoint = System.getProperty("validator.endpoint") == null ?  prop.getProperty("validator.endpoint") : System.getProperty("validator.endpoint");
 			outcome = new CommonUtil().validateResource(bundle,validatorEndpoint, r4Context);
 
 			//Convert JSON to XML
 			IParser ip = r4Context.newJsonParser(),
 					op = r4Context.newXmlParser();
-			IBaseResource ri = ip.parseResource(request);
+			IBaseResource ri = ip.parseResource(requestBdl);
 			String output = op.setPrettyPrint(true).encodeResourceToString(ri);
 
 			//System.out.println("XML Output === "+ "<?xml version=\"1.0\" encoding=\"UTF-8\"?>\n"+output );
-			
+
+			// write to s3
 			try {
-			    // write to s3 
-				//Check for Message Id and Error Handling 
-				amazonClientService.uploads3bucket(getUUID() , "<?xml version=\"1.0\" encoding=\"UTF-8\"?>\n"+output);
+				// Write Meta Data
+				amazonClientService.uploadMetaDataS3bucket(metaData.getMessageId(), metaData);
+
+				//Check for Message Id and Error Handling
+				amazonClientService.uploadBundle3bucket(metaData.getMessageId() , "<?xml version=\"1.0\" encoding=\"UTF-8\"?>\n"+output);
 			}catch(Exception e) {
 				e.printStackTrace();
 			}
 			System.out.println("Continuing... " );
-			
+
 			
 			if (outcome.hasIssue()) {
 				List<OperationOutcomeIssueComponent> issueCompList = outcome.getIssue();
@@ -101,7 +119,6 @@ public class MessageHeaderResourceProvider {
 				DafBundle dafBundle = new DafBundle();
 				bundle.setId(getUUID());
 				dafBundle.setEicrData(r4Context.newJsonParser().encodeResourceToString(bundle));
-				//dafBundle.setEicrValidateResult(outcome.get);
 				dafBundle.setEicrDataProcessStatus("RECEIVED");
 				dafBundle.setCreatedDate(new Date());
 				bundleService.createBundle(dafBundle);
