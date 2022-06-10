@@ -62,6 +62,7 @@ public class MessageHeaderResourceProvider {
 								 @OperationParam(name = "content", min = 1, max = 1) @Description(formalDefinition = "The message to process (or, if using asynchronous messaging, it may be a response message to accept)") Bundle theMessageToProcess) {
 		logger.info("Validating the Bundle");
 		Bundle bundle	 = theMessageToProcess;
+		Bundle resourceBdl = new Bundle();
 		OperationOutcome outcome = new OperationOutcome();
 		MetaData metaData = new MetaData();
 
@@ -76,15 +77,15 @@ public class MessageHeaderResourceProvider {
 					metaData.setSenderUrl(msgHeader.getSource().getEndpoint());
 				}
 				if (next.getResource() instanceof Bundle) {
-					Bundle nextBdl = (Bundle) next.getResource();
-					requestBdl  = r4Context.newJsonParser().encodeResourceToString(nextBdl);
+					resourceBdl = (Bundle) next.getResource();
+					requestBdl  = r4Context.newJsonParser().encodeResourceToString(resourceBdl);
 					//System.out.println("Bundle Entry Resource == > "+ requestBdl);
 				}
 			}
 
 			Properties prop = fetchProperties();
 			String validatorEndpoint = System.getProperty("validator.endpoint") == null ?  prop.getProperty("validator.endpoint") : System.getProperty("validator.endpoint");
-			outcome = new CommonUtil().validateResource(bundle,validatorEndpoint, r4Context);
+			outcome = new CommonUtil().validateResource(resourceBdl,validatorEndpoint, r4Context);
 
 			//Convert JSON to XML
 			IParser ip = r4Context.newJsonParser(),
@@ -104,9 +105,7 @@ public class MessageHeaderResourceProvider {
 			}catch(Exception e) {
 				e.printStackTrace();
 			}
-			System.out.println("Continuing... " );
 
-			
 			if (outcome.hasIssue()) {
 				List<OperationOutcomeIssueComponent> issueCompList = outcome.getIssue();
 				for (OperationOutcomeIssueComponent issueComp : issueCompList) {
@@ -117,87 +116,24 @@ public class MessageHeaderResourceProvider {
 			}
 			if (!errorExists) {
 				DafBundle dafBundle = new DafBundle();
-				bundle.setId(getUUID());
+				bundle.setId(metaData.getMessageId());
 				dafBundle.setEicrData(r4Context.newJsonParser().encodeResourceToString(bundle));
 				dafBundle.setEicrDataProcessStatus("RECEIVED");
 				dafBundle.setCreatedDate(new Date());
 				bundleService.createBundle(dafBundle);
-				MessageHeader messageHeader = null;
-				String patientId = null;
-				String commId =null;
-				for(BundleEntryComponent entryComp: bundle.getEntry()) {
-					if(entryComp.getResource().getResourceType().name().equals("MessageHeader")) {
-						messageHeader = (MessageHeader) entryComp.getResource();
-						messageHeader.setId(getUUID());
-						Meta meta = messageHeader.getMeta();
-						meta.setLastUpdated(new Date());
-						messageHeader.setMeta(meta);
-					} else if(entryComp.getResource().getResourceType().name().equals("Bundle")) {
-						Bundle innerBundle = (Bundle) entryComp.getResource();
-						for(BundleEntryComponent bundleEntryComponent:innerBundle.getEntry()) {
-							if(bundleEntryComponent.getResource().getResourceType().name().equals("Patient")) {
-								patientId = bundleEntryComponent.getResource().getIdElement().getIdPart().toString();
-							}
-						}
-					}
-				}
-				if(patientId!= null) {
-					commId = constructAndSaveCommunication(patientId);
-				}
-				if(messageHeader == null) {
-					messageHeader = constructMessageHeaderResource();
-				}
-				if(commId != null) {
-					List<Reference> referenceList = new ArrayList<Reference>();
-					Reference commRef = new Reference();
-					commRef.setReference("Communication/"+commId);
-					referenceList.add(commRef);
-					messageHeader.setFocus(referenceList);
-				}
-
-				Bundle respbundle = new Bundle();
-				respbundle.setId(getUUID());
-				List<BundleEntryComponent> entryCompList = new ArrayList<>();
-				BundleEntryComponent entryComp = new BundleEntryComponent();
-				entryComp.setResource(messageHeader);
-				entryCompList.add(entryComp);
-				respbundle.setEntry(entryCompList);
-				return respbundle;
-			} else {
-				Bundle responseBundle = new Bundle();
-				List<BundleEntryComponent> bundleEntryList = new ArrayList<>();
-				BundleEntryComponent entryComp = new BundleEntryComponent();
-				entryComp.setResource(outcome);
-				bundleEntryList.add(entryComp);
-				responseBundle.setEntry(bundleEntryList);
-				return responseBundle;
 			}
+
+				Bundle responseBundle = new Bundle();
+			List<BundleEntryComponent> bundleEntryList = new ArrayList<>();
+			BundleEntryComponent entryComp = new BundleEntryComponent();
+			entryComp.setResource(outcome);
+			bundleEntryList.add(entryComp);
+			responseBundle.setEntry(bundleEntryList);
+			return responseBundle;
+
 		} catch (Exception e) {
 			throw new UnprocessableEntityException("Error in Processing the Bundle");
 		}
-	}
-
-	private MessageHeader constructMessageHeaderResource() {
-		String message = "{\"resourceType\": \"MessageHeader\",\"id\": \"messageheader-example-reportheader\",\"meta\": {\"versionId\": \"1\",\"lastUpdated\": \"2020-11-29T02:03:28.045+00:00\",\"profile\": [\"http://hl7.org/fhir/us/medmorph/StructureDefinition/us-ph-messageheader\"]},\"extension\": [{\"url\": \"http://hl7.org/fhir/us/medmorph/StructureDefinition/ext-dataEncrypted\",\"valueBoolean\": false},{\"url\":\"http://hl7.org/fhir/us/medmorph/StructureDefinition/ext-messageProcessingCategory\",\"valueCode\": \"consequence\"}],\"eventCoding\": {\"system\": \"http://hl7.org/fhir/us/medmorph/CodeSystem/us-ph-messageheader-message-types\",\"code\": \"cancer-report-message\"},\"destination\": [{\"name\": \"PHA endpoint\",\"endpoint\": \"http://example.pha.org/fhir\"}],\"source\": {\"name\": \"Healthcare Organization\",\"software\": \"Backend Service App\",\"version\": \"3.1.45.AABB\",\"contact\": {\"system\": \"phone\",\"value\": \"+1 (917) 123 4567\"},\"endpoint\": \"http://example.healthcare.org/fhir\"},\"reason\": {\"coding\": [{\"system\": \"http://hl7.org/fhir/us/medmorph/CodeSystem/us-ph-triggerdefinition-namedevents\",\"code\": \"encounter-close\"}]}}";
-		MessageHeader messageHeader = (MessageHeader) r4Context.newJsonParser().parseResource(message);
-		messageHeader.setId(getUUID());
-		return messageHeader;
-	}
-
-	private String constructAndSaveCommunication(String patientId) {
-		String communication ="{\"resourceType\" : \"Communication\",\"meta\" : {\"versionId\" : \"1\",\"profile\" : [\"http://hl7.org/fhir/us/medmorph/StructureDefinition/us-ph-communication\"]},\"extension\" : [{\"url\" : \"http://hl7.org/fhir/us/medmorph/StructureDefinition/ext-responseMessageStatus\",\"valueCodeableConcept\" : {\"coding\" : [{\"system\" :\"http://hl7.org/fhir/us/medmorph/CodeSystem/us-ph-response-message-processing-status\",\"code\" : \"RRVS1\"}]}}],\"identifier\" : [{\"system\" : \"http://example.pha.org/\",\"value\" : \"12345\"}],\"status\" : \"completed\",\"category\" : [{\"coding\" : [{\"system\" : \"http://hl7.org/fhir/us/medmorph/CodeSystem/us-ph-messageheader-message-types\",\"code\" : \"cancer-response-message\"}]}],\"reasonCode\" : [{\"coding\" : [{\"system\" : \"http://hl7.org/fhir/us/medmorph/CodeSystem/us-ph-messageheader-message-types\",\"code\" : \"cancer-report-message\"}]}]}";
-		Communication comm = (Communication) r4Context.newJsonParser().parseResource(communication);
-		String commId = getUUID();
-		comm.setId(commId);
-		Meta meta = comm.getMeta();
-		meta.setLastUpdated(new Date());
-		comm.setMeta(meta);
-		comm.setSubject(new Reference("Patient/"+patientId));
-		DafCommunication dafCommunication = new DafCommunication();
-		dafCommunication.setData(r4Context.newJsonParser().encodeResourceToString(comm));
-		dafCommunication.setTimestamp(new Date());
-		communicationService.createCommunication(dafCommunication);
-		return commId;
 	}
 
 	public String getUUID() {
