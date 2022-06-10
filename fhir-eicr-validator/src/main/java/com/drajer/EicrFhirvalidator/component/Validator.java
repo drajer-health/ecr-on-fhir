@@ -22,10 +22,11 @@ import org.hl7.fhir.r5.model.Resource;
 import org.hl7.fhir.r5.model.StructureDefinition;
 import org.hl7.fhir.utilities.TextFile;
 import org.hl7.fhir.utilities.VersionUtilities;
-import org.hl7.fhir.utilities.cache.FilesystemPackageCacheManager;
-import org.hl7.fhir.utilities.cache.NpmPackage;
-import org.hl7.fhir.utilities.cache.ToolsVersion;
+import org.hl7.fhir.utilities.npm.FilesystemPackageCacheManager;
+import org.hl7.fhir.utilities.npm.NpmPackage;
+import org.hl7.fhir.utilities.npm.ToolsVersion;
 import org.hl7.fhir.utilities.json.JSONUtil;
+import org.hl7.fhir.utilities.validation.ValidationMessage;
 import org.hl7.fhir.validation.ValidationEngine;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
@@ -42,7 +43,6 @@ public class Validator {
 	private final Logger logger = LoggerFactory.getLogger(Validator.class);
 
 	private static ValidationEngine hl7Validator;
-	private FilesystemPackageCacheManager packageManager;
 
 	public Validator() {
 	}
@@ -50,10 +50,10 @@ public class Validator {
 	/**
 	 * Creates the HL7 Validator to which can then be used for validation.
 	 *
-	 * @param igFile The igFile the validator is loaded with.
+	 * @param igFiles The igFile the validator is loaded with.
 	 * @throws Exception If the validator cannot be created
 	 */
-	public Validator(List<String> igFiles) throws Exception {
+	public Validator(List<ImplementationGuide> igFiles) throws Exception {
 		final String fhirSpecVersion = "4.0";
 		final String definitions = VersionUtilities.packageForVersion(fhirSpecVersion) + "#"
 				+ VersionUtilities.getCurrentVersion(fhirSpecVersion);
@@ -62,27 +62,20 @@ public class Validator {
 		final String fhirVersion = "4.0.1";
 		logger.info("initializing hl7Validator inside  Validator");
 		hl7Validator = new ValidationEngine(definitions);
-		for(String igFile:igFiles) {
-			logger.info("Loading IG:::::{} ",igFile);
-			hl7Validator.loadIg(igFile, true);
-		}
+		hl7Validator.setIgs(igFiles);
 		hl7Validator.connectToTSServer(txServer, txLog, FhirPublication.fromCode(fhirVersion));
-		hl7Validator.setNative(false);
+		hl7Validator.setDoNative(false);
 		hl7Validator.setAnyExtensionsAllowed(true);
 		hl7Validator.prepare();
-		packageManager = new FilesystemPackageCacheManager(true, ToolsVersion.TOOLS_VERSION);
-	}
-
-	public List<String> getStructures() {
-		List<StructureDefinition> structures = hl7Validator.getContext().getStructures();
-		return structures.stream().map(StructureDefinition::getUrl).collect(Collectors.toList());
 	}
 
 	public OperationOutcome validate(byte[] resource, String profile) throws Exception {
 		ArrayList<String> patientProfiles = new ArrayList<>(Arrays.asList(profile.split(",")));
 		try {
 			Manager.FhirFormat fmt = FormatUtilities.determineFormat(resource);
-			return hl7Validator.validate(null, resource, fmt, patientProfiles);
+
+			return hl7Validator.validate(null, resource, fmt, patientProfiles, null);
+
 
 		} catch (Exception e) {
 			logger.info("error while validating resource", e);
@@ -106,16 +99,6 @@ public class Validator {
 		return System.getenv("DISABLE_TX") != null;
 	}
 
-	/**
-	 * Provides a list of known IGs that can be retrieved and loaded.
-	 *
-	 * @return the list of IGs.
-	 */
-	public Map<String, String> getKnownIGs() throws IOException {
-		Map<String, String> igs = new HashMap<>();
-		packageManager.listAllIds(igs);
-		return igs;
-	}
 
 	/**
 	 * Load a profile into the validator.
@@ -125,56 +108,6 @@ public class Validator {
 	public void loadProfile(Resource profile) {
 		SimpleWorkerContext context = hl7Validator.getContext();
 		context.cacheResource(profile);
-	}
-
-	private List<String> getProfileUrls(String id) throws IOException {
-		String[] fragments = id.split("#");
-		id = fragments[0];
-		String version = fragments.length > 1 ? fragments[1] : null;
-		NpmPackage npm = packageManager.loadPackage(id, version);
-		InputStream in = npm.load(".index.json");
-		JsonObject index = (JsonObject) JsonParser.parseString(TextFile.streamToString(in));
-
-		JsonArray files = index.getAsJsonArray("files");
-		List<String> profileUrls = new ArrayList<>();
-		for (JsonElement f : files) {
-			JsonObject file = (JsonObject) f;
-			String type = JSONUtil.str(file, "resourceType");
-			String url = JSONUtil.str(file, "url");
-			if (type.equals("StructureDefinition")) {
-				profileUrls.add(url);
-			}
-		}
-		Collections.sort(profileUrls);
-		return profileUrls;
-	}
-
-	/**
-	 * Load an IG into the validator.
-	 *
-	 * @param id the package ID of the FHIR IG to be loaded
-	 * @return a list of profile URLs for the loaded IG
-	 */
-	public List<String> loadIg(String id) throws Exception {
-		hl7Validator.loadIg(id, true);
-		return getProfileUrls(id);
-	}
-
-	/**
-	 * Get a mapping from IG URL to a list of profile URLs supported by the IG.
-	 *
-	 * @return a mapping from IG URL to a list of profile URLs supported by the IG.
-	 */
-	public Map<String, List<String>> getProfilesByIg() {
-		List<ImplementationGuide> igs = hl7Validator.getContext().allImplementationGuides();
-		return igs.stream().collect(
-				Collectors.toMap(ig -> ig.getPackageId() + (ig.hasVersion() ? "#" + ig.getVersion() : ""), ig -> {
-					try {
-						return getProfileUrls(ig.getPackageId());
-					} catch (IOException e) {
-						return new ArrayList<>();
-					}
-				}, (existing, replacement) -> existing));
 	}
 
 	/**

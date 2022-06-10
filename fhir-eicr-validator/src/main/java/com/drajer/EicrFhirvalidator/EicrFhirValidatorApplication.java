@@ -5,6 +5,7 @@ import java.util.List;
 
 import javax.annotation.PostConstruct;
 
+import org.hl7.fhir.r5.model.ImplementationGuide;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 import org.springframework.beans.factory.annotation.Autowired;
@@ -22,9 +23,7 @@ import com.drajer.EicrFhirvalidator.component.Validator;
 
 import ca.uhn.fhir.rest.server.interceptor.LoggingInterceptor;
 
-@SpringBootApplication
-@EnableAutoConfiguration(exclude = HibernateJpaAutoConfiguration.class)
-@ComponentScan(basePackages = { "com.drajer.EicrFhirvalidator" })
+@SpringBootApplication(exclude = HibernateJpaAutoConfiguration.class)
 public class EicrFhirValidatorApplication extends SpringBootServletInitializer {
 
 	private final Logger logger = LoggerFactory.getLogger(EicrFhirValidatorApplication.class);
@@ -50,12 +49,16 @@ public class EicrFhirValidatorApplication extends SpringBootServletInitializer {
 			Resource ecrRes = resourceLoader.getResource("classpath:ecrigs/package");
 			Resource uscoreRes = resourceLoader.getResource("classpath:uscoreigs/package");
 			Resource odhRes = resourceLoader.getResource("classpath:odhigs/package");
-			List<String> resList = new ArrayList<>();
-			resList.add(res.getURI().getPath());
-			resList.add(ecrRes.getURI().getPath());
-			resList.add(uscoreRes.getURI().getPath());
-			resList.add(odhRes.getURI().getPath());
+			Resource vrRes = resourceLoader.getResource("classpath:vrigs/package");
+			List<ImplementationGuide> resList = new ArrayList<>();
+			new ImplementationGuide().setUrl(res.getURI().getPath());
+			resList.add(new ImplementationGuide().setUrl(res.getURI().getPath()));
+			resList.add(new ImplementationGuide().setUrl(ecrRes.getURI().getPath()));
+			resList.add(new ImplementationGuide().setUrl(uscoreRes.getURI().getPath()));
+			resList.add(new ImplementationGuide().setUrl(odhRes.getURI().getPath()));
+			resList.add(new ImplementationGuide().setUrl(vrRes.getURI().getPath()));
 			return new Validator(resList);
+
 		} catch (Exception e) {
 			logger.error("There was an error initializing the validator:", e);
 			e.printStackTrace();

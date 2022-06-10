@@ -6,81 +6,29 @@
       "resourceType": "ImplementationGuide",
       "id": "hl7.fhir.us.ecr",
       "url": "http://hl7.org/fhir/us/ecr/ImplementationGuide/hl7.fhir.us.ecr",
-      "version": "1.1.0"
+      "version": "2.0.0"
     },
     {
       "filename": "ImplementationGuide-hl7.fhir.us.ecr.json",
       "resourceType": "ImplementationGuide",
       "id": "hl7.fhir.us.ecr",
       "url": "http://hl7.org/fhir/us/ecr/ImplementationGuide/hl7.fhir.us.ecr",
-      "version": "1.1.0"
-    },
-    {
-      "filename": "StructureDefinition-characteristics-of-home-environment.json",
-      "resourceType": "StructureDefinition",
-      "id": "characteristics-of-home-environment",
-      "url": "http://hl7.org/fhir/us/ecr/StructureDefinition/characteristics-of-home-environment",
-      "version": "1.1.0",
-      "kind": "resource",
-      "type": "Observation"
-    },
-    {
-      "filename": "CodeSystem-codesystem-task-businessStatus.json",
-      "resourceType": "CodeSystem",
-      "id": "codesystem-task-businessStatus",
-      "url": "http://hl7.org/fhir/us/ecr/CodeSystem/codesystem-task-businessStatus",
-      "version": "1.1.0"
-    },
-    {
-      "filename": "StructureDefinition-date-determined-extension.json",
-      "resourceType": "StructureDefinition",
-      "id": "date-determined-extension",
-      "url": "http://hl7.org/fhir/us/ecr/StructureDefinition/date-determined-extension",
-      "version": "1.1.0",
-      "kind": "complex-type",
-      "type": "Extension"
-    },
-    {
-      "filename": "StructureDefinition-date-recorded-extension.json",
-      "resourceType": "StructureDefinition",
-      "id": "date-recorded-extension",
-      "url": "http://hl7.org/fhir/us/ecr/StructureDefinition/date-recorded-extension",
-      "version": "1.1.0",
-      "kind": "complex-type",
-      "type": "Extension"
-    },
-    {
-      "filename": "StructureDefinition-disability-status.json",
-      "resourceType": "StructureDefinition",
-      "id": "disability-status",
-      "url": "http://hl7.org/fhir/us/ecr/StructureDefinition/disability-status",
-      "version": "1.1.0",
-      "kind": "resource",
-      "type": "Observation"
+      "version": "2.0.0"
     },
     {
       "filename": "CapabilityStatement-capabilitystatement-ecr.json",
       "resourceType": "CapabilityStatement",
       "id": "capabilitystatement-ecr",
       "url": "http://hl7.org/fhir/us/ecr/CapabilityStatement/capabilitystatement-ecr",
-      "version": "1.1.0",
+      "version": "2.0.0",
       "kind": "requirements"
-    },
-    {
-      "filename": "StructureDefinition-ecr-message-bundle.json",
-      "resourceType": "StructureDefinition",
-      "id": "ecr-message-bundle",
-      "url": "http://hl7.org/fhir/us/ecr/StructureDefinition/ecr-message-bundle",
-      "version": "1.1.0",
-      "kind": "resource",
-      "type": "Bundle"
     },
     {
       "filename": "StructureDefinition-ecr-messageheader.json",
       "resourceType": "StructureDefinition",
       "id": "ecr-messageheader",
       "url": "http://hl7.org/fhir/us/ecr/StructureDefinition/ecr-messageheader",
-      "version": "1.1.0",
+      "version": "2.0.0",
       "kind": "resource",
       "type": "MessageHeader"
     },
@@ -89,68 +37,84 @@
       "resourceType": "ValueSet",
       "id": "valueset-ecr-messageheader-event",
       "url": "http://hl7.org/fhir/us/ecr/ValueSet/valueset-ecr-messageheader-event",
-      "version": "1.1.0"
+      "version": "2.0.0"
     },
     {
-      "filename": "StructureDefinition-ecr-task.json",
-      "resourceType": "StructureDefinition",
-      "id": "ecr-task",
-      "url": "http://hl7.org/fhir/us/ecr/StructureDefinition/ecr-task",
-      "version": "1.1.0",
-      "kind": "resource",
-      "type": "Task"
+      "filename": "ValueSet-valueset-chlamydia-example.json",
+      "resourceType": "ValueSet",
+      "id": "valueset-chlamydia-example",
+      "url": "http://hl7.org/fhir/us/ecr/ValueSet/valueset-chlamydia-example",
+      "version": "2.0.0"
     },
     {
       "filename": "StructureDefinition-eicr-composition.json",
       "resourceType": "StructureDefinition",
       "id": "eicr-composition",
       "url": "http://hl7.org/fhir/us/ecr/StructureDefinition/eicr-composition",
-      "version": "1.1.0",
+      "version": "2.0.0",
       "kind": "resource",
       "type": "Composition"
     },
     {
-      "filename": "StructureDefinition-eicr-condition.json",
+      "filename": "StructureDefinition-eicr-country-of-nationality.json",
       "resourceType": "StructureDefinition",
-      "id": "eicr-condition",
-      "url": "http://hl7.org/fhir/us/ecr/StructureDefinition/eicr-condition",
-      "version": "1.1.0",
+      "id": "eicr-country-of-nationality",
+      "url": "http://hl7.org/fhir/us/ecr/StructureDefinition/eicr-country-of-nationality",
+      "version": "2.0.0",
       "kind": "resource",
-      "type": "Condition"
+      "type": "Observation"
+    },
+    {
+      "filename": "StructureDefinition-eicr-country-of-residence.json",
+      "resourceType": "StructureDefinition",
+      "id": "eicr-country-of-residence",
+      "url": "http://hl7.org/fhir/us/ecr/StructureDefinition/eicr-country-of-residence",
+      "version": "2.0.0",
+      "kind": "resource",
+      "type": "Observation"
     },
     {
       "filename": "StructureDefinition-eicr-document-bundle.json",
       "resourceType": "StructureDefinition",
       "id": "eicr-document-bundle",
       "url": "http://hl7.org/fhir/us/ecr/StructureDefinition/eicr-document-bundle",
-      "version": "1.1.0",
+      "version": "2.0.0",
       "kind": "resource",
       "type": "Bundle"
     },
     {
-      "filename": "StructureDefinition-eicr-initiation-reason-extension.json",
+      "filename": "StructureDefinition-eicr-encounter.json",
       "resourceType": "StructureDefinition",
-      "id": "eicr-initiation-reason-extension",
-      "url": "http://hl7.org/fhir/us/ecr/StructureDefinition/eicr-initiation-reason-extension",
-      "version": "1.1.0",
-      "kind": "complex-type",
-      "type": "Extension"
+      "id": "eicr-encounter",
+      "url": "http://hl7.org/fhir/us/ecr/StructureDefinition/eicr-encounter",
+      "version": "2.0.0",
+      "kind": "resource",
+      "type": "Encounter"
     },
     {
       "filename": "StructureDefinition-eicr-initiation-type-extension.json",
       "resourceType": "StructureDefinition",
       "id": "eicr-initiation-type-extension",
       "url": "http://hl7.org/fhir/us/ecr/StructureDefinition/eicr-initiation-type-extension",
-      "version": "1.1.0",
+      "version": "2.0.0",
       "kind": "complex-type",
       "type": "Extension"
+    },
+    {
+      "filename": "StructureDefinition-eicr-procedure.json",
+      "resourceType": "StructureDefinition",
+      "id": "eicr-procedure",
+      "url": "http://hl7.org/fhir/us/ecr/StructureDefinition/eicr-procedure",
+      "version": "2.0.0",
+      "kind": "resource",
+      "type": "Procedure"
     },
     {
       "filename": "StructureDefinition-eicr-servicerequest.json",
       "resourceType": "StructureDefinition",
       "id": "eicr-servicerequest",
       "url": "http://hl7.org/fhir/us/ecr/StructureDefinition/eicr-servicerequest",
-      "version": "1.1.0",
+      "version": "2.0.0",
       "kind": "resource",
       "type": "ServiceRequest"
     },
@@ -159,16 +123,25 @@
       "resourceType": "StructureDefinition",
       "id": "eicr-trigger-code-flag-extension",
       "url": "http://hl7.org/fhir/us/ecr/StructureDefinition/eicr-trigger-code-flag-extension",
-      "version": "1.1.0",
+      "version": "2.0.0",
       "kind": "complex-type",
       "type": "Extension"
+    },
+    {
+      "filename": "StructureDefinition-eicr-vaccine-credential-patient-assertion.json",
+      "resourceType": "StructureDefinition",
+      "id": "eicr-vaccine-credential-patient-assertion",
+      "url": "http://hl7.org/fhir/us/ecr/StructureDefinition/eicr-vaccine-credential-patient-assertion",
+      "version": "2.0.0",
+      "kind": "resource",
+      "type": "Observation"
     },
     {
       "filename": "CapabilityStatement-capabilitystatement-ersd-client.json",
       "resourceType": "CapabilityStatement",
       "id": "capabilitystatement-ersd-client",
       "url": "http://hl7.org/fhir/us/ecr/CapabilityStatement/capabilitystatement-ersd-client",
-      "version": "1.1.0",
+      "version": "2.0.0",
       "kind": "requirements"
     },
     {
@@ -176,148 +149,94 @@
       "resourceType": "CodeSystem",
       "id": "ersd-endpoint-connection-type",
       "url": "http://hl7.org/fhir/us/ecr/CodeSystem/ersd-endpoint-connection-type",
-      "version": "1.1.0"
+      "version": "2.0.0"
     },
     {
       "filename": "CodeSystem-ersd-jurisdiction-types.json",
       "resourceType": "CodeSystem",
       "id": "ersd-jurisdiction-types",
       "url": "http://hl7.org/fhir/us/ecr/CodeSystem/ersd-jurisdiction-types",
-      "version": "1.1.0"
+      "version": "2.0.0"
     },
     {
       "filename": "StructureDefinition-ersd-plandefinition.json",
       "resourceType": "StructureDefinition",
       "id": "ersd-plandefinition",
       "url": "http://hl7.org/fhir/us/ecr/StructureDefinition/ersd-plandefinition",
-      "version": "1.1.0",
+      "version": "2.0.0",
       "kind": "resource",
       "type": "PlanDefinition"
     },
     {
-      "filename": "StructureDefinition-ersd-specification-bundle.json",
+      "filename": "StructureDefinition-ersd-supplemental-library.json",
       "resourceType": "StructureDefinition",
-      "id": "ersd-specification-bundle",
-      "url": "http://hl7.org/fhir/us/ecr/StructureDefinition/ersd-specification-bundle",
-      "version": "1.1.0",
+      "id": "ersd-supplemental-library",
+      "url": "http://hl7.org/fhir/us/ecr/StructureDefinition/ersd-supplemental-library",
+      "version": "2.0.0",
       "kind": "resource",
-      "type": "Bundle"
+      "type": "Library"
     },
     {
-      "filename": "StructureDefinition-ersd-supplemental-bundle.json",
-      "resourceType": "StructureDefinition",
-      "id": "ersd-supplemental-bundle",
-      "url": "http://hl7.org/fhir/us/ecr/StructureDefinition/ersd-supplemental-bundle",
-      "version": "1.1.0",
-      "kind": "resource",
-      "type": "Bundle"
-    },
-    {
-      "filename": "CodeSystem-executabletask-type.json",
-      "resourceType": "CodeSystem",
-      "id": "executabletask-type",
-      "url": "http://hl7.org/fhir/us/ecr/CodeSystem/executabletask-type",
-      "version": "1.1.0"
+      "filename": "Parameters-expansion-parameters-ecr.json",
+      "resourceType": "Parameters",
+      "id": "expansion-parameters-ecr"
     },
     {
       "filename": "ValueSet-2.16.840.1.113762.1.4.1099.24.json",
       "resourceType": "ValueSet",
       "id": "2.16.840.1.113762.1.4.1099.24",
       "url": "http://cts.nlm.nih.gov/fhir/ValueSet/2.16.840.1.113762.1.4.1099.24",
-      "version": "1.1.0"
+      "version": "2.0.0"
+    },
+    {
+      "filename": "OperationDefinition-operationdefinition-library-package.json",
+      "resourceType": "OperationDefinition",
+      "id": "operationdefinition-library-package",
+      "url": "http://hl7.org/fhir/us/ecr/OperationDefinition/operationdefinition-library-package",
+      "version": "2.0.0",
+      "kind": "operation",
+      "type": "true"
     },
     {
       "filename": "CodeSystem-codesystem-messageHeader-event.json",
       "resourceType": "CodeSystem",
       "id": "codesystem-messageHeader-event",
       "url": "http://hl7.org/fhir/us/ecr/CodeSystem/codesystem-messageHeader-event",
-      "version": "1.1.0"
+      "version": "2.0.0"
     },
     {
-      "filename": "StructureDefinition-postpartum-status.json",
+      "filename": "StructureDefinition-rr-composition.json",
       "resourceType": "StructureDefinition",
-      "id": "postpartum-status",
-      "url": "http://hl7.org/fhir/us/ecr/StructureDefinition/postpartum-status",
-      "version": "1.1.0",
+      "id": "rr-composition",
+      "url": "http://hl7.org/fhir/us/ecr/StructureDefinition/rr-composition",
+      "version": "2.0.0",
       "kind": "resource",
-      "type": "Observation"
+      "type": "Composition"
     },
     {
-      "filename": "StructureDefinition-pregnancy-outcome-observation.json",
+      "filename": "StructureDefinition-rr-document-bundle.json",
       "resourceType": "StructureDefinition",
-      "id": "pregnancy-outcome-observation",
-      "url": "http://hl7.org/fhir/us/ecr/StructureDefinition/pregnancy-outcome-observation",
-      "version": "1.1.0",
+      "id": "rr-document-bundle",
+      "url": "http://hl7.org/fhir/us/ecr/StructureDefinition/rr-document-bundle",
+      "version": "2.0.0",
       "kind": "resource",
-      "type": "Observation"
+      "type": "Bundle"
     },
     {
-      "filename": "ValueSet-pregnancy-status.json",
-      "resourceType": "ValueSet",
-      "id": "pregnancy-status",
-      "url": "http://hl7.org/fhir/us/ecr/ValueSet/pregnancy-status",
-      "version": "1.1.0"
-    },
-    {
-      "filename": "StructureDefinition-pregnancy-status-observation.json",
+      "filename": "StructureDefinition-rr-documentreference.json",
       "resourceType": "StructureDefinition",
-      "id": "pregnancy-status-observation",
-      "url": "http://hl7.org/fhir/us/ecr/StructureDefinition/pregnancy-status-observation",
-      "version": "1.1.0",
+      "id": "rr-documentreference",
+      "url": "http://hl7.org/fhir/us/ecr/StructureDefinition/rr-documentreference",
+      "version": "2.0.0",
       "kind": "resource",
-      "type": "Observation"
-    },
-    {
-      "filename": "StructureDefinition-relates-to-extension.json",
-      "resourceType": "StructureDefinition",
-      "id": "relates-to-extension",
-      "url": "http://hl7.org/fhir/us/ecr/StructureDefinition/relates-to-extension",
-      "version": "1.1.0",
-      "kind": "complex-type",
-      "type": "Extension"
-    },
-    {
-      "filename": "StructureDefinition-rr-communication.json",
-      "resourceType": "StructureDefinition",
-      "id": "rr-communication",
-      "url": "http://hl7.org/fhir/us/ecr/StructureDefinition/rr-communication",
-      "version": "1.1.0",
-      "kind": "resource",
-      "type": "Communication"
-    },
-    {
-      "filename": "StructureDefinition-rr-determination-of-reportability-extension.json",
-      "resourceType": "StructureDefinition",
-      "id": "rr-determination-of-reportability-extension",
-      "url": "http://hl7.org/fhir/us/ecr/StructureDefinition/rr-determination-of-reportability-extension",
-      "version": "1.1.0",
-      "kind": "complex-type",
-      "type": "Extension"
-    },
-    {
-      "filename": "StructureDefinition-rr-determination-of-reportability-reason-extension.json",
-      "resourceType": "StructureDefinition",
-      "id": "rr-determination-of-reportability-reason-extension",
-      "url": "http://hl7.org/fhir/us/ecr/StructureDefinition/rr-determination-of-reportability-reason-extension",
-      "version": "1.1.0",
-      "kind": "complex-type",
-      "type": "Extension"
-    },
-    {
-      "filename": "StructureDefinition-rr-determination-of-reportability-rule-extension.json",
-      "resourceType": "StructureDefinition",
-      "id": "rr-determination-of-reportability-rule-extension",
-      "url": "http://hl7.org/fhir/us/ecr/StructureDefinition/rr-determination-of-reportability-rule-extension",
-      "version": "1.1.0",
-      "kind": "complex-type",
-      "type": "Extension"
+      "type": "DocumentReference"
     },
     {
       "filename": "StructureDefinition-rr-eicr-processing-status-extension.json",
       "resourceType": "StructureDefinition",
       "id": "rr-eicr-processing-status-extension",
       "url": "http://hl7.org/fhir/us/ecr/StructureDefinition/rr-eicr-processing-status-extension",
-      "version": "1.1.0",
+      "version": "2.0.0",
       "kind": "complex-type",
       "type": "Extension"
     },
@@ -326,7 +245,7 @@
       "resourceType": "StructureDefinition",
       "id": "rr-eicr-processing-status-observation",
       "url": "http://hl7.org/fhir/us/ecr/StructureDefinition/rr-eicr-processing-status-observation",
-      "version": "1.1.0",
+      "version": "2.0.0",
       "kind": "resource",
       "type": "Observation"
     },
@@ -335,7 +254,7 @@
       "resourceType": "StructureDefinition",
       "id": "rr-eicr-processing-status-reason-observation",
       "url": "http://hl7.org/fhir/us/ecr/StructureDefinition/rr-eicr-processing-status-reason-observation",
-      "version": "1.1.0",
+      "version": "2.0.0",
       "kind": "resource",
       "type": "Observation"
     },
@@ -344,25 +263,16 @@
       "resourceType": "StructureDefinition",
       "id": "rr-eicr-receipt-time-extension",
       "url": "http://hl7.org/fhir/us/ecr/StructureDefinition/rr-eicr-receipt-time-extension",
-      "version": "1.1.0",
+      "version": "2.0.0",
       "kind": "complex-type",
       "type": "Extension"
     },
     {
-      "filename": "StructureDefinition-rr-external-resource-type-extension.json",
+      "filename": "StructureDefinition-rr-external-resource-extension.json",
       "resourceType": "StructureDefinition",
-      "id": "rr-external-resource-type-extension",
-      "url": "http://hl7.org/fhir/us/ecr/StructureDefinition/rr-external-resource-type-extension",
-      "version": "1.1.0",
-      "kind": "complex-type",
-      "type": "Extension"
-    },
-    {
-      "filename": "StructureDefinition-rr-location-relevance-extension.json",
-      "resourceType": "StructureDefinition",
-      "id": "rr-location-relevance-extension",
-      "url": "http://hl7.org/fhir/us/ecr/StructureDefinition/rr-location-relevance-extension",
-      "version": "1.1.0",
+      "id": "rr-external-resource-extension",
+      "url": "http://hl7.org/fhir/us/ecr/StructureDefinition/rr-external-resource-extension",
+      "version": "2.0.0",
       "kind": "complex-type",
       "type": "Extension"
     },
@@ -371,115 +281,241 @@
       "resourceType": "StructureDefinition",
       "id": "rr-priority-extension",
       "url": "http://hl7.org/fhir/us/ecr/StructureDefinition/rr-priority-extension",
-      "version": "1.1.0",
+      "version": "2.0.0",
       "kind": "complex-type",
       "type": "Extension"
     },
     {
-      "filename": "StructureDefinition-rr-relevant-reportable-condition-plandefinition.json",
+      "filename": "StructureDefinition-rr-relevant-reportable-condition-observation.json",
       "resourceType": "StructureDefinition",
-      "id": "rr-relevant-reportable-condition-plandefinition",
-      "url": "http://hl7.org/fhir/us/ecr/StructureDefinition/rr-relevant-reportable-condition-plandefinition",
-      "version": "1.1.0",
+      "id": "rr-relevant-reportable-condition-observation",
+      "url": "http://hl7.org/fhir/us/ecr/StructureDefinition/rr-relevant-reportable-condition-observation",
+      "version": "2.0.0",
       "kind": "resource",
-      "type": "PlanDefinition"
+      "type": "Observation"
+    },
+    {
+      "filename": "StructureDefinition-rr-reportability-information-observation.json",
+      "resourceType": "StructureDefinition",
+      "id": "rr-reportability-information-observation",
+      "url": "http://hl7.org/fhir/us/ecr/StructureDefinition/rr-reportability-information-observation",
+      "version": "2.0.0",
+      "kind": "resource",
+      "type": "Observation"
     },
     {
       "filename": "StructureDefinition-rr-responsible-agency-organization.json",
       "resourceType": "StructureDefinition",
       "id": "rr-responsible-agency-organization",
       "url": "http://hl7.org/fhir/us/ecr/StructureDefinition/rr-responsible-agency-organization",
-      "version": "1.1.0",
+      "version": "2.0.0",
       "kind": "resource",
       "type": "Organization"
-    },
-    {
-      "filename": "StructureDefinition-rr-responsible-agency-organization-extension.json",
-      "resourceType": "StructureDefinition",
-      "id": "rr-responsible-agency-organization-extension",
-      "url": "http://hl7.org/fhir/us/ecr/StructureDefinition/rr-responsible-agency-organization-extension",
-      "version": "1.1.0",
-      "kind": "complex-type",
-      "type": "Extension"
     },
     {
       "filename": "StructureDefinition-rr-routing-entity-organization.json",
       "resourceType": "StructureDefinition",
       "id": "rr-routing-entity-organization",
       "url": "http://hl7.org/fhir/us/ecr/StructureDefinition/rr-routing-entity-organization",
-      "version": "1.1.0",
+      "version": "2.0.0",
       "kind": "resource",
       "type": "Organization"
-    },
-    {
-      "filename": "StructureDefinition-rr-routing-entity-organization-extension.json",
-      "resourceType": "StructureDefinition",
-      "id": "rr-routing-entity-organization-extension",
-      "url": "http://hl7.org/fhir/us/ecr/StructureDefinition/rr-routing-entity-organization-extension",
-      "version": "1.1.0",
-      "kind": "complex-type",
-      "type": "Extension"
     },
     {
       "filename": "StructureDefinition-rr-rules-authoring-agency-organization.json",
       "resourceType": "StructureDefinition",
       "id": "rr-rules-authoring-agency-organization",
       "url": "http://hl7.org/fhir/us/ecr/StructureDefinition/rr-rules-authoring-agency-organization",
-      "version": "1.1.0",
+      "version": "2.0.0",
       "kind": "resource",
       "type": "Organization"
     },
     {
-      "filename": "StructureDefinition-rr-rules-authoring-agency-organization-extension.json",
+      "filename": "StructureDefinition-rr-summary.json",
       "resourceType": "StructureDefinition",
-      "id": "rr-rules-authoring-agency-organization-extension",
-      "url": "http://hl7.org/fhir/us/ecr/StructureDefinition/rr-rules-authoring-agency-organization-extension",
-      "version": "1.1.0",
-      "kind": "complex-type",
-      "type": "Extension"
+      "id": "rr-summary",
+      "url": "http://hl7.org/fhir/us/ecr/StructureDefinition/rr-summary",
+      "version": "2.0.0",
+      "kind": "resource",
+      "type": "Observation"
     },
     {
       "filename": "StructureDefinition-therapeutic-medication-response-extension.json",
       "resourceType": "StructureDefinition",
       "id": "therapeutic-medication-response-extension",
       "url": "http://hl7.org/fhir/us/ecr/StructureDefinition/therapeutic-medication-response-extension",
-      "version": "1.1.0",
+      "version": "2.0.0",
       "kind": "complex-type",
       "type": "Extension"
     },
     {
-      "filename": "StructureDefinition-address-extension.json",
+      "filename": "StructureDefinition-us-ph-address-extension.json",
       "resourceType": "StructureDefinition",
-      "id": "address-extension",
-      "url": "http://hl7.org/fhir/us/ecr/StructureDefinition/address-extension",
-      "version": "1.1.0",
+      "id": "us-ph-address-extension",
+      "url": "http://hl7.org/fhir/us/ecr/StructureDefinition/us-ph-address-extension",
+      "version": "2.0.0",
       "kind": "complex-type",
       "type": "Extension"
     },
     {
-      "filename": "StructureDefinition-travel-history-observation.json",
+      "filename": "StructureDefinition-us-ph-alternative-expression-extension.json",
       "resourceType": "StructureDefinition",
-      "id": "travel-history-observation",
-      "url": "http://hl7.org/fhir/us/ecr/StructureDefinition/travel-history-observation",
-      "version": "1.1.0",
+      "id": "us-ph-alternative-expression-extension",
+      "url": "http://hl7.org/fhir/us/ecr/StructureDefinition/us-ph-alternative-expression-extension",
+      "version": "2.0.0",
+      "kind": "complex-type",
+      "type": "Extension"
+    },
+    {
+      "filename": "StructureDefinition-us-ph-characteristics-of-home-environment.json",
+      "resourceType": "StructureDefinition",
+      "id": "us-ph-characteristics-of-home-environment",
+      "url": "http://hl7.org/fhir/us/ecr/StructureDefinition/us-ph-characteristics-of-home-environment",
+      "version": "2.0.0",
       "kind": "resource",
       "type": "Observation"
     },
     {
-      "filename": "StructureDefinition-tribal-affiliation-extension.json",
+      "filename": "StructureDefinition-us-ph-codesystem.json",
       "resourceType": "StructureDefinition",
-      "id": "tribal-affiliation-extension",
-      "url": "http://hl7.org/fhir/us/ecr/StructureDefinition/tribal-affiliation-extension",
-      "version": "1.1.0",
+      "id": "us-ph-codesystem",
+      "url": "http://hl7.org/fhir/us/ecr/StructureDefinition/us-ph-codesystem",
+      "version": "2.0.0",
+      "kind": "resource",
+      "type": "CodeSystem"
+    },
+    {
+      "filename": "StructureDefinition-us-ph-codesystem-property-binding-extension.json",
+      "resourceType": "StructureDefinition",
+      "id": "us-ph-codesystem-property-binding-extension",
+      "url": "http://hl7.org/fhir/us/ecr/StructureDefinition/us-ph-codesystem-property-binding-extension",
+      "version": "2.0.0",
       "kind": "complex-type",
       "type": "Extension"
+    },
+    {
+      "filename": "StructureDefinition-us-ph-composition.json",
+      "resourceType": "StructureDefinition",
+      "id": "us-ph-composition",
+      "url": "http://hl7.org/fhir/us/ecr/StructureDefinition/us-ph-composition",
+      "version": "2.0.0",
+      "kind": "resource",
+      "type": "Composition"
+    },
+    {
+      "filename": "StructureDefinition-us-ph-computable-library.json",
+      "resourceType": "StructureDefinition",
+      "id": "us-ph-computable-library",
+      "url": "http://hl7.org/fhir/us/ecr/StructureDefinition/us-ph-computable-library",
+      "version": "2.0.0",
+      "kind": "resource",
+      "type": "Library"
+    },
+    {
+      "filename": "StructureDefinition-us-ph-computable-valueset.json",
+      "resourceType": "StructureDefinition",
+      "id": "us-ph-computable-valueset",
+      "url": "http://hl7.org/fhir/us/ecr/StructureDefinition/us-ph-computable-valueset",
+      "version": "2.0.0",
+      "kind": "resource",
+      "type": "ValueSet"
+    },
+    {
+      "filename": "StructureDefinition-us-ph-condition.json",
+      "resourceType": "StructureDefinition",
+      "id": "us-ph-condition",
+      "url": "http://hl7.org/fhir/us/ecr/StructureDefinition/us-ph-condition",
+      "version": "2.0.0",
+      "kind": "resource",
+      "type": "Condition"
+    },
+    {
+      "filename": "StructureDefinition-us-ph-content-bundle.json",
+      "resourceType": "StructureDefinition",
+      "id": "us-ph-content-bundle",
+      "url": "http://hl7.org/fhir/us/ecr/StructureDefinition/us-ph-content-bundle",
+      "version": "2.0.0",
+      "kind": "resource",
+      "type": "Bundle"
+    },
+    {
+      "filename": "StructureDefinition-us-ph-data-encrypted-extension.json",
+      "resourceType": "StructureDefinition",
+      "id": "us-ph-data-encrypted-extension",
+      "url": "http://hl7.org/fhir/us/ecr/StructureDefinition/us-ph-data-encrypted-extension",
+      "version": "2.0.0",
+      "kind": "complex-type",
+      "type": "Extension"
+    },
+    {
+      "filename": "StructureDefinition-us-ph-date-determined-extension.json",
+      "resourceType": "StructureDefinition",
+      "id": "us-ph-date-determined-extension",
+      "url": "http://hl7.org/fhir/us/ecr/StructureDefinition/us-ph-date-determined-extension",
+      "version": "2.0.0",
+      "kind": "complex-type",
+      "type": "Extension"
+    },
+    {
+      "filename": "StructureDefinition-us-ph-date-recorded-extension.json",
+      "resourceType": "StructureDefinition",
+      "id": "us-ph-date-recorded-extension",
+      "url": "http://hl7.org/fhir/us/ecr/StructureDefinition/us-ph-date-recorded-extension",
+      "version": "2.0.0",
+      "kind": "complex-type",
+      "type": "Extension"
+    },
+    {
+      "filename": "StructureDefinition-us-ph-determination-of-reportability-extension.json",
+      "resourceType": "StructureDefinition",
+      "id": "us-ph-determination-of-reportability-extension",
+      "url": "http://hl7.org/fhir/us/ecr/StructureDefinition/us-ph-determination-of-reportability-extension",
+      "version": "2.0.0",
+      "kind": "complex-type",
+      "type": "Extension"
+    },
+    {
+      "filename": "StructureDefinition-us-ph-determination-of-reportability-reason-extension.json",
+      "resourceType": "StructureDefinition",
+      "id": "us-ph-determination-of-reportability-reason-extension",
+      "url": "http://hl7.org/fhir/us/ecr/StructureDefinition/us-ph-determination-of-reportability-reason-extension",
+      "version": "2.0.0",
+      "kind": "complex-type",
+      "type": "Extension"
+    },
+    {
+      "filename": "StructureDefinition-us-ph-determination-of-reportability-rule-extension.json",
+      "resourceType": "StructureDefinition",
+      "id": "us-ph-determination-of-reportability-rule-extension",
+      "url": "http://hl7.org/fhir/us/ecr/StructureDefinition/us-ph-determination-of-reportability-rule-extension",
+      "version": "2.0.0",
+      "kind": "complex-type",
+      "type": "Extension"
+    },
+    {
+      "filename": "StructureDefinition-us-ph-disability-status.json",
+      "resourceType": "StructureDefinition",
+      "id": "us-ph-disability-status",
+      "url": "http://hl7.org/fhir/us/ecr/StructureDefinition/us-ph-disability-status",
+      "version": "2.0.0",
+      "kind": "resource",
+      "type": "Observation"
+    },
+    {
+      "filename": "StructureDefinition-us-ph-document-bundle.json",
+      "resourceType": "StructureDefinition",
+      "id": "us-ph-document-bundle",
+      "url": "http://hl7.org/fhir/us/ecr/StructureDefinition/us-ph-document-bundle",
+      "version": "2.0.0",
+      "kind": "resource",
+      "type": "Bundle"
     },
     {
       "filename": "StructureDefinition-us-ph-emergency-outbreak-information.json",
       "resourceType": "StructureDefinition",
       "id": "us-ph-emergency-outbreak-information",
       "url": "http://hl7.org/fhir/us/ecr/StructureDefinition/us-ph-emergency-outbreak-information",
-      "version": "1.1.0",
+      "version": "2.0.0",
       "kind": "resource",
       "type": "Observation"
     },
@@ -488,34 +524,136 @@
       "resourceType": "StructureDefinition",
       "id": "us-ph-encounter",
       "url": "http://hl7.org/fhir/us/ecr/StructureDefinition/us-ph-encounter",
-      "version": "1.1.0",
+      "version": "2.0.0",
       "kind": "resource",
       "type": "Encounter"
+    },
+    {
+      "filename": "StructureDefinition-us-ph-endpoint.json",
+      "resourceType": "StructureDefinition",
+      "id": "us-ph-endpoint",
+      "url": "http://hl7.org/fhir/us/ecr/StructureDefinition/us-ph-endpoint",
+      "version": "2.0.0",
+      "kind": "resource",
+      "type": "Endpoint"
+    },
+    {
+      "filename": "StructureDefinition-us-ph-executable-library.json",
+      "resourceType": "StructureDefinition",
+      "id": "us-ph-executable-library",
+      "url": "http://hl7.org/fhir/us/ecr/StructureDefinition/us-ph-executable-library",
+      "version": "2.0.0",
+      "kind": "resource",
+      "type": "Library"
+    },
+    {
+      "filename": "StructureDefinition-us-ph-executable-valueset.json",
+      "resourceType": "StructureDefinition",
+      "id": "us-ph-executable-valueset",
+      "url": "http://hl7.org/fhir/us/ecr/StructureDefinition/us-ph-executable-valueset",
+      "version": "2.0.0",
+      "kind": "resource",
+      "type": "ValueSet"
+    },
+    {
+      "filename": "StructureDefinition-us-ph-expansion-parameters-extension.json",
+      "resourceType": "StructureDefinition",
+      "id": "us-ph-expansion-parameters-extension",
+      "url": "http://hl7.org/fhir/us/ecr/StructureDefinition/us-ph-expansion-parameters-extension",
+      "version": "2.0.0",
+      "kind": "complex-type",
+      "type": "Extension"
     },
     {
       "filename": "StructureDefinition-us-ph-exposure-contact-information.json",
       "resourceType": "StructureDefinition",
       "id": "us-ph-exposure-contact-information",
       "url": "http://hl7.org/fhir/us/ecr/StructureDefinition/us-ph-exposure-contact-information",
-      "version": "1.1.0",
+      "version": "2.0.0",
       "kind": "resource",
       "type": "Observation"
+    },
+    {
+      "filename": "StructureDefinition-us-ph-information-recipient-extension.json",
+      "resourceType": "StructureDefinition",
+      "id": "us-ph-information-recipient-extension",
+      "url": "http://hl7.org/fhir/us/ecr/StructureDefinition/us-ph-information-recipient-extension",
+      "version": "2.0.0",
+      "kind": "complex-type",
+      "type": "Extension"
+    },
+    {
+      "filename": "StructureDefinition-us-ph-initiation-reason-extension.json",
+      "resourceType": "StructureDefinition",
+      "id": "us-ph-initiation-reason-extension",
+      "url": "http://hl7.org/fhir/us/ecr/StructureDefinition/us-ph-initiation-reason-extension",
+      "version": "2.0.0",
+      "kind": "complex-type",
+      "type": "Extension"
     },
     {
       "filename": "StructureDefinition-us-ph-location.json",
       "resourceType": "StructureDefinition",
       "id": "us-ph-location",
       "url": "http://hl7.org/fhir/us/ecr/StructureDefinition/us-ph-location",
-      "version": "1.1.0",
+      "version": "2.0.0",
       "kind": "resource",
       "type": "Location"
+    },
+    {
+      "filename": "StructureDefinition-us-ph-message-processing-category-extension.json",
+      "resourceType": "StructureDefinition",
+      "id": "us-ph-message-processing-category-extension",
+      "url": "http://hl7.org/fhir/us/ecr/StructureDefinition/us-ph-message-processing-category-extension",
+      "version": "2.0.0",
+      "kind": "complex-type",
+      "type": "Extension"
+    },
+    {
+      "filename": "ValueSet-us-ph-message-significance-category.json",
+      "resourceType": "ValueSet",
+      "id": "us-ph-message-significance-category",
+      "url": "http://hl7.org/fhir/us/ecr/ValueSet/us-ph-message-significance-category",
+      "version": "2.0.0"
+    },
+    {
+      "filename": "CodeSystem-us-ph-message-types-codesystem.json",
+      "resourceType": "CodeSystem",
+      "id": "us-ph-message-types-codesystem",
+      "url": "http://hl7.org/fhir/us/ecr/CodeSystem/us-ph-message-types-codesystem",
+      "version": "2.0.0"
+    },
+    {
+      "filename": "ValueSet-us-ph-message-types-valueset.json",
+      "resourceType": "ValueSet",
+      "id": "us-ph-message-types-valueset",
+      "url": "http://hl7.org/fhir/us/ecr/ValueSet/us-ph-message-types-valueset",
+      "version": "2.0.0"
+    },
+    {
+      "filename": "StructureDefinition-us-ph-messageheader.json",
+      "resourceType": "StructureDefinition",
+      "id": "us-ph-messageheader",
+      "url": "http://hl7.org/fhir/us/ecr/StructureDefinition/us-ph-messageheader",
+      "version": "2.0.0",
+      "kind": "resource",
+      "type": "MessageHeader"
+    },
+    {
+      "filename": "StructureDefinition-us-ph-named-eventtype-extension.json",
+      "resourceType": "StructureDefinition",
+      "id": "us-ph-named-eventtype-extension",
+      "url": "http://hl7.org/fhir/us/ecr/StructureDefinition/us-ph-named-eventtype-extension",
+      "version": "2.0.0",
+      "kind": "complex-type",
+      "type": "Extension"
     },
     {
       "filename": "StructureDefinition-us-ph-organization.json",
       "resourceType": "StructureDefinition",
       "id": "us-ph-organization",
       "url": "http://hl7.org/fhir/us/ecr/StructureDefinition/us-ph-organization",
-      "version": "1.1.0",
+      "version": "2.0.0",
       "kind": "resource",
       "type": "Organization"
     },
@@ -524,7 +662,7 @@
       "resourceType": "StructureDefinition",
       "id": "us-ph-patient",
       "url": "http://hl7.org/fhir/us/ecr/StructureDefinition/us-ph-patient",
-      "version": "1.1.0",
+      "version": "2.0.0",
       "kind": "resource",
       "type": "Patient"
     },
@@ -533,168 +671,100 @@
       "resourceType": "StructureDefinition",
       "id": "us-ph-plandefinition",
       "url": "http://hl7.org/fhir/us/ecr/StructureDefinition/us-ph-plandefinition",
-      "version": "1.1.0",
+      "version": "2.0.0",
       "kind": "resource",
       "type": "PlanDefinition"
+    },
+    {
+      "filename": "ValueSet-us-ph-plandefinition-action.json",
+      "resourceType": "ValueSet",
+      "id": "us-ph-plandefinition-action",
+      "url": "http://hl7.org/fhir/us/ecr/ValueSet/us-ph-plandefinition-action",
+      "version": "2.0.0"
+    },
+    {
+      "filename": "CodeSystem-us-ph-plandefinition-actions.json",
+      "resourceType": "CodeSystem",
+      "id": "us-ph-plandefinition-actions",
+      "url": "http://hl7.org/fhir/us/ecr/CodeSystem/us-ph-plandefinition-actions",
+      "version": "2.0.0"
+    },
+    {
+      "filename": "StructureDefinition-us-ph-postpartum-status.json",
+      "resourceType": "StructureDefinition",
+      "id": "us-ph-postpartum-status",
+      "url": "http://hl7.org/fhir/us/ecr/StructureDefinition/us-ph-postpartum-status",
+      "version": "2.0.0",
+      "kind": "resource",
+      "type": "Observation"
     },
     {
       "filename": "StructureDefinition-us-ph-practitionerrole.json",
       "resourceType": "StructureDefinition",
       "id": "us-ph-practitionerrole",
       "url": "http://hl7.org/fhir/us/ecr/StructureDefinition/us-ph-practitionerrole",
-      "version": "1.1.0",
+      "version": "2.0.0",
       "kind": "resource",
       "type": "PractitionerRole"
     },
     {
-      "filename": "StructureDefinition-us-ph-procedure.json",
+      "filename": "StructureDefinition-us-ph-pregnancy-outcome-observation.json",
       "resourceType": "StructureDefinition",
-      "id": "us-ph-procedure",
-      "url": "http://hl7.org/fhir/us/ecr/StructureDefinition/us-ph-procedure",
-      "version": "1.1.0",
-      "kind": "resource",
-      "type": "Procedure"
-    },
-    {
-      "filename": "StructureDefinition-us-ph-valueset.json",
-      "resourceType": "StructureDefinition",
-      "id": "us-ph-valueset",
-      "url": "http://hl7.org/fhir/us/ecr/StructureDefinition/us-ph-valueset",
-      "version": "1.1.0",
-      "kind": "resource",
-      "type": "ValueSet"
-    },
-    {
-      "filename": "ValueSet-valueset-ecr-task-businessstatus.json",
-      "resourceType": "ValueSet",
-      "id": "valueset-ecr-task-businessstatus",
-      "url": "http://hl7.org/fhir/us/ecr/ValueSet/valueset-ecr-task-businessstatus",
-      "version": "1.1.0"
-    },
-    {
-      "filename": "StructureDefinition-us-ph-transportation-details.json",
-      "resourceType": "StructureDefinition",
-      "id": "us-ph-transportation-details",
-      "url": "http://hl7.org/fhir/us/ecr/StructureDefinition/us-ph-transportation-details",
-      "version": "1.1.0",
+      "id": "us-ph-pregnancy-outcome-observation",
+      "url": "http://hl7.org/fhir/us/ecr/StructureDefinition/us-ph-pregnancy-outcome-observation",
+      "version": "2.0.0",
       "kind": "resource",
       "type": "Observation"
     },
     {
-      "filename": "ValueSet-us-ph-triggerdefinition-namedevent.json",
+      "filename": "ValueSet-us-ph-pregnancy-status.json",
       "resourceType": "ValueSet",
-      "id": "us-ph-triggerdefinition-namedevent",
-      "url": "http://hl7.org/fhir/us/ecr/ValueSet/us-ph-triggerdefinition-namedevent",
-      "version": "1.1.0"
+      "id": "us-ph-pregnancy-status",
+      "url": "http://hl7.org/fhir/us/ecr/ValueSet/us-ph-pregnancy-status",
+      "version": "2.0.0"
     },
     {
-      "filename": "CodeSystem-us-ph-triggerdefinition-namedevents.json",
-      "resourceType": "CodeSystem",
-      "id": "us-ph-triggerdefinition-namedevents",
-      "url": "http://hl7.org/fhir/us/ecr/CodeSystem/us-ph-triggerdefinition-namedevents",
-      "version": "1.1.0"
-    },
-    {
-      "filename": "StructureDefinition-us-ph-namedEventType.json",
+      "filename": "StructureDefinition-us-ph-pregnancy-status-observation.json",
       "resourceType": "StructureDefinition",
-      "id": "us-ph-namedEventType",
-      "url": "http://hl7.org/fhir/us/ecr/StructureDefinition/us-ph-namedEventType",
-      "version": "1.1.0",
+      "id": "us-ph-pregnancy-status-observation",
+      "url": "http://hl7.org/fhir/us/ecr/StructureDefinition/us-ph-pregnancy-status-observation",
+      "version": "2.0.0",
+      "kind": "resource",
+      "type": "Observation"
+    },
+    {
+      "filename": "StructureDefinition-us-ph-receiver-address-extension.json",
+      "resourceType": "StructureDefinition",
+      "id": "us-ph-receiver-address-extension",
+      "url": "http://hl7.org/fhir/us/ecr/StructureDefinition/us-ph-receiver-address-extension",
+      "version": "2.0.0",
       "kind": "complex-type",
       "type": "Extension"
     },
     {
-      "filename": "StructureDefinition-us-ph-specification-bundle.json",
+      "filename": "StructureDefinition-us-ph-reporting-bundle.json",
       "resourceType": "StructureDefinition",
-      "id": "us-ph-specification-bundle",
-      "url": "http://hl7.org/fhir/us/ecr/StructureDefinition/us-ph-specification-bundle",
-      "version": "1.1.0",
+      "id": "us-ph-reporting-bundle",
+      "url": "http://hl7.org/fhir/us/ecr/StructureDefinition/us-ph-reporting-bundle",
+      "version": "2.0.0",
       "kind": "resource",
       "type": "Bundle"
     },
     {
-      "filename": "StructureDefinition-us-ph-usageWarning.json",
+      "filename": "StructureDefinition-us-ph-specification-library.json",
       "resourceType": "StructureDefinition",
-      "id": "us-ph-usageWarning",
-      "url": "http://hl7.org/fhir/us/ecr/StructureDefinition/us-ph-usageWarning",
-      "version": "1.1.0",
-      "kind": "complex-type",
-      "type": "Extension"
-    },
-    {
-      "filename": "StructureDefinition-us-ph-supplemental-bundle.json",
-      "resourceType": "StructureDefinition",
-      "id": "us-ph-supplemental-bundle",
-      "url": "http://hl7.org/fhir/us/ecr/StructureDefinition/us-ph-supplemental-bundle",
-      "version": "1.1.0",
-      "kind": "resource",
-      "type": "Bundle"
-    },
-    {
-      "filename": "CodeSystem-us-ph-usage-context-type.json",
-      "resourceType": "CodeSystem",
-      "id": "us-ph-usage-context-type",
-      "url": "http://hl7.org/fhir/us/ecr/CodeSystem/us-ph-usage-context-type",
-      "version": "1.1.0"
-    },
-    {
-      "filename": "CodeSystem-us-ph-usage-context.json",
-      "resourceType": "CodeSystem",
-      "id": "us-ph-usage-context",
-      "url": "http://hl7.org/fhir/us/ecr/CodeSystem/us-ph-usage-context",
-      "version": "1.1.0"
-    },
-    {
-      "filename": "StructureDefinition-us-ph-computablevalueset.json",
-      "resourceType": "StructureDefinition",
-      "id": "us-ph-computablevalueset",
-      "url": "http://hl7.org/fhir/us/ecr/StructureDefinition/us-ph-computablevalueset",
-      "version": "1.1.0",
-      "kind": "resource",
-      "type": "ValueSet"
-    },
-    {
-      "filename": "StructureDefinition-us-ph-computablelibrary.json",
-      "resourceType": "StructureDefinition",
-      "id": "us-ph-computablelibrary",
-      "url": "http://hl7.org/fhir/us/ecr/StructureDefinition/us-ph-computablelibrary",
-      "version": "1.1.0",
+      "id": "us-ph-specification-library",
+      "url": "http://hl7.org/fhir/us/ecr/StructureDefinition/us-ph-specification-library",
+      "version": "2.0.0",
       "kind": "resource",
       "type": "Library"
     },
     {
-      "filename": "StructureDefinition-us-ph-executablelibrary.json",
+      "filename": "StructureDefinition-us-ph-supplemental-library.json",
       "resourceType": "StructureDefinition",
-      "id": "us-ph-executablelibrary",
-      "url": "http://hl7.org/fhir/us/ecr/StructureDefinition/us-ph-executablelibrary",
-      "version": "1.1.0",
-      "kind": "resource",
-      "type": "Library"
-    },
-    {
-      "filename": "StructureDefinition-us-ph-executablevalueset.json",
-      "resourceType": "StructureDefinition",
-      "id": "us-ph-executablevalueset",
-      "url": "http://hl7.org/fhir/us/ecr/StructureDefinition/us-ph-executablevalueset",
-      "version": "1.1.0",
-      "kind": "resource",
-      "type": "ValueSet"
-    },
-    {
-      "filename": "StructureDefinition-us-ph-triggering-valueset.json",
-      "resourceType": "StructureDefinition",
-      "id": "us-ph-triggering-valueset",
-      "url": "http://hl7.org/fhir/us/ecr/StructureDefinition/us-ph-triggering-valueset",
-      "version": "1.1.0",
-      "kind": "resource",
-      "type": "ValueSet"
-    },
-    {
-      "filename": "StructureDefinition-us-ph-triggering-valueset-library.json",
-      "resourceType": "StructureDefinition",
-      "id": "us-ph-triggering-valueset-library",
-      "url": "http://hl7.org/fhir/us/ecr/StructureDefinition/us-ph-triggering-valueset-library",
-      "version": "1.1.0",
+      "id": "us-ph-supplemental-library",
+      "url": "http://hl7.org/fhir/us/ecr/StructureDefinition/us-ph-supplemental-library",
+      "version": "2.0.0",
       "kind": "resource",
       "type": "Library"
     },
@@ -703,7 +773,7 @@
       "resourceType": "StructureDefinition",
       "id": "us-ph-supplemental-valueset",
       "url": "http://hl7.org/fhir/us/ecr/StructureDefinition/us-ph-supplemental-valueset",
-      "version": "1.1.0",
+      "version": "2.0.0",
       "kind": "resource",
       "type": "ValueSet"
     },
@@ -712,50 +782,118 @@
       "resourceType": "StructureDefinition",
       "id": "us-ph-supplemental-valueset-library",
       "url": "http://hl7.org/fhir/us/ecr/StructureDefinition/us-ph-supplemental-valueset-library",
-      "version": "1.1.0",
+      "version": "2.0.0",
       "kind": "resource",
       "type": "Library"
+    },
+    {
+      "filename": "StructureDefinition-us-ph-transportation-details.json",
+      "resourceType": "StructureDefinition",
+      "id": "us-ph-transportation-details",
+      "url": "http://hl7.org/fhir/us/ecr/StructureDefinition/us-ph-transportation-details",
+      "version": "2.0.0",
+      "kind": "resource",
+      "type": "Observation"
+    },
+    {
+      "filename": "StructureDefinition-us-ph-travel-history.json",
+      "resourceType": "StructureDefinition",
+      "id": "us-ph-travel-history",
+      "url": "http://hl7.org/fhir/us/ecr/StructureDefinition/us-ph-travel-history",
+      "version": "2.0.0",
+      "kind": "resource",
+      "type": "Observation"
+    },
+    {
+      "filename": "StructureDefinition-us-ph-tribal-affiliation-extension.json",
+      "resourceType": "StructureDefinition",
+      "id": "us-ph-tribal-affiliation-extension",
+      "url": "http://hl7.org/fhir/us/ecr/StructureDefinition/us-ph-tribal-affiliation-extension",
+      "version": "2.0.0",
+      "kind": "complex-type",
+      "type": "Extension"
+    },
+    {
+      "filename": "CodeSystem-us-ph-triggerdefinition-namedevents.json",
+      "resourceType": "CodeSystem",
+      "id": "us-ph-triggerdefinition-namedevents",
+      "url": "http://hl7.org/fhir/us/ecr/CodeSystem/us-ph-triggerdefinition-namedevents",
+      "version": "2.0.0"
+    },
+    {
+      "filename": "ValueSet-us-ph-triggerdefinition-namedevent.json",
+      "resourceType": "ValueSet",
+      "id": "us-ph-triggerdefinition-namedevent",
+      "url": "http://hl7.org/fhir/us/ecr/ValueSet/us-ph-triggerdefinition-namedevent",
+      "version": "2.0.0"
+    },
+    {
+      "filename": "StructureDefinition-us-ph-triggering-valueset.json",
+      "resourceType": "StructureDefinition",
+      "id": "us-ph-triggering-valueset",
+      "url": "http://hl7.org/fhir/us/ecr/StructureDefinition/us-ph-triggering-valueset",
+      "version": "2.0.0",
+      "kind": "resource",
+      "type": "ValueSet"
+    },
+    {
+      "filename": "StructureDefinition-us-ph-triggering-valueset-library.json",
+      "resourceType": "StructureDefinition",
+      "id": "us-ph-triggering-valueset-library",
+      "url": "http://hl7.org/fhir/us/ecr/StructureDefinition/us-ph-triggering-valueset-library",
+      "version": "2.0.0",
+      "kind": "resource",
+      "type": "Library"
+    },
+    {
+      "filename": "CodeSystem-us-ph-usage-context.json",
+      "resourceType": "CodeSystem",
+      "id": "us-ph-usage-context",
+      "url": "http://hl7.org/fhir/us/ecr/CodeSystem/us-ph-usage-context",
+      "version": "2.0.0"
+    },
+    {
+      "filename": "CodeSystem-us-ph-usage-context-type.json",
+      "resourceType": "CodeSystem",
+      "id": "us-ph-usage-context-type",
+      "url": "http://hl7.org/fhir/us/ecr/CodeSystem/us-ph-usage-context-type",
+      "version": "2.0.0"
+    },
+    {
+      "filename": "StructureDefinition-us-ph-usagewarning-extension.json",
+      "resourceType": "StructureDefinition",
+      "id": "us-ph-usagewarning-extension",
+      "url": "http://hl7.org/fhir/us/ecr/StructureDefinition/us-ph-usagewarning-extension",
+      "version": "2.0.0",
+      "kind": "complex-type",
+      "type": "Extension"
+    },
+    {
+      "filename": "StructureDefinition-us-ph-valueset.json",
+      "resourceType": "StructureDefinition",
+      "id": "us-ph-valueset",
+      "url": "http://hl7.org/fhir/us/ecr/StructureDefinition/us-ph-valueset",
+      "version": "2.0.0",
+      "kind": "resource",
+      "type": "ValueSet"
     },
     {
       "filename": "StructureDefinition-us-ph-valueset-library.json",
       "resourceType": "StructureDefinition",
       "id": "us-ph-valueset-library",
       "url": "http://hl7.org/fhir/us/ecr/StructureDefinition/us-ph-valueset-library",
-      "version": "1.1.0",
+      "version": "2.0.0",
       "kind": "resource",
       "type": "Library"
     },
     {
-      "filename": "StructureDefinition-us-ph-alternativeExpression.json",
+      "filename": "StructureDefinition-us-ph-fhirquerypattern-extension.json",
       "resourceType": "StructureDefinition",
-      "id": "us-ph-alternativeExpression",
-      "url": "http://hl7.org/fhir/us/ecr/StructureDefinition/us-ph-alternativeExpression",
-      "version": "1.1.0",
+      "id": "us-ph-fhirquerypattern-extension",
+      "url": "http://hl7.org/fhir/us/ecr/StructureDefinition/us-ph-fhirquerypattern-extension",
+      "version": "2.0.0",
       "kind": "complex-type",
       "type": "Extension"
-    },
-    {
-      "filename": "Parameters-expansion-parameters-ecr.json",
-      "resourceType": "Parameters",
-      "id": "expansion-parameters-ecr"
-    },
-    {
-      "filename": "StructureDefinition-us-ph-codesystem-propertyBinding.json",
-      "resourceType": "StructureDefinition",
-      "id": "us-ph-codesystem-propertyBinding",
-      "url": "http://hl7.org/fhir/us/ecr/StructureDefinition/us-ph-codesystem-propertyBinding",
-      "version": "1.1.0",
-      "kind": "complex-type",
-      "type": "Extension"
-    },
-    {
-      "filename": "StructureDefinition-us-ph-codesystem.json",
-      "resourceType": "StructureDefinition",
-      "id": "us-ph-codesystem",
-      "url": "http://hl7.org/fhir/us/ecr/StructureDefinition/us-ph-codesystem",
-      "version": "1.1.0",
-      "kind": "resource",
-      "type": "CodeSystem"
     }
   ]
 }

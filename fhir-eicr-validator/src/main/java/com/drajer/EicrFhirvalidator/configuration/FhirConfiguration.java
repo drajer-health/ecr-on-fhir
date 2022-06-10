@@ -7,7 +7,7 @@ import org.springframework.context.annotation.Configuration;
 import ca.uhn.fhir.context.FhirContext;
 
 @Configuration
-@ComponentScan(basePackages = { "com.interopx.fhir.InteropXFhirvalidator" })
+@ComponentScan(basePackages = { "com.drajer.EicrFhirvalidator" })
 public class FhirConfiguration {
 
 	@Bean(name = "dstu2FhirContext")
