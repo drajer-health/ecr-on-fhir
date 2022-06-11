@@ -1,6 +1,8 @@
 # EicrResponderUI
 
 This project was generated with [Angular CLI](https://github.com/angular/angular-cli) version 12.2.6.
+
+Prerequisites:
 1.	Node.js v14.19.3
 
 
