@@ -1,4 +1,4 @@
-# ecr-on-fhir
+# eicr-responder
 Prerequisites:
 1.	Java 8
 2.	Apache Tomcat 7 or 8
@@ -59,7 +59,6 @@ This will generate a war file under target/eicrresponder.war Copy this to your t
 
 $ mvn clean install
 ```
-
 This will generate a war file under target/eicrresponder.war. Copy this to your tomcat webapp directory for deployment.
 
 Start Tomcat Service 
