@@ -7,6 +7,8 @@ import org.slf4j.LoggerFactory;
 import org.springframework.stereotype.Component;
 import org.springframework.util.ResourceUtils;
 
+import javax.net.ssl.HostnameVerifier;
+import javax.net.ssl.SSLSession;
 import javax.servlet.http.HttpServletRequest;
 import java.io.File;
 import java.io.FileInputStream;
@@ -39,7 +41,14 @@ public class KeyCloackTokenValidationClient {
 
         String url = authUrl + "/realms/" + realm + "/protocol/openid-connect/token/introspect";
 
-        OkHttpClient client = new OkHttpClient().newBuilder().build();
+        OkHttpClient client = new OkHttpClient().newBuilder().hostnameVerifier(new HostnameVerifier()
+        {
+            @Override
+            public boolean verify(String hostname, SSLSession session)
+            {
+                return true;
+            }
+        }).build();
 
         MediaType mediaType = MediaType.parse(APPLICATION_URL_FORM_ENCODED);
 
