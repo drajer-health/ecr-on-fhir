@@ -105,6 +105,7 @@ public class MessageHeaderResourceProvider {
 			}catch(Exception e) {
 				e.printStackTrace();
 			}
+			System.out.println("Done Writing MetaData and resource Bundle to S3 ");
 
 			if (outcome.hasIssue()) {
 				List<OperationOutcomeIssueComponent> issueCompList = outcome.getIssue();
@@ -123,7 +124,7 @@ public class MessageHeaderResourceProvider {
 				bundleService.createBundle(dafBundle);
 			}
 
-				Bundle responseBundle = new Bundle();
+			Bundle responseBundle = new Bundle();
 			List<BundleEntryComponent> bundleEntryList = new ArrayList<>();
 			BundleEntryComponent entryComp = new BundleEntryComponent();
 			entryComp.setResource(outcome);
@@ -132,6 +133,7 @@ public class MessageHeaderResourceProvider {
 			return responseBundle;
 
 		} catch (Exception e) {
+			e.printStackTrace();			
 			throw new UnprocessableEntityException("Error in Processing the Bundle");
 		}
 	}
