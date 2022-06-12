@@ -106,6 +106,7 @@ public class CommonUtil {
 			outcome = (OperationOutcome) r4Context.newJsonParser().parseResource(response.getBody());
 
 		}catch(Exception e) {
+			e.printStackTrace();
 			outcome.addIssue().setSeverity(org.hl7.fhir.r4.model.OperationOutcome.IssueSeverity.ERROR)
 					.setDiagnostics("Failed to parse request body as JSON resource. Error was: " + e.getMessage());
 		}
