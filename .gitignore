@@ -1,0 +1,8 @@
+eicr-responder-UI/dist/
+eicr-responder-UI/package-lock.json
+
+eicr-responder-UI/node_modules/
+
+eicr-responder/MetaData.json
+eicr-responder/target/
+

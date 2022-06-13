@@ -405,11 +405,6 @@ public class ResponderContextInitializer {
 		List<String> validFiles = new ArrayList<String>();
 		StringBuilder inValidFiles = new StringBuilder();
 		Arrays.asList(files).stream().forEach(file -> {
-			try {
-				logger.info("file getAbsolutePath :::"+file.getResource().getFile().getAbsolutePath());
-			} catch (IOException e) {
-				logger.info("Error while getting absolute path::"+e.getLocalizedMessage());
-			}
 			if (file.getOriginalFilename().equalsIgnoreCase(EicrResponderParserContant.RR_XML)) {
 				validFiles.add(EicrResponderParserContant.RR_XML);
 			}
