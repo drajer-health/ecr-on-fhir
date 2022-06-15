@@ -2,28 +2,22 @@
 
 This project was generated with [Angular CLI](https://github.com/angular/angular-cli) version 12.2.6.
 
-Prerequisites:
-1.	Node.js v14.19.3
-
-
 Clone the Repository
 Clone the respository using the below command in command prompt
 
 ```git clone https://github.com/drajer-health/ecr-on-fhir.git```
 
-cd eicr-responder-UI
+## Deployment to tomcat server
 
-Run npm install
+cd eicr-responder-UI/dist
 
-## Development server
-
-Run `ng serve` for a dev server. Navigate to `http://localhost:4200/`. The app will automatically reload if you change any of the source files.
+cp -R eicr-responder-UI/ /<<tomcatserver>>/webapps/eicr-responder-UI/
 
 ## Test applicaiton is running 
 
-http://localhost:4200/#/configurepha
+http://<<tomcathost>>:<<tomcatport>>/eicr-responder-UI//#/configurepha
 
-http://localhost:4200/#/phalist
+http://<<tomcathost>>:<<tomcatport>>/eicr-responder-UI/#/phalist
 
 ## Further help
 
