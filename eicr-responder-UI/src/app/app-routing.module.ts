@@ -6,6 +6,7 @@ import { PharoutinglistComponent } from './pharoutinglist/pharoutinglist.compone
 
 const routes: Routes = [
   { path: 'configurepha', component: PharoutingComponent },
+  { path: '', component: PharoutinglistComponent },
   { path: 'phalist', component: PharoutinglistComponent }
 ];
 
