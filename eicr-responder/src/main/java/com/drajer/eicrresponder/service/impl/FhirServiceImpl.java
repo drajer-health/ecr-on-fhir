@@ -60,10 +60,11 @@ public class FhirServiceImpl implements FhirService {
 
 			Bundle reportingBundle = (Bundle) CommonUtil.getBundle(rrBundle, responderRequest.getMetadata(), "rr");
 
-			logger.info("ahirResquest.getFhirServerURL():::::::" + fhirResquest.getFhirServerURL());
+			logger.info("fhirResquest.getFhirServerURL():::::::" + fhirResquest.getFhirServerURL());
 			// Initialize the Client
 			IGenericClient client = fhirContextInitializer.createClient(context, fhirResquest.getFhirServerURL(),
 					fhirResquest.getAccessToken());
+			logger.info("Client after Initializing ::::"+client);
 
 			Bundle responseBundle = fhirContextInitializer.submitProcessMessage(client, reportingBundle);
 			logger.info("Fhir response after submit processMessage ::::" + responseBundle.toString());

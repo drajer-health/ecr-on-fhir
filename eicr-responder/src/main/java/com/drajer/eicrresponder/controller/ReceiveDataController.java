@@ -1,5 +1,6 @@
 package com.drajer.eicrresponder.controller;
 
+import org.hl7.fhir.r4.model.Bundle;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 import org.springframework.beans.factory.annotation.Autowired;
@@ -40,4 +41,16 @@ public class ReceiveDataController {
 		logger.info("ReceiveDataController folderName:    " +folderName);
 		return responderService.sendResponder(files,folderName);
 	}
+	
+	@PostMapping("/postToPha")
+	public Bundle sendMessageToPha(Bundle theMessageToProcess) {
+		logger.info("Successfully Receieved data for PHA");
+		return null;
+	}
+
+	@PostMapping("/postToHealthCare")
+	public Bundle sendMessageToHealthcare(Bundle theMessageToProcess) {
+		logger.info("Successfully Receieved data for Health Care.");
+		return null;
+	}		
 }

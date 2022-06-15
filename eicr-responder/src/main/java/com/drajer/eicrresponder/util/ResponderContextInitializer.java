@@ -225,7 +225,11 @@ public class ResponderContextInitializer {
 				message="No Jurisdictions found.";
 			}
 		} catch (Exception e) {
-			logger.error(e.getMessage());
+			if (e.getMessage().length() > 200) {
+				logger.info("Error submiting data to sendToPha  :::::" + e.getMessage().substring(0, 200));
+			} else {
+				logger.info("Error submiting data to sendToPha  :::::" + e.getMessage());
+			}
 			return ResponseEntity.status(HttpStatus.OK).body(message);
 		}
 		logger.info("sendToPha message "+message);

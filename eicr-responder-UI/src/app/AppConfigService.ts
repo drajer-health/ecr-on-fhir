@@ -10,7 +10,7 @@ export class AppConfigService {
     loadAppConfig() {
         let http = this.injector.get(HttpClient);
 
-        return http.get('/assets/config/config.json')
+        return http.get('./assets/config/config.json')
         .toPromise()
         .then(data => {
             this.appConfig = data;
