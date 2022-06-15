@@ -14,9 +14,11 @@ cd eicr-responder-UI/dist
 
 cp -R eicr-responder-UI/ /<<tomcatserver>/webapps/eicr-responder-UI/
 
+
+
 ## Test applicaiton is running 
 
-```
+
 http://<tomcathost>:<tomcatport>/eicr-responder-UI//#/configurepha
 
 http://<tomcathost>:<tomcatport>/eicr-responder-UI/#/phalist
