@@ -14,6 +14,13 @@ cd eicr-responder-UI/dist
 
 cp -R eicr-responder-UI/ /<<tomcatserver>/webapps/eicr-responder-UI/
 
+## Update Configuration for eicrreponder server
+
+cd /<<tomcatserver>/webapps/eicr-responder-UI/assest/config
+
+update config.json and replace "url" with the actual <eicrreponderhost>:<port>
+
+		"url": "http://<eicrreponderhost>:<port>/eicrresponder"
 
 
 ## Test applicaiton is running 

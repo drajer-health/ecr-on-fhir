@@ -49,8 +49,8 @@ public class ReceiveDataController {
 	}
 
 	@PostMapping("/postToHealthCare")
-	public Bundle sendMessageToHealthcare(Bundle theMessageToProcess) {
+	public Bundle sendMessageToHealthcare(String theMessageToProcess) {
 		logger.info("Successfully Receieved data for Health Care.");
 		return null;
-	}		
+	}
 }

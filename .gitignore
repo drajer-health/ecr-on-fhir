@@ -11,3 +11,6 @@ eicr-responder/.project
 fhir-eicr-r4/.project
 fhir-eicr-r4/target/
 fhir-eicr-r4/bin/
+
+fhir-eicr-r4/.classpath
+fhir-eicr-r4/.settings/

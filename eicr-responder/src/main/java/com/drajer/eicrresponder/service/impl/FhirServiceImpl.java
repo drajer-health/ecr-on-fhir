@@ -69,12 +69,16 @@ public class FhirServiceImpl implements FhirService {
 			Bundle responseBundle = fhirContextInitializer.submitProcessMessage(client, reportingBundle);
 			logger.info("Fhir response after submit processMessage ::::" + responseBundle.toString());
 		} catch (Exception e) {
+			// Need to remove this for the PROD deployment
+			if (e.getMessage().contains("HTTP 404")) {
+				return ResponseEntity.status(HttpStatus.OK).body("Not a Valid FHIR URL");
+			}
 			if (e.getMessage().length() > 200) {
 				logger.info("Error submiting data to fhir  :::::" + e.getMessage().substring(0, 200));
 			} else {
 				logger.info("Error submiting data to fhir  :::::" + e.getMessage());
 			}
-			return (ResponseEntity.status(HttpStatus.EXPECTATION_FAILED).body(e.getMessage().substring(0, 200)));
+			return (ResponseEntity.status(HttpStatus.EXPECTATION_FAILED).body(e.getMessage()));
 		}
 		return ResponseEntity.status(HttpStatus.OK).body(message);
 	}
