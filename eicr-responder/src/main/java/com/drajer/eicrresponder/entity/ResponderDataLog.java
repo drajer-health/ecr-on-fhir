@@ -24,7 +24,7 @@ public class ResponderDataLog {
 	private long id; // an auto-generated unique identifier
 
 	@Column(name = "eicr_id", nullable = false)
-	private long eicrId; // eicr id
+	private String eicrId; // eicr id
 
 	@Column(name = "eicr_received_datatime", nullable = false)
 	private java.sql.Timestamp eicrReceivedDatatime; // eicr received data time
@@ -49,11 +49,11 @@ public class ResponderDataLog {
 		this.id = id;
 	}
 
-	public long getEicrId() {
+	public String getEicrId() {
 		return eicrId;
 	}
 
-	public void setEicrId(long eicrId) {
+	public void setEicrId(String eicrId) {
 		this.eicrId = eicrId;
 	}
 
