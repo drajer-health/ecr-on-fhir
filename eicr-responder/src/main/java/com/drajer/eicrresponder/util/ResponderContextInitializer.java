@@ -9,17 +9,17 @@ import java.sql.Timestamp;
 import java.time.Instant;
 import java.util.ArrayList;
 import java.util.Arrays;
+import java.util.HashSet;
 import java.util.List;
 import java.util.stream.Collectors;
 
-import javax.xml.parsers.DocumentBuilder;
-import javax.xml.parsers.DocumentBuilderFactory;
-import javax.xml.xpath.XPathConstants;
-
-import org.apache.commons.io.IOUtils;
-import org.apache.commons.io.input.BOMInputStream;
 import org.hl7.fhir.instance.model.api.IBaseResource;
+import org.hl7.fhir.r4.model.Address;
 import org.hl7.fhir.r4.model.Bundle;
+import org.hl7.fhir.r4.model.CodeableConcept;
+import org.hl7.fhir.r4.model.Coding;
+import org.hl7.fhir.r4.model.Resource;
+import org.hl7.fhir.r4.model.ResourceType;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 import org.springframework.beans.factory.annotation.Autowired;
@@ -35,9 +35,6 @@ import org.springframework.util.LinkedMultiValueMap;
 import org.springframework.util.MultiValueMap;
 import org.springframework.web.client.RestTemplate;
 import org.springframework.web.multipart.MultipartFile;
-import org.w3c.dom.Document;
-import org.w3c.dom.Element;
-import org.w3c.dom.NodeList;
 
 import com.drajer.eicrresponder.entity.ResponderDataLog;
 import com.drajer.eicrresponder.model.FhirRequest;
@@ -63,8 +60,6 @@ public class ResponderContextInitializer {
 
 	private static final Logger logger = LoggerFactory.getLogger(ResponderContextInitializer.class);
 	private final RestTemplate restTemplate;
-	private DocumentBuilderFactory factory;
-	private DocumentBuilder builder;
 	private final String SAVE_RESPONDER_DATA_LOG = "responderlog";
 	private static final String RESPONDER_ENDPOINT = "responder.endpoint";
 	private static final String SUCCESS_MESSAGE ="Send Message to PHA successfull";
@@ -177,52 +172,48 @@ public class ResponderContextInitializer {
 			logger.info("EicrResponderParserContant.META_DATA_FILE::::"+bodyMap.get(EicrResponderParserContant.META_DATA_FILE));
 			saveDataLog(bodyMap.get(EicrResponderParserContant.META_DATA_FILE));
 			
-			if (jurisdictions.size() > 0) {
-				// create bundles for pha and fhir from XML
-				createBundle(files, responderRequest);
+			// create bundles for pha and fhir from XML
+			createBundle(files, responderRequest);
 
-				// send request to pha
-				List<ResponseEntity<String>> resonseEntityPha = new ArrayList<ResponseEntity<String>>();
-				StringBuilder processMsg = new StringBuilder();
+			// send request to pha
+			List<ResponseEntity<String>> resonseEntityPha = new ArrayList<ResponseEntity<String>>();
+			StringBuilder processMsg = new StringBuilder();
 
-				logger.info("commonUtil.sendToPha()::::" + CommonUtil.sendToPha());
-				if (CommonUtil.sendToPha()) {
-					logger.info("jurisdictions.size()::::" + jurisdictions.size());
-					if (jurisdictions.size() < 1) {
-						return ResponseEntity.status(HttpStatus.EXPECTATION_FAILED).body("No Valid PHA end point found.");
-					}
-					resonseEntityPha = submitProcessMessage(responderRequest);
-					logger.info("resonseEntityPha 3333 ::::" + resonseEntityPha.toString());
-					resonseEntityPha.stream().forEach((resonseEntity -> {
-						if (resonseEntity.getStatusCode() != HttpStatus.OK)
-							processMsg.append(resonseEntity.getBody()).append(System.getProperty("line.separator"));
-					}));
-				}
-				logger.info("processMsg value sendToPha 4444::::" + processMsg);
+			if (jurisdictions.size() < 1) {
+				logger.error("No Jurisdictions found.");
+			}
+			logger.info("commonUtil.sendToPha()::::" + CommonUtil.sendToPha());
+			if (CommonUtil.sendToPha() && jurisdictions.size() > 0) {
+				logger.info("jurisdictions.size()::::" + jurisdictions.size());
+				resonseEntityPha = submitProcessMessage(responderRequest);
+				logger.info("resonseEntityPha 3333 ::::" + resonseEntityPha.toString());
+				resonseEntityPha.stream().forEach((resonseEntity -> {
+					if (resonseEntity.getStatusCode() != HttpStatus.OK)
+						processMsg.append(resonseEntity.getBody()).append(System.getProperty("line.separator"));
+				}));
+			}
+			logger.info("processMsg value sendToPha 4444::::" + processMsg);
 
-				// send request to fhir
-				FhirRequestConverter fhirRequestConverter = new FhirRequestConverter();
-				FhirRequest fhirRequest = fhirRequestConverter
-						.convertToFhirRequest(bodyMap.get(EicrResponderParserContant.META_DATA_FILE));
-				logger.info("fhirService object:::::"+fhirService);
-				ResponseEntity<String> resonseEntityFhir = fhirService.submitToFhir(fhirRequest, responderRequest);
-				logger.info("resonseEntityFhir toString::::" + resonseEntityFhir.toString());
-				logger.info("resonseEntityFhir getStatusCode::::" + resonseEntityFhir.getStatusCode());
+			// send request to fhir
+			FhirRequestConverter fhirRequestConverter = new FhirRequestConverter();
+			FhirRequest fhirRequest = fhirRequestConverter
+					.convertToFhirRequest(bodyMap.get(EicrResponderParserContant.META_DATA_FILE));
+			logger.info("fhirService object:::::"+fhirService);
+			ResponseEntity<String> resonseEntityFhir = fhirService.submitToFhir(fhirRequest, responderRequest);
+			logger.info("resonseEntityFhir toString::::" + resonseEntityFhir.toString());
+			logger.info("resonseEntityFhir getStatusCode::::" + resonseEntityFhir.getStatusCode());
 
-				if (resonseEntityFhir.getStatusCode() != HttpStatus.OK) {
-					processMsg.append(resonseEntityFhir.getBody()).append(System.getProperty("line.separator"));
-				}
-				logger.info("processMsg value ::::" + processMsg);
-				if (org.apache.commons.lang3.StringUtils.isNotBlank(processMsg)) {
-					return ResponseEntity.status(HttpStatus.EXPECTATION_FAILED).body(processMsg.toString());
-				}
-				
-				String[] s3PostResponse = postS3Service.postToS3(responderRequest, folderName);
-				if (Arrays.asList(s3PostResponse).toString().contains("Error")){
-					message="Error uploading files to S3.";
-				}
-			}else{
-				message="No Jurisdictions found.";
+			if (resonseEntityFhir.getStatusCode() != HttpStatus.OK) {
+				processMsg.append(resonseEntityFhir.getBody()).append(System.getProperty("line.separator"));
+			}
+			logger.info("processMsg value ::::" + processMsg);
+			if (org.apache.commons.lang3.StringUtils.isNotBlank(processMsg)) {
+				return ResponseEntity.status(HttpStatus.EXPECTATION_FAILED).body(processMsg.toString());
+			}
+			
+			String[] s3PostResponse = postS3Service.postToS3(responderRequest, folderName);
+			if (Arrays.asList(s3PostResponse).toString().contains("Error")){
+				message="Error uploading files to S3.";
 			}
 		} catch (Exception e) {
 			if (e.getMessage().length() > 200) {
@@ -274,47 +265,54 @@ public class ResponderContextInitializer {
 		logger.info("Getting Jurisdiction from RR_FHIR.XML::::");
 		List<Jurisdiction> jurisdictions = new ArrayList<Jurisdiction>();
 		Arrays.asList(files).stream().forEach(file -> {
-			DocumentBuilderFactory dbFactory = DocumentBuilderFactory.newInstance();
-			DocumentBuilder dBuilder = null;
-			Document doc = null;
 			logger.info("file.getOriginalFilename()::::" + file.getOriginalFilename());
 			if (file.getOriginalFilename().equalsIgnoreCase(EicrResponderParserContant.RR_XML)) {
 				try {
-					dBuilder = dbFactory.newDocumentBuilder();
-					doc = dBuilder.parse(file.getInputStream());
-					doc.getDocumentElement().normalize();
-
-					factory = DocumentBuilderFactory.newInstance();
-					builder = factory.newDocumentBuilder();
-
 					InputStream inputStream = file.getInputStream();
 					byte[] bdata = FileCopyUtils.copyToByteArray(inputStream);
 					String rrXml = new String(bdata, StandardCharsets.UTF_8);
-					doc = builder
-							.parse(new BOMInputStream(IOUtils.toInputStream(rrXml, StandardCharsets.UTF_8.name())));
-					doc.getDocumentElement().normalize();
-					logger.info(
-							"doc.getDocumentElement().getNodeName() :::::::" + doc.getDocumentElement().getNodeName());
-					// Extract parent for Temple id 2.16.840.1.113883.10.20.15.2.4.2
-					Element nd = (Element) EicrResponderParserContant.EICR_PHA_TEMPLATE_EXP.evaluate(doc,
-							XPathConstants.NODE);
-					if (nd !=null) {
-						String nodeName = nd.getNodeName();
-						NodeList childeNodes = nd.getChildNodes();
-						logger.info("childeNodes length for ::::" + nodeName + " ::::: " + childeNodes.getLength());
-						childeNodes = processJurs.getNodeList(childeNodes, EicrResponderParserContant.JUD_PARTICIPANT_ROLE);
-						childeNodes = processJurs.getNodeList(childeNodes, EicrResponderParserContant.JUD_ADDR);
-						Jurisdiction jurisdictionret = processJurs.getJurisdiction(childeNodes,
-								EicrResponderParserContant.JUD_STATE);
-						jurisdictionret.setPhaCode(jurisdictionret.getPhaCode());
-						jurisdictionret.setPhaEndpointUrl(jurisdictionret.getPhaEndpointUrl());
-						logger.info("juridiction end point url:::::" + jurisdictionret.getPhaEndpointUrl());
-						jurisdictions.add(jurisdictionret);						
-					}else {
-						logger.info("Unable to findJurisdiction in xml file");
+
+					IParser target = r4Context.newXmlParser();
+					Bundle eicrBundle = target.parseResource(Bundle.class, rrXml);
+
+					HashSet<String> jurdStates = new HashSet<String>();
+
+					for (int i = 0; i < eicrBundle.getEntry().size(); i++) {
+						boolean foundOrgJud = false;
+						Resource bundleResource = eicrBundle.getEntry().get(i).getResource();
+						ResourceType resourceType = bundleResource.getResourceType();
+						if (resourceType.getPath().equalsIgnoreCase(EicrResponderParserContant.JURD_ORGANIZATION)) {
+							org.hl7.fhir.r4.model.Organization org = (org.hl7.fhir.r4.model.Organization) bundleResource;
+							List<CodeableConcept> codeableConceptList = org.getType();
+							for (CodeableConcept cc : codeableConceptList) {
+								List<Coding> codeings = cc.getCoding();
+								for (Coding coding : codeings) {
+									if (coding.getSystem().contains(EicrResponderParserContant.JURD_SYSTEM_CODE)
+											&& (coding.getCode().equalsIgnoreCase(EicrResponderParserContant.JURD_CODE_RR7)
+													|| (coding.getCode().equalsIgnoreCase(EicrResponderParserContant.JURD_CODE_RR8)))) {
+										foundOrgJud = true;
+									}
+								}
+							}
+							if (foundOrgJud) {
+								List<Address> addresssList = org.getAddress();
+								for (Address addr : addresssList) {
+									logger.info("addr :::::" + addr.getState());
+									jurdStates.add(addr.getState());
+								}
+							}
+						}
+					}
+					logger.info("juricidations ::::::" + jurdStates.size());
+					for (String stateCode : jurdStates) {
+						Jurisdiction jurisdictionret = processJurs.getJurisdiction(stateCode);
+						logger.info("jurisdictionret ::::::" + jurisdictionret);
+
+						if (jurisdictionret != null)
+							jurisdictions.add(jurisdictionret);
 					}
 				} catch (Exception e) {
-					logger.error("Error while finding jurisdiction"+e.getMessage());
+					logger.error("Error while finding jurisdiction :::::"+e.getMessage());
 				}
 			}
 		});

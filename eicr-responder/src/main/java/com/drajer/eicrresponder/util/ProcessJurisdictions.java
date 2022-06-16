@@ -36,20 +36,18 @@ public class ProcessJurisdictions {
 		}
 		return null;
 	}
-
-	public Jurisdiction getJurisdiction(NodeList nodeList, String nodeName) {
-		Jurisdiction jurisdiction = new Jurisdiction();
-		for (int k = 0; k < nodeList.getLength(); k++) {
-			Node node = nodeList.item(k);
-			if (node.getNodeName().equalsIgnoreCase(nodeName)) {
-				String phaCode = node.getTextContent();
-				String apiEndPointUrl = CommonUtil.getProperty("responder.endpoint");
-				logger.info("call pha agency get endpoint url::::" + apiEndPointUrl + " ::::: " + phaCode);
-				ResponseEntity<String> responseEntity = phaUrlByAgencyCode(apiEndPointUrl +FIND_BY_JURISIDICTION+ phaCode);
-				jurisdiction.setPhaCode(phaCode);
-				jurisdiction.setPhaEndpointUrl(responseEntity.getBody().toString());
-			}
+		
+	public Jurisdiction getJurisdiction(String stateCode) {
+		Jurisdiction jurisdiction = null;
+		String apiEndPointUrl = CommonUtil.getProperty("responder.endpoint");
+		logger.info("call pha agency get endpoint url::::" + apiEndPointUrl + " ::::: " + stateCode);
+		ResponseEntity<String> responseEntity = phaUrlByAgencyCode(apiEndPointUrl + FIND_BY_JURISIDICTION + stateCode);
+		if (!responseEntity.getBody().isEmpty()) {
+			jurisdiction = new Jurisdiction();
+			jurisdiction.setPhaCode(stateCode);
+			jurisdiction.setPhaEndpointUrl(responseEntity.getBody().toString());
 		}
+		logger.info("getJurisdiction return obj :::::"+jurisdiction);
 		return jurisdiction;
 	}
 
@@ -69,7 +67,7 @@ public class ProcessJurisdictions {
 			PhaRoutingResponse[] phaRoutingResponses = objectMapper.readValue(json, PhaRoutingResponse[].class);
 
 			logger.info("phaRouting length::::" + phaRoutingResponses.length);
-			String phaEndPointUrl = null;
+			String phaEndPointUrl = "";
 			if (phaRoutingResponses.length > 0) {
 				PhaRoutingResponse phaRoutingResponse = phaRoutingResponses[0];
 				phaEndPointUrl = phaRoutingResponse.getEndpointUrl();
