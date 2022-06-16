@@ -327,7 +327,7 @@ public class ResponderContextInitializer {
 		logger.info("list.size() ::::" + list.size() );
 		if (list.size() > 0) {
 			metaData = (MetaData) list.get(0);
-			responderDataLog.setEicrId(Long.parseLong(metaData.getMessageId()));
+			responderDataLog.setEicrId(metaData.getMessageId());
 			logger.info("saveDataLog metaData getJurisdictions size::::"+metaData.getJurisdictions().size());
 			if (metaData.getJurisdictions().size() > 0)
 			responderDataLog.setEndpointUrl(metaData.getJurisdictions().get(0).getPhaEndpointUrl());
