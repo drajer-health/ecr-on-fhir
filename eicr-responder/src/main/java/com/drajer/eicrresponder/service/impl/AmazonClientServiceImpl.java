@@ -55,7 +55,7 @@ public class AmazonClientServiceImpl implements AmazonClientService {
 		meta.setContentLength(xml.getBytes().length);
 		meta.setContentType("application/xml");
 		
-		String fullPath = bucketName+folderName;
+		String fullPath = bucketName+"/"+folderName;
 
 		try {
 			logger.info("uploads3bucket folderName:    " +folderName);
