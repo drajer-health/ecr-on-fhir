@@ -20,15 +20,19 @@ cd /<<tomcatserver>/webapps/eicr-responder-UI/assest/config
 
 update config.json and replace "url" with the actual <eicrreponderhost>:<port>
 
-		"url": "http://<eicrreponderhost>:<port>/eicrresponder"
+	"url": "http://<eicrreponderhost>:<port>/eicrresponder"
+
+```
 
 
 ## Test applicaiton is running 
 
-
+```
 http://<tomcathost>:<tomcatport>/eicr-responder-UI//#/configurepha
 
 http://<tomcathost>:<tomcatport>/eicr-responder-UI/#/phalist
+
+```
 
 ## Further help
 

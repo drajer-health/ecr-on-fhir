@@ -29,7 +29,6 @@ import ca.uhn.fhir.rest.client.api.IGenericClient;
 @Transactional
 public class FhirServiceImpl implements FhirService {
 	public static final String RR_DOC_CONTENT_TYPE = "application/xml;charset=utf-8";
-	private static final String RESPONDER_VALIDATOR = "responder.validator";
 
 	private static final Logger logger = LoggerFactory.getLogger(FhirServiceImpl.class);
 
@@ -51,8 +50,6 @@ public class FhirServiceImpl implements FhirService {
 		try {
 			// Initialize the FHIR Context based on FHIR Version
 			FhirContext context = fhirContextInitializer.getFhirContext(fhirResquest.getFhirVersion());
-			String validatorEndpoint = CommonUtil.getProperty(RESPONDER_VALIDATOR);
-			logger.info("fhir validator endpoint:::::" + validatorEndpoint);
 
 			// create reporting bundle
 			IParser target = r4Context.newJsonParser(); // new JSON parser
@@ -68,6 +65,7 @@ public class FhirServiceImpl implements FhirService {
 
 			Bundle responseBundle = fhirContextInitializer.submitProcessMessage(client, reportingBundle);
 			logger.info("Fhir response after submit processMessage ::::" + responseBundle.toString());
+			message = "Successfully sent bundle to FHIR. ";
 		} catch (Exception e) {
 			// Need to remove this for the PROD deployment
 			if (e.getMessage().contains("HTTP 404")) {
