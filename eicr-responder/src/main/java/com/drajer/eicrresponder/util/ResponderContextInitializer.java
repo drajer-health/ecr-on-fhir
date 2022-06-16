@@ -217,9 +217,9 @@ public class ResponderContextInitializer {
 			}
 		} catch (Exception e) {
 			if (e.getMessage().length() > 200) {
-				logger.info("Error submiting data to sendToPha  :::::" + e.getMessage().substring(0, 200));
+				logger.error("Error submiting data to sendToPha  :::::" + e.getMessage().substring(0, 200));
 			} else {
-				logger.info("Error submiting data to sendToPha  :::::" + e.getMessage());
+				logger.error("Error submiting data to sendToPha  :::::" + e.getMessage());
 			}
 			return ResponseEntity.status(HttpStatus.OK).body(message);
 		}
@@ -247,7 +247,7 @@ public class ResponderContextInitializer {
 					// print metaData details
 					logger.info("after adding jurisdiction metaDataObj json...." + metaData.toString());
 				} catch (Exception e) {
-					logger.info("error processing meta data...."  );// + e.getMessage());
+					logger.error("error processing meta data...."  );// + e.getMessage());
 				}
 				bodyMap.add(EicrResponderParserContant.META_DATA_FILE, metaData);
 			}
