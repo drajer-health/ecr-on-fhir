@@ -50,24 +50,24 @@ public class PostS3ServiceImpl implements PostS3Service {
 				// Check for Message Id and Error Handling
 				logger.info("before uploads3bucket::::" + amazonClientService);
 				s3PostResponse[0] = amazonClientService.uploads3bucket(
-					 EicrResponderParserContant.RR_JSON,
-					 getOutput(request),folderName);
+						folderName+EicrResponderParserContant.RR_JSON,
+					 getOutput(request));
 				logger.info("after upload RR_XML response::::" + s3PostResponse[0]);
 
 				reportingBundle = getBundle((String) responderRequest.getEicrObject(), responderRequest.getMetadata(),
 						"eicr");
 				request = r4Context.newJsonParser().encodeResourceToString(reportingBundle);
 				s3PostResponse[1] = amazonClientService.uploads3bucket(
-						EicrResponderParserContant.EICR_FHIR_JSON,
-						getOutput(request),folderName);
+						folderName+EicrResponderParserContant.EICR_FHIR_JSON,
+						getOutput(request));
 				logger.info("after upload EICR_FHIR_XML response ::::" + s3PostResponse[1]);
 
 				ObjectMapper mapper = new ObjectMapper();
 				String jsonStr = mapper.writeValueAsString(responderRequest.getMetadata());
 				logger.info("before metadata josn uploads3bucket ::::"+reportingBundle.fhirType());
 				s3PostResponse[2] = amazonClientService.uploads3bucket(
-						EicrResponderParserContant.META_DATA_JSON,
-						jsonStr, folderName);
+						folderName+EicrResponderParserContant.META_DATA_JSON,
+						jsonStr);
 				logger.info("after upload META_DATA_JSON response ::::" + s3PostResponse[2]);
 
 			} catch (Exception e) {
