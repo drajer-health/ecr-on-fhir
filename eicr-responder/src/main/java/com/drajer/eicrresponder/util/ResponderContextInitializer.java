@@ -288,8 +288,7 @@ public class ResponderContextInitializer {
 								List<Coding> codeings = cc.getCoding();
 								for (Coding coding : codeings) {
 									if (coding.getSystem().contains(EicrResponderParserContant.JURD_SYSTEM_CODE)
-											&& (coding.getCode().equalsIgnoreCase(EicrResponderParserContant.JURD_CODE_RR7)
-													|| (coding.getCode().equalsIgnoreCase(EicrResponderParserContant.JURD_CODE_RR8)))) {
+											&& coding.getCode().equalsIgnoreCase(EicrResponderParserContant.JURD_CODE_RR7)){
 										foundOrgJud = true;
 									}
 								}

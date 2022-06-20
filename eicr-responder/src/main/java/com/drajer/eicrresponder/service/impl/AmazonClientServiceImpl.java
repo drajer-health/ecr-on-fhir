@@ -71,7 +71,7 @@ public class AmazonClientServiceImpl implements AmazonClientService {
 			logger.error("StackTrace:       " + ace.getStackTrace());
 			return "Fail to upload Client Exception; messageId " + messageId + "Error Message: " + ace.getMessage();
 		}
-		return "Successfully uploaded to s3 " + bucketName + s3Key;
+		return "Successfully uploaded to s3 " + bucketName+ "/" + s3Key;
 	}
 
 }
