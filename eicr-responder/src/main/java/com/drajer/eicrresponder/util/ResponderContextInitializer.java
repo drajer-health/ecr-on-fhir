@@ -102,22 +102,32 @@ public class ResponderContextInitializer {
 	 * @return ResponseEntity<String> 
 	 * 
 	 */
-	public List<ResponseEntity<String>> submitProcessMessage(ResponderRequest responderRequest) {
+	public List<ResponseEntity<String>> submitProcessMessage(ResponderRequest responderRequest,String folderName) {
 		logger.info("ResponderRequestContextInitializer submitProcessMessage.......");
+		String message = "Sent file to PHA";
+		List<ResponseEntity<String>> responses = new ArrayList<ResponseEntity<String>>();
+		try {
+		    IParser  target   = r4Context.newJsonParser();      // new JSON parser
+		    Bundle eicrBundle = target.parseResource(Bundle.class, (String)responderRequest.getEicrObject());
+		    Bundle rrBundle = target.parseResource(Bundle.class, (String)responderRequest.getRrObject());
 
-	    IParser  target   = r4Context.newJsonParser();      // new JSON parser
-	    Bundle eicrBundle = target.parseResource(Bundle.class, (String)responderRequest.getEicrObject());
-	    Bundle rrBundle = target.parseResource(Bundle.class, (String)responderRequest.getRrObject());
 
-
-	    Bundle reportingBundle = (Bundle) CommonUtil.getBundle(eicrBundle,rrBundle,responderRequest.getMetadata(),"pha");
-		logger.info("reportingBundle::"+reportingBundle.toString());
-		
+		    Bundle reportingBundle = (Bundle) CommonUtil.getBundle(eicrBundle,rrBundle,responderRequest.getMetadata(),"pha");
+			logger.info("reportingBundle::"+reportingBundle.toString());
+			
+			String s3PhaPostResponse = postS3Service.postToPhaS3(reportingBundle,folderName);
+			if (StringUtils.isNotBlank(s3PhaPostResponse) && s3PhaPostResponse.contains("Error")){
+				message="Error uploading files to postToPhaS3 S3.";
+				responses.add(new ResponseEntity<String>(message, HttpStatus.BAD_REQUEST));
+			}
+						
+		}catch(Exception e) {
+			responses.add(new ResponseEntity<String>(e.getMessage(), HttpStatus.BAD_REQUEST));
+		}
+		/*
 		HttpHeaders headers = new HttpHeaders();
 		headers.set("Accept", MediaType.APPLICATION_JSON_VALUE);
-		headers.set("Content-Type", "application/json");
-		List<ResponseEntity<String>> responses = new ArrayList<ResponseEntity<String>>();
-		
+		headers.set("Content-Type", "application/json");			
 		//send PHA request for each end point
 		responderRequest.getPhaJurisdiction().stream().forEach(jurisdiction -> {
 			try {
@@ -151,7 +161,9 @@ public class ResponderContextInitializer {
 				logger.error("Error in sending pha information for URL::::: {}" + jurisdiction.getPhaEndpointUrl());
 				responses.add(new ResponseEntity<String>("Failed to send Pha information ", HttpStatus.BAD_REQUEST));
 			}
-		});
+		});		 
+		 */
+		responses.add(ResponseEntity.status(HttpStatus.OK).body(message));
 		return responses;
 	}
 
@@ -209,7 +221,7 @@ public class ResponderContextInitializer {
 			logger.info("commonUtil.sendToPha()::::" + CommonUtil.sendToPha());
 			if (CommonUtil.sendToPha() && jurisdictions.size() > 0) {
 				logger.info("jurisdictions.size()::::" + jurisdictions.size());
-				resonseEntityPha = submitProcessMessage(responderRequest);
+				resonseEntityPha = submitProcessMessage(responderRequest,folderName);
 				logger.info("resonseEntityPha 3333 ::::" + resonseEntityPha.toString());
 				resonseEntityPha.stream().forEach((resonseEntity -> {
 					if (resonseEntity.getStatusCode() != HttpStatus.OK)
