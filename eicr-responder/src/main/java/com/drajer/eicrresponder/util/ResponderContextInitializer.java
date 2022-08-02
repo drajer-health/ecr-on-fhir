@@ -106,50 +106,44 @@ public class ResponderContextInitializer {
 		logger.info("ResponderRequestContextInitializer submitProcessMessage.......");
 		String message = "Sent file to PHA";
 		List<ResponseEntity<String>> responses = new ArrayList<ResponseEntity<String>>();
-		try {
-		    IParser  target   = r4Context.newJsonParser();      // new JSON parser
-		    Bundle eicrBundle = target.parseResource(Bundle.class, (String)responderRequest.getEicrObject());
-		    Bundle rrBundle = target.parseResource(Bundle.class, (String)responderRequest.getRrObject());
-
-
-		    Bundle reportingBundle = (Bundle) CommonUtil.getBundle(eicrBundle,rrBundle,responderRequest.getMetadata(),"pha");
-			logger.info("reportingBundle::"+reportingBundle.toString());
-			
-			String s3PhaPostResponse = postS3Service.postToPhaS3(reportingBundle,folderName);
-			if (StringUtils.isNotBlank(s3PhaPostResponse) && s3PhaPostResponse.contains("Error")){
-				message="Error uploading files to postToPhaS3 S3.";
-				responses.add(new ResponseEntity<String>(message, HttpStatus.BAD_REQUEST));
-			}
-						
-		}catch(Exception e) {
-			responses.add(new ResponseEntity<String>(e.getMessage(), HttpStatus.BAD_REQUEST));
-		}
-		/*
 		HttpHeaders headers = new HttpHeaders();
 		headers.set("Accept", MediaType.APPLICATION_JSON_VALUE);
 		headers.set("Content-Type", "application/json");			
+
+		IParser  target   = r4Context.newJsonParser();      // new JSON parser
+	    Bundle eicrBundle = target.parseResource(Bundle.class, (String)responderRequest.getEicrObject());
+	    Bundle rrBundle = target.parseResource(Bundle.class, (String)responderRequest.getRrObject());
+	    Bundle reportingBundle = (Bundle) CommonUtil.getBundle(eicrBundle,rrBundle,responderRequest.getMetadata(),"pha");
+
 		//send PHA request for each end point
 		responderRequest.getPhaJurisdiction().stream().forEach(jurisdiction -> {
+			logger.info("reportingBundle::"+reportingBundle.toString());			
 			try {
 				logger.info("PHA end point URL from metadata .....::::: {}", jurisdiction.getPhaEndpointUrl());
-				String request = r4Context.newJsonParser().encodeResourceToString(reportingBundle);				
+				String request = r4Context.newJsonParser().encodeResourceToString(reportingBundle);
+				ResponseEntity<String> phaResponse = new ResponseEntity<String>("Sent Pha information for State Code : "+jurisdiction.getPhaCode(), HttpStatus.OK);
+				if (jurisdiction.getPhaCode().equalsIgnoreCase("NY")) {
+					String s3PhaPostResponse = postS3Service.postToPhaS3(reportingBundle,folderName);
+					if (StringUtils.isNotBlank(s3PhaPostResponse) && s3PhaPostResponse.contains("Error")){
+						phaResponse = new ResponseEntity<String>("Failed to send Pha information for State Code : "+jurisdiction.getPhaCode(), HttpStatus.BAD_REQUEST);
+					}					
+				}else {
+					//Generate signed private key
+					//get private key
+					File privateKeyFile = ResourceUtils.getFile(ResourceUtils.CLASSPATH_URL_PREFIX +"private_key.pem");
+					String signedJwtToken = privateKeyGenerator.createJwtSignedHMAC(privateKeyFile);
+					String accessToken = null;
+					if (StringUtils.isNotBlank(signedJwtToken)) {
+						// get access token
+						JSONObject tokenResponse = generateAccessToken.getAccessToken(signedJwtToken);
+						accessToken = tokenResponse.getString(EicrResponderParserContant.ACCESS_TOKEN);
+						logger.info("Genertated AccessToken PHA::::"+StringUtils.isNotBlank(accessToken));
+					}
+					headers.set("Authorization", "Bearer "+accessToken);
 				
-				//Generate signed private key
-				//get private key
-				File privateKeyFile = ResourceUtils.getFile(ResourceUtils.CLASSPATH_URL_PREFIX +"private_key.pem");
-				String signedJwtToken = privateKeyGenerator.createJwtSignedHMAC(privateKeyFile);
-				String accessToken = null;
-				if (StringUtils.isNotBlank(signedJwtToken)) {
-					// get access token
-					JSONObject tokenResponse = generateAccessToken.getAccessToken(signedJwtToken);
-					accessToken = tokenResponse.getString(EicrResponderParserContant.ACCESS_TOKEN);
-					logger.info("Genertated AccessToken PHA::::"+StringUtils.isNotBlank(accessToken));
+					HttpEntity<?> entity  = new HttpEntity<>(request, headers);
+					phaResponse = restTemplate.postForEntity(jurisdiction.getPhaEndpointUrl(), entity, String.class);					
 				}
-				headers.set("Authorization", "Bearer "+accessToken);
-			
-				HttpEntity<?> entity  = new HttpEntity<>(request, headers);
-				ResponseEntity<String> phaResponse = restTemplate.postForEntity(jurisdiction.getPhaEndpointUrl(), entity, String.class);
-				
 				logger.info("PHA response submitProcessMessage::::", phaResponse);
 				responses.add(phaResponse);
 			} catch (Exception e) {
@@ -159,11 +153,9 @@ public class ResponderContextInitializer {
 					logger.error("Error sending pha: "+e.getMessage());			
 				}				
 				logger.error("Error in sending pha information for URL::::: {}" + jurisdiction.getPhaEndpointUrl());
-				responses.add(new ResponseEntity<String>("Failed to send Pha information ", HttpStatus.BAD_REQUEST));
+				responses.add(new ResponseEntity<String>("Failed to send Pha information "+jurisdiction.getPhaEndpointUrl(), HttpStatus.BAD_REQUEST));
 			}
-		});		 
-		 */
-		responses.add(ResponseEntity.status(HttpStatus.OK).body(message));
+		});
 		return responses;
 	}
 
@@ -244,12 +236,12 @@ public class ResponderContextInitializer {
 			}
 			logger.info("processMsg value ::::" + processMsg);
 			if (org.apache.commons.lang3.StringUtils.isNotBlank(processMsg)) {
-				return ResponseEntity.status(HttpStatus.EXPECTATION_FAILED).body(processMsg.toString());
+				logger.error(HttpStatus.EXPECTATION_FAILED+processMsg.toString());
 			}
 			
 			String[] s3PostResponse = postS3Service.postToS3(responderRequest, folderName);
 			if (Arrays.asList(s3PostResponse).toString().contains("Error")){
-				message="Error uploading files to S3.";
+				message="Error uploading files to postToS3.";
 			}
 		} catch (Exception e) {
 			if (e.getMessage().length() > 200) {
@@ -342,9 +334,7 @@ public class ResponderContextInitializer {
 					for (String stateCode : jurdStates) {
 						Jurisdiction jurisdictionret = processJurs.getJurisdiction(stateCode);
 						logger.info("jurisdictionret ::::::" + jurisdictionret);
-
-						if (jurisdictionret != null)
-							jurisdictions.add(jurisdictionret);
+						jurisdictions.add(jurisdictionret);
 					}
 				} catch (Exception e) {
 					logger.error("Error while finding jurisdiction :::::"+e.getMessage());
