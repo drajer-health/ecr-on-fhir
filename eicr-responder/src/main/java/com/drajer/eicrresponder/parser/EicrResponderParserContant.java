@@ -21,6 +21,7 @@ public class EicrResponderParserContant {
 	public static final String JURD_SYSTEM_CODE = "2.16.840.1.114222.4.5.232";
 	public static final String JURD_CODE_RR7 = "RR7";
 	public static final String JURD_CODE_RR8 = "RR8";
+	public static final String ACCESS_TOKEN ="access_token";
 
 	private EicrResponderParserContant() {
 	}

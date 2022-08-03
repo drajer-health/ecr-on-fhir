@@ -41,12 +41,33 @@ public class AmazonClientServiceImpl implements AmazonClientService {
 	@Value("${s3.region}")
 	private String region;
 
+	private AmazonS3 phaS3client;
+
+	@Value("${pha.s3.bucketName}")
+	private String phaBucketName;
+
+	@Value("${pha.s3.accessKeyId}")
+	private String phaAccessKeyId;
+
+	@Value("${pha.s3.secretKey}")
+	private String phaSecretKey;
+
+	@Value("${pha.s3.region}")
+	private String phaRegion;
+	
 	@PostConstruct
 	private void initializeAmazon() {
 		AWSCredentials credentials = new BasicAWSCredentials(this.accessKeyId, this.secretKey);
 		this.s3client = AmazonS3ClientBuilder.standard().withRegion(region)
 				.withCredentials(new AWSStaticCredentialsProvider(credentials)).build();
 	}
+	
+	@PostConstruct
+	private void initializePhaAmazon() {
+		AWSCredentials credentials = new BasicAWSCredentials(this.phaAccessKeyId, this.phaSecretKey);
+		this.phaS3client = AmazonS3ClientBuilder.standard().withRegion(phaRegion)
+				.withCredentials(new AWSStaticCredentialsProvider(credentials)).build();
+	}	
 
 	public String uploads3bucket(String messageId, String xml) {
 		logger.info("in uploads3bucket:    " );
@@ -74,4 +95,32 @@ public class AmazonClientServiceImpl implements AmazonClientService {
 		return "Successfully uploaded to s3 " + bucketName+ "/" + s3Key;
 	}
 
+
+	@Override
+	public String uploadPhaS3bucket(String messageId, String xml) {
+		logger.info("in phaUploads3bucket:    " );
+		String s3Key = messageId ; // RequestId/EICR_FHIR.json
+		ObjectMetadata meta = new ObjectMetadata();
+		meta.setContentLength(xml.getBytes().length);
+		meta.setContentType("application/json");
+		
+		try {
+			logger.info("phaUploads3bucket folderName:    " +phaBucketName);
+			phaS3client.putObject(phaBucketName, s3Key, new ByteArrayInputStream(xml.getBytes()), meta);
+			logger.debug("Successfully uploaded to s3 " + phaBucketName  + s3Key);
+		} catch (AmazonServiceException ase) {
+			logger.error("Error Message:    " + ase.getMessage());
+			logger.error("HTTP Status Code: " + ase.getStatusCode());
+			logger.error("AWS Error Code:   " + ase.getErrorCode());
+			logger.error("Error Type:       " + ase.getErrorType());
+			logger.error("Request ID:       " + ase.getRequestId());
+			return "Fail to upload Service Exception; messageId " + messageId + "Error Message: " + ase.getMessage();
+		} catch (AmazonClientException ace) {
+			logger.error("Error Message:    " + ace.getMessage());
+			logger.error("StackTrace:       " + ace.getStackTrace());
+			return "Fail to upload Client Exception; messageId " + messageId + "Error Message: " + ace.getMessage();
+		}
+		return "Successfully uploaded to s3 " + phaBucketName+ "/" + s3Key;
+
+	}	
 }

@@ -79,6 +79,29 @@ public class PostS3ServiceImpl implements PostS3Service {
 		return s3PostResponse;
 	}
 
+	@Override
+	public String postToPhaS3(Bundle reportingBundle,String folderName) {
+		String s3PhaPostResponse = null;
+
+		// create reporting bundle
+		if (CommonUtil.postToS3()) {
+			try {
+				String request = r4Context.newJsonParser().encodeResourceToString(reportingBundle);	
+				// Check for Message Id and Error Handling
+				logger.info("before uploadsPhaS3bucket::::" + amazonClientService);
+				s3PhaPostResponse = amazonClientService.uploadPhaS3bucket(
+						folderName+EicrResponderParserContant.RR_JSON,
+					 getOutput(request));
+				logger.info("after upload RR_XML response::::" + s3PhaPostResponse);
+			} catch (Exception e) {
+				e.printStackTrace();
+				logger.info("Error posting to phas3 bucket" + e.getMessage());
+			}
+		}
+		logger.info("s3PhaPostResponse postToPhaS3::::"+s3PhaPostResponse);
+		return s3PhaPostResponse;
+	}	
+	
 	private String getOutput(String request) {
 		IParser ip = r4Context.newJsonParser();
 		IBaseResource ri = ip.parseResource(request);

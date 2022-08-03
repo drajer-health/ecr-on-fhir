@@ -38,13 +38,12 @@ public class ProcessJurisdictions {
 	}
 		
 	public Jurisdiction getJurisdiction(String stateCode) {
-		Jurisdiction jurisdiction = null;
+		Jurisdiction jurisdiction = new Jurisdiction();
+		jurisdiction.setPhaCode(stateCode);
 		String apiEndPointUrl = CommonUtil.getProperty("responder.endpoint");
 		logger.info("call pha agency get endpoint url::::" + apiEndPointUrl + " ::::: " + stateCode);
 		ResponseEntity<String> responseEntity = phaUrlByAgencyCode(apiEndPointUrl + FIND_BY_JURISIDICTION + stateCode);
 		if (!responseEntity.getBody().isEmpty()) {
-			jurisdiction = new Jurisdiction();
-			jurisdiction.setPhaCode(stateCode);
 			jurisdiction.setPhaEndpointUrl(responseEntity.getBody().toString());
 		}
 		logger.info("getJurisdiction return obj :::::"+jurisdiction);
