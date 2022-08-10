@@ -1,10 +1,9 @@
 package com.drajer.EicrFhirvalidator.configuration;
 
+import ca.uhn.fhir.context.FhirContext;
 import org.springframework.context.annotation.Bean;
 import org.springframework.context.annotation.ComponentScan;
 import org.springframework.context.annotation.Configuration;
-
-import ca.uhn.fhir.context.FhirContext;
 
 @Configuration
 @ComponentScan(basePackages = { "com.drajer.EicrFhirvalidator" })
@@ -39,4 +38,5 @@ public class FhirConfiguration {
 		FhirContext r5FhirContext = FhirContext.forR5();
 		return r5FhirContext;
 	}
+
 }

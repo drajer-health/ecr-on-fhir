@@ -1,19 +1,15 @@
 package com.drajer.EicrFhirvalidator.service;
 
-//import org.hl7.fhir.common.hapi.validation.validator.FhirInstanceValidator;
-//import org.hl7.fhir.r4.hapi.validation.FhirInstanceValidator;
-import org.hl7.fhir.instance.model.api.IBaseResource;
-import org.hl7.fhir.r5.model.OperationOutcome;
-import org.springframework.beans.factory.annotation.Autowired;
-import org.springframework.stereotype.Service;
-
-import com.drajer.EicrFhirvalidator.component.Validator;
 
 import ca.uhn.fhir.context.FhirContext;
 import ca.uhn.fhir.parser.StrictErrorHandler;
 import ca.uhn.fhir.validation.FhirValidator;
-import ca.uhn.fhir.validation.IValidatorModule;
 import ca.uhn.fhir.validation.ValidationResult;
+import com.drajer.EicrFhirvalidator.component.Validator;
+import org.hl7.fhir.instance.model.api.IBaseResource;
+import org.hl7.fhir.r5.model.OperationOutcome;
+import org.springframework.beans.factory.annotation.Autowired;
+import org.springframework.stereotype.Service;
 
 @Service
 public class ResourceValidationServiceImpl implements ResourceValidationService {

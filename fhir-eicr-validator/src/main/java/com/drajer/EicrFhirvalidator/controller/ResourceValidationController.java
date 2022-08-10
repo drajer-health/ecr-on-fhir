@@ -1,5 +1,11 @@
 package com.drajer.EicrFhirvalidator.controller;
 
+import ca.uhn.fhir.context.FhirContext;
+import ca.uhn.fhir.parser.DataFormatException;
+import ca.uhn.fhir.rest.annotation.OptionalParam;
+import ca.uhn.fhir.validation.FhirValidator;
+import ca.uhn.fhir.validation.ValidationResult;
+import com.drajer.EicrFhirvalidator.service.ResourceValidationService;
 import org.hl7.fhir.r4.model.CanonicalType;
 import org.hl7.fhir.r4.model.Meta;
 import org.hl7.fhir.r4.model.Resource;
@@ -13,16 +19,6 @@ import org.springframework.http.ResponseEntity;
 import org.springframework.web.bind.annotation.PostMapping;
 import org.springframework.web.bind.annotation.RequestBody;
 import org.springframework.web.bind.annotation.RestController;
-
-import com.drajer.EicrFhirvalidator.component.Validator;
-import com.drajer.EicrFhirvalidator.service.ResourceValidationService;
-
-import ca.uhn.fhir.context.FhirContext;
-import ca.uhn.fhir.parser.DataFormatException;
-import ca.uhn.fhir.rest.annotation.OptionalParam;
-import ca.uhn.fhir.rest.server.exceptions.UnprocessableEntityException;
-import ca.uhn.fhir.validation.FhirValidator;
-import ca.uhn.fhir.validation.ValidationResult;
 
 @RestController
 public class ResourceValidationController {
@@ -123,10 +119,11 @@ public class ResourceValidationController {
 			@OptionalParam(name = "profile") String profile) throws Exception {
 		String output = null;
 		FhirValidator validator = r4Context.newValidator();
+
 			if (profile != null) {
 				try {
 					String results;
-					logger.info("validating us-core-R4Resource");
+					logger.info("Validating with Profile : "+ profile);
 					OperationOutcome oo = validationService.validate(bodyStr.getBytes(), profile);
 					results = r5Context.newJsonParser().setPrettyPrint(true).encodeResourceToString(oo);
 					return new ResponseEntity<>(results, HttpStatus.OK);
@@ -138,7 +135,8 @@ public class ResourceValidationController {
 					output = r4Context.newJsonParser().setPrettyPrint(true).encodeResourceToString(outcomes);
 				}
 			} else {
-				Resource resource = (Resource) r4Context.newJsonParser().parseResource(bodyStr);
+				Resource resource = (Resource) r4Context.newJsonParser().setPrettyPrint(true).parseResource(bodyStr);
+
 				String resProfile =null;
 				if(resource.hasMeta()) {
 					Meta resMeta = resource.getMeta();
@@ -150,8 +148,7 @@ public class ResourceValidationController {
 				if(resProfile != null) {
 					try {
 						String results;
-						logger.info("Validating with Profile====>"+resProfile);
-						logger.info("validating us-core-R4Resource");
+						logger.info("Validating with Profile====> "+resProfile);
 						OperationOutcome oo = validationService.validate(bodyStr.getBytes(), resProfile);
 						results = r5Context.newJsonParser().setPrettyPrint(true).encodeResourceToString(oo);
 						return new ResponseEntity<>(results, HttpStatus.OK);
@@ -161,26 +158,19 @@ public class ResourceValidationController {
 						outcomes.addIssue().setSeverity(org.hl7.fhir.r4.model.OperationOutcome.IssueSeverity.ERROR)
 								.setDiagnostics("Failed to parse request body as JSON resource. Error was: " + e.getMessage());
 						output = r4Context.newJsonParser().setPrettyPrint(true).encodeResourceToString(outcomes);
-						logger.error(output);
-						//e.printStackTrace();
-						// return new ResponseEntity<>(e.getMessage(), HttpStatus.INTERNAL_SERVER_ERROR);
 					}
 				} else {
 					try {
 						ValidationResult results = validationService.validateR4Resource(r4Context, validator, bodyStr);
 						if (results instanceof ValidationResult && results.isSuccessful()) {
 							logger.info("Validation passed");
-							org.hl7.fhir.r4.model.OperationOutcome oo = (org.hl7.fhir.r4.model.OperationOutcome) results
-									.toOperationOutcome();
-							output = r4Context.newJsonParser().setPrettyPrint(true).encodeResourceToString(oo);
-							return new ResponseEntity<>(output, HttpStatus.OK);
 						} else {
 							logger.error("Failed to validateR4Resource.");
-							org.hl7.fhir.r4.model.OperationOutcome oo = (org.hl7.fhir.r4.model.OperationOutcome) results
-									.toOperationOutcome();
-							output = r4Context.newJsonParser().setPrettyPrint(true).encodeResourceToString(oo);
-							return new ResponseEntity<>(output, HttpStatus.OK);
 						}
+						org.hl7.fhir.r4.model.OperationOutcome oo = (org.hl7.fhir.r4.model.OperationOutcome) results
+								.toOperationOutcome();
+						output = r4Context.newJsonParser().setPrettyPrint(true).encodeResourceToString(oo);
+						return new ResponseEntity<>(output, HttpStatus.OK);
 					} catch (DataFormatException e) {
 						logger.error("Exception in validateR4Resource");
 						org.hl7.fhir.r4.model.OperationOutcome outcomes = new org.hl7.fhir.r4.model.OperationOutcome();
