@@ -66,9 +66,14 @@ public class MessageHeaderResourceProvider {
 		OperationOutcome outcome = new OperationOutcome();
 		MetaData metaData = new MetaData();
 
+// 		Get validator endpoint
+		Properties prop = fetchProperties();
+		String validatorEndpoint = System.getProperty("validator.endpoint") == null ?  prop.getProperty("validator.endpoint") : System.getProperty("validator.endpoint");
+
 		boolean errorExists = false;
 		try {
 			String requestBdl="";
+			String resProfile="";
 
 			for (BundleEntryComponent next : bundle.getEntry()) {
 				if(next.getResource() instanceof MessageHeader){
@@ -79,12 +84,18 @@ public class MessageHeaderResourceProvider {
 				if (next.getResource() instanceof Bundle) {
 					resourceBdl = (Bundle) next.getResource();
 					requestBdl  = r4Context.newJsonParser().encodeResourceToString(resourceBdl);
+
+					Meta resMeta = resourceBdl.getMeta();
+					if(resMeta.hasProfile()) {
+						CanonicalType canonicalProfileType = resMeta.getProfile().get(0);
+						resProfile = canonicalProfileType.asStringValue();
+						validatorEndpoint = validatorEndpoint +"?profile="+ resProfile;
+					}
+
 					//System.out.println("Bundle Entry Resource == > "+ requestBdl);
 				}
 			}
 
-			Properties prop = fetchProperties();
-			String validatorEndpoint = System.getProperty("validator.endpoint") == null ?  prop.getProperty("validator.endpoint") : System.getProperty("validator.endpoint");
 			outcome = new CommonUtil().validateResource(resourceBdl,validatorEndpoint, r4Context);
 
 			//Convert JSON to XML
@@ -94,7 +105,6 @@ public class MessageHeaderResourceProvider {
 			String output = op.setPrettyPrint(true).encodeResourceToString(ri);
 
 			//System.out.println("XML Output === "+ "<?xml version=\"1.0\" encoding=\"UTF-8\"?>\n"+output );
-
 			// write to s3
 			try {
 				// Write Meta Data
