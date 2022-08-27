@@ -30,7 +30,7 @@ public class ConvertToJson {
 			IBaseResource ri = op.parseResource(inputStream);
 			String output = ip.encodeResourceToString(ri);
 //			logger.info("json string print:::::"+output.toString());
-			CommonUtil.saveFile(CommonUtil.getTempFilePath()+CommonUtil.getUUID()+".json", output);
+//			CommonUtil.saveFile(CommonUtil.getTempFilePath()+CommonUtil.getUUID()+".json", output);
 			bundleObj = jsonParser.parseResource(Bundle.class, output);
 		} catch (Exception e) {
 			e.printStackTrace();

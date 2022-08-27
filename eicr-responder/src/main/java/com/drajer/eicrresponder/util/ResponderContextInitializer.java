@@ -104,7 +104,6 @@ public class ResponderContextInitializer {
 	 */
 	public List<ResponseEntity<String>> submitProcessMessage(ResponderRequest responderRequest,String folderName) {
 		logger.info("ResponderRequestContextInitializer submitProcessMessage.......");
-		String message = "Sent file to PHA";
 		List<ResponseEntity<String>> responses = new ArrayList<ResponseEntity<String>>();
 		HttpHeaders headers = new HttpHeaders();
 		headers.set("Accept", MediaType.APPLICATION_JSON_VALUE);
@@ -168,7 +167,7 @@ public class ResponderContextInitializer {
 	public ResponseEntity<String> sendToPha(MultipartFile[] files,String folderName) {
 		String message = "Sent file to PHA";
 		try {
-			logger.info("Sending files to PHA FHIR 1111.....");
+			logger.info("Sending files to PHA FHIR .....");
 			
 			// create ResponderRequest object
 			ResponderRequest responderRequest = new ResponderRequest();
@@ -187,7 +186,7 @@ public class ResponderContextInitializer {
 						
 			// add jurisdiction values to metadata object
 			MultiValueMap<String, Object> bodyMap = processMetaData(files, jurisdictions);
-			logger.info("META_DATA_FILE after adding Jurisdiction 2222::::"
+			logger.info("META_DATA_FILE after adding Jurisdiction ::::"
 					+ bodyMap.get(EicrResponderParserContant.META_DATA_FILE));
 
 			if (bodyMap.get(EicrResponderParserContant.META_DATA_FILE) == null) {
@@ -214,13 +213,11 @@ public class ResponderContextInitializer {
 			if (CommonUtil.sendToPha() && jurisdictions.size() > 0) {
 				logger.info("jurisdictions.size()::::" + jurisdictions.size());
 				resonseEntityPha = submitProcessMessage(responderRequest,folderName);
-				logger.info("resonseEntityPha 3333 ::::" + resonseEntityPha.toString());
 				resonseEntityPha.stream().forEach((resonseEntity -> {
 					if (resonseEntity.getStatusCode() != HttpStatus.OK)
 						processMsg.append(resonseEntity.getBody()).append(System.getProperty("line.separator"));
 				}));
 			}
-			logger.info("processMsg value sendToPha 4444::::" + processMsg);
 
 			// send request to fhir
 			FhirRequestConverter fhirRequestConverter = new FhirRequestConverter();
@@ -228,13 +225,11 @@ public class ResponderContextInitializer {
 					.convertToFhirRequest(bodyMap.get(EicrResponderParserContant.META_DATA_FILE));
 			logger.info("fhirService object:::::"+fhirService);
 			ResponseEntity<String> resonseEntityFhir = fhirService.submitToFhir(fhirRequest, responderRequest);
-			logger.info("resonseEntityFhir toString::::" + resonseEntityFhir.toString());
 			logger.info("resonseEntityFhir getStatusCode::::" + resonseEntityFhir.getStatusCode());
 
 			if (resonseEntityFhir.getStatusCode() != HttpStatus.OK) {
 				processMsg.append(resonseEntityFhir.getBody()).append(System.getProperty("line.separator"));
 			}
-			logger.info("processMsg value ::::" + processMsg);
 			if (org.apache.commons.lang3.StringUtils.isNotBlank(processMsg)) {
 				logger.error(HttpStatus.EXPECTATION_FAILED+processMsg.toString());
 			}
@@ -380,7 +375,7 @@ public class ResponderContextInitializer {
 				    	        .lines()
 				    	        .collect(Collectors.joining("\n"));					
 					responderRequest.setRrObject(convertXmlToJsonFhir(content));
-					logger.info("After create bundle for 1111 " + EicrResponderParserContant.RR_XML);
+					logger.info("After create bundle for " + EicrResponderParserContant.RR_XML);
 				} catch (Exception e) {
 					logger.error("Error while create bundle for RR" );//+ e.getMessage());
 				}
@@ -393,7 +388,7 @@ public class ResponderContextInitializer {
 				    	        .lines()
 				    	        .collect(Collectors.joining("\n"));						
 					responderRequest.setEicrObject(convertXmlToJsonFhir(content));
-					logger.info("After create bundle for 2222 " + EicrResponderParserContant.EICR_FHIR_XML);
+					logger.info("After create bundle for " + EicrResponderParserContant.EICR_FHIR_XML);
 				} catch (Exception e) {
 					logger.error("Error while create bundle for Eicr Fhir " );//+ e.getMessage());
 				}
@@ -414,7 +409,7 @@ public class ResponderContextInitializer {
 		    IBaseResource resource = source.parseResource( content );                // parse the resource
 		    IParser       target   = r4Context.newJsonParser();                        // new JSON parser
 		     output= target.setPrettyPrint( true ).encodeResourceToString( resource ); // output JSON		
-			CommonUtil.saveFile(CommonUtil.getTempFilePath()+CommonUtil.getUUID()+".json", output);
+//			CommonUtil.saveFile(CommonUtil.getTempFilePath()+CommonUtil.getUUID()+".json", output);
 		} catch (Exception e) {
 			logger.error("Error while create bundle  getBundle" + e.getMessage());
 		}

@@ -31,8 +31,6 @@ public class GenerateAccessToken {
 	    RestTemplate resTemplate = new RestTemplate();
 	    String tokenEndpoint = CommonUtil.getProperty("jwt.accesstoken.endpoint");
 	    String clientId = CommonUtil.getProperty("jwt.accesstoken.client");
-	    System.out.println("access token endpoint:::::"+tokenEndpoint);
-	    logger.info("access token endpoint:::::"+tokenEndpoint);
 	    logger.info("client id:::::"+tokenEndpoint);
 
 	    HttpHeaders headers = new HttpHeaders();
