@@ -114,11 +114,11 @@ public class AmazonClientServiceImpl implements AmazonClientService {
 			logger.error("AWS Error Code:   " + ase.getErrorCode());
 			logger.error("Error Type:       " + ase.getErrorType());
 			logger.error("Request ID:       " + ase.getRequestId());
-			return "Fail to upload Service Exception; messageId " + messageId + "Error Message: " + ase.getMessage();
+			return "Failed to upload Service Exception; messageId " + messageId + "Error Message: " + ase.getMessage();
 		} catch (AmazonClientException ace) {
 			logger.error("Error Message:    " + ace.getMessage());
 			logger.error("StackTrace:       " + ace.getStackTrace());
-			return "Fail to upload Client Exception; messageId " + messageId + "Error Message: " + ace.getMessage();
+			return "Failed to upload Client Exception; messageId " + messageId + "Error Message: " + ace.getMessage();
 		}
 		return "Successfully uploaded to s3 " + phaBucketName+ "/" + s3Key;
 

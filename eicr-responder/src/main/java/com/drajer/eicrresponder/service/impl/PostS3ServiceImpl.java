@@ -105,7 +105,6 @@ public class PostS3ServiceImpl implements PostS3Service {
 	private String getOutput(String request) {
 		IParser ip = r4Context.newJsonParser();
 		IBaseResource ri = ip.parseResource(request);
-		logger.info("before encodeResourceToString::::" + ri);
 		String output = ip.setPrettyPrint(true).encodeResourceToString(ri); //
 		return output;
 	}

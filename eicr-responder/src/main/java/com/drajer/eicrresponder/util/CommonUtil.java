@@ -64,7 +64,6 @@ public class CommonUtil {
 			org.springframework.core.io.Resource resource = resourceLoader
 					.getResource("classpath:application.properties");
 			InputStream in = resource.getInputStream();
-			logger.info("resource get inputstrem::::" + in.toString());
 			properties.load(in);
 		} catch (IOException e) {
 			logger.info("Error in fetch propertis");
@@ -182,9 +181,9 @@ public class CommonUtil {
 			// Add the document Bundle.
 			reportingBundle.addEntry(new BundleEntryComponent().setResource(bundle));
 			
-			String filename1 = getTempFilePath()+filename+".txt";
-			CommonUtil.saveBundle(filename1, reportingBundle);			
-			logger.info("created message bundle file ::::"+filename1);
+//			String filename1 = getTempFilePath()+filename+".txt";
+//			CommonUtil.saveBundle(filename1, reportingBundle);			
+//			logger.info("created message bundle file ::::"+filename1);
 		} catch (Exception e) {
 			e.printStackTrace();
 			logger.error("Error while create bundle::::", e);
@@ -318,8 +317,8 @@ public class CommonUtil {
 			// Add the rr Bundle.
 			reportingBundle.addEntry(new BundleEntryComponent().setResource(rrBundle));
 			
-			String filename1 = getTempFilePath()+filename+"_final.txt";
-			CommonUtil.saveBundle(filename1, reportingBundle);		
+//			String filename1 = getTempFilePath()+filename+"_final.txt";
+//			CommonUtil.saveBundle(filename1, reportingBundle);		
 			return reportingBundle;
 		}
 }
