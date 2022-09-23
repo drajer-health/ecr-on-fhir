@@ -1,5 +1,6 @@
 package com.drajer.eicrresponder.util;
 
+import org.apache.commons.lang3.StringUtils;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 import org.springframework.boot.web.client.RestTemplateBuilder;
@@ -40,6 +41,7 @@ public class ProcessJurisdictions {
 	public Jurisdiction getJurisdiction(String stateCode) {
 		Jurisdiction jurisdiction = new Jurisdiction();
 		jurisdiction.setPhaCode(stateCode);
+		jurisdiction.setPhaEndpointUrl(StringUtils.EMPTY);
 		String apiEndPointUrl = CommonUtil.getProperty("responder.endpoint");
 		logger.info("call pha agency get endpoint url::::" + apiEndPointUrl + " ::::: " + stateCode);
 		ResponseEntity<String> responseEntity = phaUrlByAgencyCode(apiEndPointUrl + FIND_BY_JURISIDICTION + stateCode);
