@@ -26,13 +26,13 @@ public class ResponderDataLog {
 	@Column(name = "eicr_id", nullable = false)
 	private String eicrId; // eicr id
 
-	@Column(name = "eicr_received_datatime", nullable = false)
+	@Column(name = "eicr_received_datatime")
 	private java.sql.Timestamp eicrReceivedDatatime; // eicr received data time
 
-	@Column(name = "processed_status", nullable = false)
+	@Column(name = "processed_status")
 	private String processedStatus; // status
 
-	@Column(name = "endpoint_url", nullable = false)
+	@Column(name = "endpoint_url")
 	private String endpointUrl; // Save the url
 
 	@Column(name = "response_message_pha")

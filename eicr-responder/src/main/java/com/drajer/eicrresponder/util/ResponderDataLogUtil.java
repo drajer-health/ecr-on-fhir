@@ -34,7 +34,7 @@ public class ResponderDataLogUtil {
 		} catch (Exception e) {
 			e.printStackTrace();
 			logger.error("Error in Saving responder log information for URL::::: {}", endPointUrl, e.getMessage());
-			return new ResponseEntity<String>(e.getMessage(), HttpStatus.BAD_REQUEST);
+			return new ResponseEntity<String>(e.getMessage(), HttpStatus.OK);
 		}
 		return returnResponse;
 	}

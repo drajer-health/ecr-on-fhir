@@ -84,7 +84,7 @@ public class PostS3ServiceImpl implements PostS3Service {
 		String s3PhaPostResponse = null;
 
 		// create reporting bundle
-		if (CommonUtil.postToS3()) {
+//		if (CommonUtil.postToS3()) {
 			try {
 				String request = r4Context.newJsonParser().encodeResourceToString(reportingBundle);	
 				// Check for Message Id and Error Handling
@@ -97,7 +97,7 @@ public class PostS3ServiceImpl implements PostS3Service {
 				e.printStackTrace();
 				logger.info("Error posting to phas3 bucket" + e.getMessage());
 			}
-		}
+//		}
 		logger.info("s3PhaPostResponse postToPhaS3::::"+s3PhaPostResponse);
 		return s3PhaPostResponse;
 	}	
