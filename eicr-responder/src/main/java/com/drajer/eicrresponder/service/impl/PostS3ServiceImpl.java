@@ -80,22 +80,33 @@ public class PostS3ServiceImpl implements PostS3Service {
 		StringBuilder s3PhaPostResponse = new StringBuilder();
 			try {
 				String request = r4Context.newJsonParser().encodeResourceToString(reportingBundle);	
+				
+//				logger.info("before create file::::");
+//				// save to file
+//				CommonUtil.saveFile(EicrResponderParserContant.RR_JSON, request);
+//				CommonUtil.saveFile(EicrResponderParserContant.RR_CDA_XML, responderRequest.getRrCdaXml());
+//				CommonUtil.saveFile(EicrResponderParserContant.EICR_CDA_XML, responderRequest.getEicrCdaXml());
+				
 				// Check for Message Id and Error Handling
 				logger.info("before uploadsPhaS3bucket::::" + amazonClientService);
 				s3PhaPostResponse.append( amazonClientService.uploadPhaS3bucket(
 						folderName+EicrResponderParserContant.RR_JSON,
 					 getOutput(request)));
-				logger.info("after upload RR_XML response::::" + s3PhaPostResponse);
+				logger.info("after upload {} response:::: {}" ,EicrResponderParserContant.RR_JSON, s3PhaPostResponse.toString());
+				
 				
 				// POST RR_CDA_XML
-				s3PhaPostResponse.append(System.getProperty("line.separator")).append(amazonClientService.uploads3bucket(
+				s3PhaPostResponse.append(System.getProperty("line.separator")).append(amazonClientService.uploadPhaS3bucket(
 						folderName+EicrResponderParserContant.RR_CDA_XML,
 						responderRequest.getRrCdaXml()));
+				logger.info("after upload {} response:::: {}" ,EicrResponderParserContant.RR_CDA_XML, s3PhaPostResponse.toString());
 				
 				// POST EICR_CDA_XML
-				s3PhaPostResponse.append(System.getProperty("line.separator")).append(amazonClientService.uploads3bucket(
+				s3PhaPostResponse.append(System.getProperty("line.separator")).append(amazonClientService.uploadPhaS3bucket(
 						folderName+EicrResponderParserContant.EICR_CDA_XML,
-						responderRequest.getEicrCdaXml()));				
+						responderRequest.getEicrCdaXml()));
+				logger.info("after upload {} response:::: {}" ,EicrResponderParserContant.EICR_CDA_XML, s3PhaPostResponse.toString());
+				
 			} catch (Exception e) {
 				e.printStackTrace();
 				logger.info("Error posting to phas3 bucket" + e.getMessage());

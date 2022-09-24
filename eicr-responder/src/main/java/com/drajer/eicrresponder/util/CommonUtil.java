@@ -137,7 +137,7 @@ public class CommonUtil {
 
 	public static void saveFile(String fileName, String content) {
 	    try {
-		    Path path = Paths.get(fileName);
+		    Path path = Paths.get(getTempFilePath()+fileName);
 		    byte[] strToBytes = content.getBytes();	
 			Files.write(path, strToBytes);
 		} catch (IOException e) {
@@ -189,7 +189,9 @@ public class CommonUtil {
 	}
 	
 	public static String getTempFilePath() {
-		return tmpdir+FileSystems.getDefault().getSeparator();
+		String tempFilePath = tmpdir+FileSystems.getDefault().getSeparator();
+		logger.info("tempFilePath:::::"+tempFilePath);
+		return tempFilePath;
 	}
 
 	public static String getUUID() {
@@ -314,8 +316,6 @@ public class CommonUtil {
 			// Add the rr Bundle.
 			reportingBundle.addEntry(new BundleEntryComponent().setResource(rrBundle));
 			
-//			String filename1 = getTempFilePath()+filename+"_final.txt";
-//			CommonUtil.saveBundle(filename1, reportingBundle);		
 			return reportingBundle;
 		}
 }

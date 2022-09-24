@@ -123,6 +123,7 @@ public class ResponderContextInitializer {
 				ResponseEntity<String> phaResponse = new ResponseEntity<String>("Sent Pha information for State Code : "+jurisdiction.getPhaCode(), HttpStatus.OK);
 				if (jurisdiction.getPhaCode().equalsIgnoreCase("NY")) {
 					String s3PhaPostResponse = postS3Service.postToPhaS3(responderRequest,reportingBundle,folderName);
+					logger.info("s3PhaPostResponse :::"+s3PhaPostResponse);
 					if (StringUtils.isNotBlank(s3PhaPostResponse) && s3PhaPostResponse.contains("Error")){
 						phaResponse = new ResponseEntity<String>("Failed to send Pha information for State Code : "+jurisdiction.getPhaCode(), HttpStatus.BAD_REQUEST);
 					}					
