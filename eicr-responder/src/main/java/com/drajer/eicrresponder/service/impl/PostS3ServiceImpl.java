@@ -1,6 +1,7 @@
 package com.drajer.eicrresponder.service.impl;
 
 import java.util.Arrays;
+
 import javax.transaction.Transactional;
 
 import org.hl7.fhir.instance.model.api.IBaseResource;
@@ -39,13 +40,10 @@ public class PostS3ServiceImpl implements PostS3Service {
 	@Override
 	public String[] postToS3(ResponderRequest responderRequest,String folderName) {
 		String[] s3PostResponse = new String[3];
-
-		// create reporting bundle
-		if (CommonUtil.postToS3()) {
 			try {
 				// create reporting bundle
 				Bundle reportingBundle = getBundle((String) responderRequest.getRrObject(),
-						responderRequest.getMetadata(), "rr");
+						responderRequest.getMetadata());
 				String request = r4Context.newJsonParser().encodeResourceToString(reportingBundle);
 				// Check for Message Id and Error Handling
 				logger.info("before uploads3bucket::::" + amazonClientService);
@@ -54,8 +52,7 @@ public class PostS3ServiceImpl implements PostS3Service {
 					 getOutput(request));
 				logger.info("after upload RR_XML response::::" + s3PostResponse[0]);
 
-				reportingBundle = getBundle((String) responderRequest.getEicrObject(), responderRequest.getMetadata(),
-						"eicr");
+				reportingBundle = getBundle((String) responderRequest.getEicrObject(), responderRequest.getMetadata());
 				request = r4Context.newJsonParser().encodeResourceToString(reportingBundle);
 				s3PostResponse[1] = amazonClientService.uploads3bucket(
 						folderName+EicrResponderParserContant.EICR_FHIR_JSON,
@@ -74,32 +71,37 @@ public class PostS3ServiceImpl implements PostS3Service {
 				e.printStackTrace();
 				logger.info("Error posting to s3 bucket" + e.getMessage());
 			}
-		}
 		logger.info("s3PostResponse postToS3::::"+Arrays.asList(s3PostResponse).toString());
 		return s3PostResponse;
 	}
 
 	@Override
-	public String postToPhaS3(Bundle reportingBundle,String folderName) {
-		String s3PhaPostResponse = null;
-
-		// create reporting bundle
-//		if (CommonUtil.postToS3()) {
+	public String postToPhaS3(ResponderRequest responderRequest, Bundle reportingBundle,String folderName) {
+		StringBuilder s3PhaPostResponse = new StringBuilder();
 			try {
 				String request = r4Context.newJsonParser().encodeResourceToString(reportingBundle);	
 				// Check for Message Id and Error Handling
 				logger.info("before uploadsPhaS3bucket::::" + amazonClientService);
-				s3PhaPostResponse = amazonClientService.uploadPhaS3bucket(
+				s3PhaPostResponse.append( amazonClientService.uploadPhaS3bucket(
 						folderName+EicrResponderParserContant.RR_JSON,
-					 getOutput(request));
+					 getOutput(request)));
 				logger.info("after upload RR_XML response::::" + s3PhaPostResponse);
+				
+				// POST RR_CDA_XML
+				s3PhaPostResponse.append(System.getProperty("line.separator")).append(amazonClientService.uploads3bucket(
+						folderName+EicrResponderParserContant.RR_CDA_XML,
+						responderRequest.getRrCdaXml()));
+				
+				// POST EICR_CDA_XML
+				s3PhaPostResponse.append(System.getProperty("line.separator")).append(amazonClientService.uploads3bucket(
+						folderName+EicrResponderParserContant.EICR_CDA_XML,
+						responderRequest.getEicrCdaXml()));				
 			} catch (Exception e) {
 				e.printStackTrace();
 				logger.info("Error posting to phas3 bucket" + e.getMessage());
 			}
-//		}
-		logger.info("s3PhaPostResponse postToPhaS3::::"+s3PhaPostResponse);
-		return s3PhaPostResponse;
+		logger.info("s3PhaPostResponse postToPhaS3::::"+s3PhaPostResponse.toString());
+		return s3PhaPostResponse.toString();
 	}	
 	
 	private String getOutput(String request) {
@@ -109,11 +111,11 @@ public class PostS3ServiceImpl implements PostS3Service {
 		return output;
 	}
 
-	private Bundle getBundle(String bundleObj, MetaData metaData, String fileName) {
+	private Bundle getBundle(String bundleObj, MetaData metaData) {
 		// create reporting bundle
 		IParser target = r4Context.newJsonParser(); // new JSON parser
 		Bundle rrBundle = target.parseResource(Bundle.class, bundleObj);
-		return (Bundle) CommonUtil.getBundle(rrBundle, metaData, fileName);
+		return (Bundle) CommonUtil.getBundle(rrBundle, metaData);
 	}
 
 }

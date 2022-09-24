@@ -102,7 +102,7 @@ public class ResponderContextInitializer {
 	 * @return ResponseEntity<String> 
 	 * 
 	 */
-	public List<ResponseEntity<String>> submitProcessMessage(ResponderRequest responderRequest,String folderName) {
+	public List<ResponseEntity<String>> submitProcessMessage(MultipartFile[] files, ResponderRequest responderRequest,String folderName) {
 		logger.info("ResponderRequestContextInitializer submitProcessMessage.......");
 		List<ResponseEntity<String>> responses = new ArrayList<ResponseEntity<String>>();
 		HttpHeaders headers = new HttpHeaders();
@@ -112,7 +112,7 @@ public class ResponderContextInitializer {
 		IParser  target   = r4Context.newJsonParser();      // new JSON parser
 	    Bundle eicrBundle = target.parseResource(Bundle.class, (String)responderRequest.getEicrObject());
 	    Bundle rrBundle = target.parseResource(Bundle.class, (String)responderRequest.getRrObject());
-	    Bundle reportingBundle = (Bundle) CommonUtil.getBundle(eicrBundle,rrBundle,responderRequest.getMetadata(),"pha");
+	    Bundle reportingBundle = (Bundle) CommonUtil.getBundle(eicrBundle,rrBundle,responderRequest.getMetadata());
 
 		//send PHA request for each end point
 		responderRequest.getPhaJurisdiction().stream().forEach(jurisdiction -> {
@@ -122,7 +122,7 @@ public class ResponderContextInitializer {
 				String request = r4Context.newJsonParser().encodeResourceToString(reportingBundle);
 				ResponseEntity<String> phaResponse = new ResponseEntity<String>("Sent Pha information for State Code : "+jurisdiction.getPhaCode(), HttpStatus.OK);
 				if (jurisdiction.getPhaCode().equalsIgnoreCase("NY")) {
-					String s3PhaPostResponse = postS3Service.postToPhaS3(reportingBundle,folderName);
+					String s3PhaPostResponse = postS3Service.postToPhaS3(responderRequest,reportingBundle,folderName);
 					if (StringUtils.isNotBlank(s3PhaPostResponse) && s3PhaPostResponse.contains("Error")){
 						phaResponse = new ResponseEntity<String>("Failed to send Pha information for State Code : "+jurisdiction.getPhaCode(), HttpStatus.BAD_REQUEST);
 					}					
@@ -212,7 +212,7 @@ public class ResponderContextInitializer {
 			logger.info("commonUtil.sendToPha()::::" + CommonUtil.sendToPha());
 			if (CommonUtil.sendToPha() && jurisdictions.size() > 0) {
 				logger.info("jurisdictions.size()::::" + jurisdictions.size());
-				resonseEntityPha = submitProcessMessage(responderRequest,folderName);
+				resonseEntityPha = submitProcessMessage(files,responderRequest,folderName);
 				resonseEntityPha.stream().forEach((resonseEntity -> {
 					if (resonseEntity.getStatusCode() != HttpStatus.OK)
 						processMsg.append(resonseEntity.getBody()).append(System.getProperty("line.separator"));
@@ -393,6 +393,32 @@ public class ResponderContextInitializer {
 					logger.error("Error while create bundle for Eicr Fhir " );//+ e.getMessage());
 				}
 			}
+			if (file.getOriginalFilename().equalsIgnoreCase(EicrResponderParserContant.EICR_CDA_XML)) {
+				try {
+					InputStream inputStream = file.getInputStream();
+				    String content = new BufferedReader(
+				    	      new InputStreamReader(inputStream, StandardCharsets.UTF_8))
+				    	        .lines()
+				    	        .collect(Collectors.joining("\n"));						
+					responderRequest.setEicrCdaXml(content);
+					logger.info("After saving EICR CDA XML" + EicrResponderParserContant.EICR_CDA_XML);
+				} catch (Exception e) {
+					logger.error("Error while saving EICR CDA XML " );//+ e.getMessage());
+				}
+			}
+			if (file.getOriginalFilename().equalsIgnoreCase(EicrResponderParserContant.RR_CDA_XML)) {
+				try {
+					InputStream inputStream = file.getInputStream();
+				    String content = new BufferedReader(
+				    	      new InputStreamReader(inputStream, StandardCharsets.UTF_8))
+				    	        .lines()
+				    	        .collect(Collectors.joining("\n"));						
+					responderRequest.setRrCdaXml(content);
+					logger.info("After saving RR CDA XML" + EicrResponderParserContant.RR_CDA_XML);
+				} catch (Exception e) {
+					logger.error("Error while saving RR CDA XML " );//+ e.getMessage());
+				}
+			}				
 		});
 	}
 
@@ -438,14 +464,14 @@ public class ResponderContextInitializer {
 			}			
 		});
 		if (!validFiles.contains(EicrResponderParserContant.RR_XML)) {
-			inValidFiles.append("RR_XML does not exit.").append(System.getProperty("line.separator"));
+			inValidFiles.append(EicrResponderParserContant.RR_XML).append(" does not exit.").append(System.getProperty("line.separator"));
 		}
 		if (!validFiles.contains(EicrResponderParserContant.EICR_FHIR_XML)) {
-			inValidFiles.append("EICR_FHIR_XML does not exit.").append(System.getProperty("line.separator"));
+			inValidFiles.append(EicrResponderParserContant.EICR_FHIR_XML).append(" does not exit.").append(System.getProperty("line.separator"));
 		}
 		if (!validFiles.contains(EicrResponderParserContant.META_DATA_JSON)) {
-			inValidFiles.append("Meta Data Json does not exit.").append(System.getProperty("line.separator"));
+			inValidFiles.append(EicrResponderParserContant.META_DATA_JSON).append("Meta Data Json does not exit.").append(System.getProperty("line.separator"));
 		}		
 		return inValidFiles.toString();
-	}	
+	}
 }

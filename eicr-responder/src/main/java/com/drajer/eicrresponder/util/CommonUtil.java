@@ -154,7 +154,7 @@ public class CommonUtil {
 	 * @return ResponseEntity<String>
 	 * 
 	 */
-	public static Resource getBundle(Bundle bundle, MetaData metaData, String filename) {
+	public static Resource getBundle(Bundle bundle, MetaData metaData) {
 		// Create the bundle
 		Bundle reportingBundle = new Bundle();
 
@@ -181,9 +181,6 @@ public class CommonUtil {
 			// Add the document Bundle.
 			reportingBundle.addEntry(new BundleEntryComponent().setResource(bundle));
 			
-//			String filename1 = getTempFilePath()+filename+".txt";
-//			CommonUtil.saveBundle(filename1, reportingBundle);			
-//			logger.info("created message bundle file ::::"+filename1);
 		} catch (Exception e) {
 			e.printStackTrace();
 			logger.error("Error while create bundle::::", e);
@@ -312,8 +309,8 @@ public class CommonUtil {
 
 		}
 
-		public static Bundle getBundle(Bundle eicrBundle, Bundle rrBundle, MetaData metadata, String filename) {
-			Bundle reportingBundle = (Bundle) getBundle(eicrBundle, metadata, filename);
+		public static Bundle getBundle(Bundle eicrBundle, Bundle rrBundle, MetaData metadata) {
+			Bundle reportingBundle = (Bundle) getBundle(eicrBundle, metadata);
 			// Add the rr Bundle.
 			reportingBundle.addEntry(new BundleEntryComponent().setResource(rrBundle));
 			

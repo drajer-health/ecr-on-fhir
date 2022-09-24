@@ -13,7 +13,25 @@ public class ResponderRequest {
 	private List<Jurisdiction> phaJurisdiction;
 	private long retryCount;
 	private MetaData metadata;
+	private String eicrCdaXml;
+	private String rrCdaXml;
 	
+	public String getEicrCdaXml() {
+		return eicrCdaXml;
+	}
+
+	public void setEicrCdaXml(String eicrCdaXml) {
+		this.eicrCdaXml = eicrCdaXml;
+	}
+
+	public String getRrCdaXml() {
+		return rrCdaXml;
+	}
+
+	public void setRrCdaXml(String rrCdaXml) {
+		this.rrCdaXml = rrCdaXml;
+	}
+
 	public Object getEicrObject() {
 		return eicrObject;
 	}
@@ -66,7 +84,7 @@ public class ResponderRequest {
 	public String toString() {
 		return "ResponderRequest [eicrObject=" + eicrObject + ", rrObject=" + rrObject + ", fhirPostURL=" + fhirPostURL
 				+ ", phaJurisdiction=" + phaJurisdiction + ", retryCount=" + retryCount + ", metadata=" + metadata
-				+ "]";
+				+ ", eicrCdaXml=" + eicrCdaXml + ", rrCdaXml=" + rrCdaXml + "]";
 	}
 
 }
