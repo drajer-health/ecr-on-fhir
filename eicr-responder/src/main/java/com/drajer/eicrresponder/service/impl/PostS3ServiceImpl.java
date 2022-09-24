@@ -4,6 +4,7 @@ import java.util.Arrays;
 
 import javax.transaction.Transactional;
 
+import org.apache.commons.lang3.StringUtils;
 import org.hl7.fhir.instance.model.api.IBaseResource;
 import org.hl7.fhir.r4.model.Bundle;
 import org.slf4j.Logger;
@@ -89,23 +90,37 @@ public class PostS3ServiceImpl implements PostS3Service {
 				
 				// Check for Message Id and Error Handling
 				logger.info("before uploadsPhaS3bucket::::" + amazonClientService);
-				s3PhaPostResponse.append( amazonClientService.uploadPhaS3bucket(
+				String phaResponse = amazonClientService.uploadPhaS3bucket(
 						folderName+EicrResponderParserContant.RR_JSON,
-					 getOutput(request)));
+					 getOutput(request));
+				s3PhaPostResponse.append(phaResponse);
+				s3PhaPostResponse.append(System.getProperty("line.separator"));
 				logger.info("after upload {} response:::: {}" ,EicrResponderParserContant.RR_JSON, s3PhaPostResponse.toString());
 				
-				
 				// POST RR_CDA_XML
-				s3PhaPostResponse.append(System.getProperty("line.separator")).append(amazonClientService.uploadPhaS3bucket(
-						folderName+EicrResponderParserContant.RR_CDA_XML,
-						responderRequest.getRrCdaXml()));
+				if (StringUtils.isBlank(responderRequest.getRrCdaXml())) {
+					phaResponse = amazonClientService.uploadPhaS3bucket(
+							folderName+EicrResponderParserContant.RR_CDA_XML,
+							responderRequest.getRrCdaXml());
+					s3PhaPostResponse.append(phaResponse);
+					s3PhaPostResponse.append(System.getProperty("line.separator"));
+					logger.info("after upload {} response:::: {}" ,EicrResponderParserContant.RR_CDA_XML, s3PhaPostResponse.toString());					
+				}else {
+					logger.info("{} not found or empty." ,EicrResponderParserContant.RR_CDA_XML);	
+				}
 				logger.info("after upload {} response:::: {}" ,EicrResponderParserContant.RR_CDA_XML, s3PhaPostResponse.toString());
 				
 				// POST EICR_CDA_XML
-				s3PhaPostResponse.append(System.getProperty("line.separator")).append(amazonClientService.uploadPhaS3bucket(
-						folderName+EicrResponderParserContant.EICR_CDA_XML,
-						responderRequest.getEicrCdaXml()));
-				logger.info("after upload {} response:::: {}" ,EicrResponderParserContant.EICR_CDA_XML, s3PhaPostResponse.toString());
+				if (StringUtils.isBlank(responderRequest.getEicrCdaXml())) {
+					phaResponse = amazonClientService.uploadPhaS3bucket(
+							folderName+EicrResponderParserContant.EICR_CDA_XML,
+							responderRequest.getEicrCdaXml());
+					s3PhaPostResponse.append(phaResponse);
+					s3PhaPostResponse.append(System.getProperty("line.separator"));				
+					logger.info("after upload {} response:::: {}" ,EicrResponderParserContant.EICR_CDA_XML, s3PhaPostResponse.toString());					
+				}else {
+					logger.info("{} not found or empty." ,EicrResponderParserContant.EICR_CDA_XML);	
+				}
 				
 			} catch (Exception e) {
 				e.printStackTrace();
