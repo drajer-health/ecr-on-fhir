@@ -98,7 +98,7 @@ public class PostS3ServiceImpl implements PostS3Service {
 				logger.info("after upload {} response:::: {}" ,EicrResponderParserContant.RR_JSON, s3PhaPostResponse.toString());
 				
 				// POST RR_CDA_XML
-				if (StringUtils.isBlank(responderRequest.getRrCdaXml())) {
+				if (!StringUtils.isBlank(responderRequest.getRrCdaXml())) {
 					phaResponse = amazonClientService.uploadPhaS3bucket(
 							folderName+EicrResponderParserContant.RR_CDA_XML,
 							responderRequest.getRrCdaXml());
@@ -111,7 +111,7 @@ public class PostS3ServiceImpl implements PostS3Service {
 				logger.info("after upload {} response:::: {}" ,EicrResponderParserContant.RR_CDA_XML, s3PhaPostResponse.toString());
 				
 				// POST EICR_CDA_XML
-				if (StringUtils.isBlank(responderRequest.getEicrCdaXml())) {
+				if (!StringUtils.isBlank(responderRequest.getEicrCdaXml())) {
 					phaResponse = amazonClientService.uploadPhaS3bucket(
 							folderName+EicrResponderParserContant.EICR_CDA_XML,
 							responderRequest.getEicrCdaXml());
