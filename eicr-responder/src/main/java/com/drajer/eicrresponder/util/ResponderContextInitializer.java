@@ -102,7 +102,7 @@ public class ResponderContextInitializer {
 	 * @return ResponseEntity<String> 
 	 * 
 	 */
-	public List<ResponseEntity<String>> submitProcessMessage(MultipartFile[] files, ResponderRequest responderRequest,String folderName) {
+	public List<ResponseEntity<String>> submitProcessMessage(ResponderRequest responderRequest,String folderName) {
 		logger.info("ResponderRequestContextInitializer submitProcessMessage.......");
 		List<ResponseEntity<String>> responses = new ArrayList<ResponseEntity<String>>();
 		HttpHeaders headers = new HttpHeaders();
@@ -212,7 +212,7 @@ public class ResponderContextInitializer {
 			logger.info("commonUtil.sendToPha()::::" + CommonUtil.sendToPha());
 			if (CommonUtil.sendToPha() && jurisdictions.size() > 0) {
 				logger.info("jurisdictions.size()::::" + jurisdictions.size());
-				resonseEntityPha = submitProcessMessage(files,responderRequest,folderName);
+				resonseEntityPha = submitProcessMessage(responderRequest,folderName);
 				resonseEntityPha.stream().forEach((resonseEntity -> {
 					if (resonseEntity.getStatusCode() != HttpStatus.OK)
 						processMsg.append(resonseEntity.getBody()).append(System.getProperty("line.separator"));
