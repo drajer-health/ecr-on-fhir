@@ -66,7 +66,7 @@ public class FhirServiceImpl implements FhirService {
 			IParser target = r4Context.newJsonParser(); // new JSON parser
 			Bundle rrBundle = target.parseResource(Bundle.class, (String) responderRequest.getRrObject());
 
-			Bundle reportingBundle = (Bundle) CommonUtil.getBundle(rrBundle, responderRequest.getMetadata(), "rr");
+			Bundle reportingBundle = (Bundle) CommonUtil.getBundle(rrBundle, responderRequest.getMetadata());
 
 			logger.info("fhirResquest.getFhirServerURL():::::::" + fhirResquest.getFhirServerURL());
 			
