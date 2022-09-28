@@ -121,6 +121,29 @@ public class PostS3ServiceImpl implements PostS3Service {
 				}else {
 					logger.info("{} not found or empty." ,EicrResponderParserContant.EICR_CDA_XML);	
 				}
+				// POST EICR_FHIR.xml
+				if (StringUtils.isNotBlank(responderRequest.getEicrFhirXml())) {
+					phaResponse = amazonClientService.uploadPhaS3bucket(
+							folderName+EicrResponderParserContant.EICR_FHIR_XML,
+							responderRequest.getEicrFhirXml());
+					s3PhaPostResponse.append(phaResponse);
+					s3PhaPostResponse.append(System.getProperty("line.separator"));				
+					logger.info("after upload {} response:::: {}" ,EicrResponderParserContant.EICR_FHIR_XML, s3PhaPostResponse.toString());					
+				}else {
+					logger.info("{} not found or empty." ,EicrResponderParserContant.EICR_FHIR_XML);	
+				}
+				
+				// POST RR_FHIR.xml
+				if (StringUtils.isNotBlank(responderRequest.getRrFhirXml())) {
+					phaResponse = amazonClientService.uploadPhaS3bucket(
+							folderName+EicrResponderParserContant.RR_XML,
+							responderRequest.getRrFhirXml());
+					s3PhaPostResponse.append(phaResponse);
+					s3PhaPostResponse.append(System.getProperty("line.separator"));				
+					logger.info("after upload {} response:::: {}" ,EicrResponderParserContant.RR_XML, s3PhaPostResponse.toString());					
+				}else {
+					logger.info("{} not found or empty." ,EicrResponderParserContant.RR_XML);	
+				}				
 				
 			} catch (Exception e) {
 				e.printStackTrace();

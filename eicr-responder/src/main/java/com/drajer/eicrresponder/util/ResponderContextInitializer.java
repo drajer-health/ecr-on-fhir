@@ -374,7 +374,8 @@ public class ResponderContextInitializer {
 				    String content = new BufferedReader(
 				    	      new InputStreamReader(inputStream, StandardCharsets.UTF_8))
 				    	        .lines()
-				    	        .collect(Collectors.joining("\n"));					
+				    	        .collect(Collectors.joining("\n"));
+				    responderRequest.setRrFhirXml(content);
 					responderRequest.setRrObject(convertXmlToJsonFhir(content));
 					logger.info("After create bundle for " + EicrResponderParserContant.RR_XML);
 				} catch (Exception e) {
@@ -387,7 +388,8 @@ public class ResponderContextInitializer {
 				    String content = new BufferedReader(
 				    	      new InputStreamReader(inputStream, StandardCharsets.UTF_8))
 				    	        .lines()
-				    	        .collect(Collectors.joining("\n"));						
+				    	        .collect(Collectors.joining("\n"));
+				    responderRequest.setEicrFhirXml(content);
 					responderRequest.setEicrObject(convertXmlToJsonFhir(content));
 					logger.info("After create bundle for " + EicrResponderParserContant.EICR_FHIR_XML);
 				} catch (Exception e) {
