@@ -15,6 +15,8 @@ public class ResponderRequest {
 	private MetaData metadata;
 	private String eicrCdaXml;
 	private String rrCdaXml;
+	private String eicrFhirXml;
+	private String rrFhirXml;
 	
 	public String getEicrCdaXml() {
 		return eicrCdaXml;
@@ -80,11 +82,28 @@ public class ResponderRequest {
 		this.metadata = metadata;
 	}
 
+	public String getEicrFhirXml() {
+		return eicrFhirXml;
+	}
+
+	public void setEicrFhirXml(String eicrFhirXml) {
+		this.eicrFhirXml = eicrFhirXml;
+	}
+
+	public String getRrFhirXml() {
+		return rrFhirXml;
+	}
+
+	public void setRrFhirXml(String rrFhirXml) {
+		this.rrFhirXml = rrFhirXml;
+	}
+
 	@Override
 	public String toString() {
 		return "ResponderRequest [eicrObject=" + eicrObject + ", rrObject=" + rrObject + ", fhirPostURL=" + fhirPostURL
 				+ ", phaJurisdiction=" + phaJurisdiction + ", retryCount=" + retryCount + ", metadata=" + metadata
-				+ ", eicrCdaXml=" + eicrCdaXml + ", rrCdaXml=" + rrCdaXml + "]";
+				+ ", eicrCdaXml=" + eicrCdaXml + ", rrCdaXml=" + rrCdaXml + ", eicrFhirXml=" + eicrFhirXml
+				+ ", rrFhirXml=" + rrFhirXml + "]";
 	}
 
 }

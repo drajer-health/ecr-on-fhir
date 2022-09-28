@@ -12,7 +12,7 @@ public class EicrResponderParserContant {
 	public static final String EICR_FHIR_XML = "EICR_FHIR.xml";
 	public static final String RR_CDA_XML = "RR_CDA.xml";	
 	public static final String EICR_CDA_XML = "EICR_CDA.xml";
-	public static final String RR_JSON = "RR_FHIR.json";
+	public static final String RR_JSON = "EICR_RR_FHIR.json";
 	public static final String EICR_FHIR_JSON = "EICR_FHIR.json";
 	public static final String META_DATA_JSON = "MetaData.json";
 	public static final String JUD_PARTICIPANT_ROLE = "code";
