@@ -125,7 +125,7 @@ public class PostS3ServiceImpl implements PostS3Service {
 				if (StringUtils.isNotBlank(responderRequest.getEicrFhirXml())) {
 					phaResponse = amazonClientService.uploadPhaS3bucket(
 							folderName+EicrResponderParserContant.EICR_FHIR_XML,
-							responderRequest.getEicrCdaXml());
+							responderRequest.getEicrFhirXml());
 					s3PhaPostResponse.append(phaResponse);
 					s3PhaPostResponse.append(System.getProperty("line.separator"));				
 					logger.info("after upload {} response:::: {}" ,EicrResponderParserContant.EICR_FHIR_XML, s3PhaPostResponse.toString());					
@@ -137,7 +137,7 @@ public class PostS3ServiceImpl implements PostS3Service {
 				if (StringUtils.isNotBlank(responderRequest.getRrFhirXml())) {
 					phaResponse = amazonClientService.uploadPhaS3bucket(
 							folderName+EicrResponderParserContant.RR_XML,
-							responderRequest.getEicrCdaXml());
+							responderRequest.getRrFhirXml());
 					s3PhaPostResponse.append(phaResponse);
 					s3PhaPostResponse.append(System.getProperty("line.separator"));				
 					logger.info("after upload {} response:::: {}" ,EicrResponderParserContant.RR_XML, s3PhaPostResponse.toString());					
