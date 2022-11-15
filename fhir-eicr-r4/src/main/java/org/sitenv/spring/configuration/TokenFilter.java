@@ -38,7 +38,13 @@ public class TokenFilter implements Filter {
         LOGGER.info("Entry - doFilter Method in TokenFilter ");
         HttpServletRequest request = (HttpServletRequest) req;
         HttpServletResponse response = (HttpServletResponse) res;
-
+        
+        String path = request.getPathInfo();
+        if ("/metadata".equals(path)) {
+            chain.doFilter(request, response);
+            LOGGER.info("Exit - doFilter Method in TokenFilter -- metadata endpoint");
+        }
+        
         KeyCloackTokenValidationClient keyCloackTokenValidationClient = new KeyCloackTokenValidationClient();
         boolean responseStatus = keyCloackTokenValidationClient.validateToken(request);
         LOGGER.info("RESPONSE STATUS ::  " + responseStatus);
