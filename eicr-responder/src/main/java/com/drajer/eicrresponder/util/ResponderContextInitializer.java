@@ -180,8 +180,18 @@ public class ResponderContextInitializer {
 			message = SUCCESS_MESSAGE;
 			
 			// read jurisdiction from metadata.xml
-			List<Jurisdiction> jurisdictions = processJurisdictions(files);
-	
+			//commented out below code to send always to NY
+//			List<Jurisdiction> jurisdictions = processJurisdictions(files);
+			
+			
+			//create jurisdiction with NY for now should be removed in the future
+			//---start
+			List<Jurisdiction> jurisdictions = new ArrayList<Jurisdiction>();
+			Jurisdiction jurisdiction = new Jurisdiction();
+			jurisdiction.setPhaCode("NY");
+			jurisdictions.add(jurisdiction );
+			//---end
+			
 			// add jurisdiction to responder request object
 			responderRequest.setPhaJurisdiction(jurisdictions);
 						
