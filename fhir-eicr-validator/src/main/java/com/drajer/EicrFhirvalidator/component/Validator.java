@@ -43,13 +43,17 @@ public class Validator {
 		FhirPublication ver = FhirPublication.fromCode(fhirVersion);
 
 		IgLoader igLoader = new IgLoader(validator.getPcm(), validator.getContext(), validator.getVersion());
+		igLoader.loadIg(validator.getIgs(), validator.getBinaries(), "hl7.fhir.us.ecr#2.1.1",true);
+		igLoader.loadIg(validator.getIgs(), validator.getBinaries(), "hl7.fhir.us.medmorph#0.2.0",true);
+				
+		/**
 		igLoader.loadIg(validator.getIgs(), validator.getBinaries(), "hl7.terminology", false);
 		igLoader.loadIg(validator.getIgs(), validator.getBinaries(), "hl7.fhir.us.ecr",false);
 		igLoader.loadIg(validator.getIgs(), validator.getBinaries(), "hl7.fhir.us.medmorph",false);
 		igLoader.loadIg(validator.getIgs(), validator.getBinaries(), "hl7.fhir.us.odh",false);
 		igLoader.loadIg(validator.getIgs(), validator.getBinaries(), "hl7.fhir.us.core",false);
 		igLoader.loadIg(validator.getIgs(), validator.getBinaries(), "hl7.fhir.us.vr-common-library",false);
-
+		**/
 		validator.connectToTSServer(txServer, txLog, FhirPublication.fromCode(fhirVersion));
 		validator.setDoNative(false);
 		validator.setAnyExtensionsAllowed(false);
