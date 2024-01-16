@@ -13,6 +13,7 @@ import org.springframework.web.bind.annotation.RestController;
 import org.springframework.web.multipart.MultipartFile;
 
 import com.drajer.eicrresponder.service.Interface.ResponderService;
+import com.drajer.eicrresponder.service.impl.SubmitReportImpl;
 
 /**
  * @author Girish Rao 
@@ -29,6 +30,9 @@ public class ReceiveDataController {
 
 	@Autowired
 	ResponderService responderService;
+	
+	@Autowired
+	SubmitReportImpl submitReportImpl;	
 
 	// POST method to send to pha
 	/**
@@ -42,9 +46,9 @@ public class ReceiveDataController {
 	}
 	
 	@PostMapping("/postToPha")
-	public Bundle sendMessageToPha(Bundle theMessageToProcess) {
+	public String sendMessageToPha(Bundle theMessageToProcess, String fhirServerBaseURL) {
 		logger.info("Successfully Receieved data for PHA");
-		return null;
+		return submitReportImpl.submitFhirOutput(theMessageToProcess, fhirServerBaseURL);
 	}
 
 	@PostMapping("/postToHealthCare")
