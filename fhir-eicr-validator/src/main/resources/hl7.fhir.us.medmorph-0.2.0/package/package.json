@@ -1,0 +1,27 @@
+{
+  "name": "hl7.fhir.us.medmorph",
+  "version": "0.2.0",
+  "tools-version": 3,
+  "type": "fhir.ig",
+  "date": "20211208211618",
+  "license": "CC0-1.0",
+  "canonical": "http://hl7.org/fhir/us/medmorph",
+  "url": "http://hl7.org/fhir/us/medmorph/2022Jan",
+  "title": "Making EHR Data More available for Research and Public Health (MedMorph)",
+  "description": "MedMorph describes a framework to enable submission of data from healthcare organizations to public health and research organizations. (built Wed, Dec 8, 2021 21:16+0000+00:00)",
+  "fhirVersions": [
+    "4.0.1"
+  ],
+  "dependencies": {
+    "hl7.fhir.r4.core": "4.0.1",
+    "hl7.fhir.us.core": "3.1.1",
+    "hl7.fhir.uv.bulkdata": "1.0.0",
+    "hl7.fhir.uv.subscriptions-backport": "0.1.0"
+  },
+  "author": "HL7 International - Public Health Work Group",
+  "directories": {
+    "lib": "package",
+    "example": "example"
+  },
+  "jurisdiction": "urn:iso:std:iso:3166#US"
+}

@@ -1,0 +1,54 @@
+{
+  "index-version": 1,
+  "files": [
+    {
+      "filename": "ImplementationGuide-hl7.fhir.uv.bulkdata.json",
+      "resourceType": "ImplementationGuide",
+      "id": "hl7.fhir.uv.bulkdata",
+      "url": "http://hl7.org/fhir/uv/bulkdata/ImplementationGuide/hl7.fhir.uv.bulkdata",
+      "version": "1.0.1"
+    },
+    {
+      "filename": "OperationDefinition-patient-export.json",
+      "resourceType": "OperationDefinition",
+      "id": "patient-export",
+      "url": "http://hl7.org/fhir/uv/bulkdata/OperationDefinition/patient-export",
+      "version": "1.0.1",
+      "kind": "operation",
+      "type": "true"
+    },
+    {
+      "filename": "CapabilityStatement-bulk-data.json",
+      "resourceType": "CapabilityStatement",
+      "id": "bulk-data",
+      "url": "http://hl7.org/fhir/uv/bulkdata/CapabilityStatement/bulk-data",
+      "version": "1.0.1",
+      "kind": "requirements"
+    },
+    {
+      "filename": "OperationDefinition-group-export.json",
+      "resourceType": "OperationDefinition",
+      "id": "group-export",
+      "url": "http://hl7.org/fhir/uv/bulkdata/OperationDefinition/group-export",
+      "version": "1.0.1",
+      "kind": "operation",
+      "type": "false"
+    },
+    {
+      "filename": "OperationDefinition-export.json",
+      "resourceType": "OperationDefinition",
+      "id": "export",
+      "url": "http://hl7.org/fhir/uv/bulkdata/OperationDefinition/export",
+      "version": "1.0.1",
+      "kind": "operation",
+      "type": "false"
+    },
+    {
+      "filename": "ig-r4.json",
+      "resourceType": "ImplementationGuide",
+      "id": "hl7.fhir.uv.bulkdata",
+      "url": "http://hl7.org/fhir/uv/bulkdata/ImplementationGuide/hl7.fhir.uv.bulkdata",
+      "version": "1.0.1"
+    }
+  ]
+}

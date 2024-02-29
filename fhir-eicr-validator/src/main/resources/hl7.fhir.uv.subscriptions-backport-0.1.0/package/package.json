@@ -1,0 +1,37 @@
+{
+  "name": "hl7.fhir.uv.subscriptions-backport",
+  "version": "0.1.0",
+  "tools-version": 3,
+  "type": "fhir.ig",
+  "date": "20201214163006",
+  "license": "CC0-1.0",
+  "canonical": "http://hl7.org/fhir/uv/subscriptions-backport",
+  "url": "http://hl7.org/fhir/uv/subscriptions-backport/2021Jan",
+  "title": "Subscriptions R5 Backport",
+  "description": "The Subscription R5 Backport Implementation Guide enables servers running verions of FHIR earlier than R5 to implement a subset of R5 Subscriptions in a standardized way. (built Mon, Dec 14, 2020 16:30+0000+00:00)",
+  "fhirVersions": [
+    "4.0.1"
+  ],
+  "dependencies": {
+    "hl7.fhir.r4.core": "4.0.1"
+  },
+  "author": "HL7 FHIR Infrastructure WG",
+  "maintainers": [
+    {
+      "name": "HL7 FHIR Infrastructure WG",
+      "url": "https://hl7.org/Special/committees/fiwg/index.cfm"
+    },
+    {
+      "name": "Gino Canessa",
+      "email": "mailto:gino.canessa@microsoft.com"
+    },
+    {
+      "name": "Eric Haas",
+      "email": "mailto:ehaas@healthedatainc.com"
+    }
+  ],
+  "directories": {
+    "lib": "package",
+    "example": "example"
+  }
+}

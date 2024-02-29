@@ -1,0 +1,24 @@
+{
+  "name": "hl7.fhir.uv.bulkdata",
+  "version": "1.1.0",
+  "tools-version": 3,
+  "type": "fhir.ig",
+  "date": "20210416113603",
+  "license": "CC0-1.0",
+  "canonical": "http://hl7.org/fhir/uv/bulkdata",
+  "url": "http://hl7.org/fhir/uv/bulkdata/2021May",
+  "title": "Bulk Data Access IG",
+  "description": "FHIR based approach for exporting large data sets from a FHIR server to a client application (built Fri, Apr 16, 2021 11:36+1000+10:00)",
+  "fhirVersions": [
+    "4.0.1"
+  ],
+  "dependencies": {
+    "hl7.fhir.r4.core": "4.0.1"
+  },
+  "author": "HL7 International - FHIR Infrastructure Work Group",
+  "directories": {
+    "lib": "package",
+    "example": "example"
+  },
+  "jurisdiction": "http://unstats.un.org/unsd/methods/m49/m49.htm#001"
+}

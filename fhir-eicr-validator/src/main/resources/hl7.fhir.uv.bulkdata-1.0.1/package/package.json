@@ -1,0 +1,23 @@
+{
+  "name": "hl7.fhir.uv.bulkdata",
+  "version": "1.0.1",
+  "tools-version": 3,
+  "type": "fhir.ig",
+  "date": "20201204202910",
+  "license": "CC0-1.0",
+  "canonical": "http://hl7.org/fhir/uv/bulkdata",
+  "url": "http://hl7.org/fhir/uv/bulkdata/STU1.0.1",
+  "title": "FHIR Bulk Data Access",
+  "fhirVersions": [
+    "4.0.1"
+  ],
+  "dependencies": {
+    "hl7.fhir.r4.core": "4.0.1"
+  },
+  "author": "FHIR Project",
+  "directories": {
+    "lib": "package",
+    "example": "example"
+  },
+  "jurisdiction": "http://unstats.un.org/unsd/methods/m49/m49.htm#001"
+}

@@ -1,0 +1,21 @@
+{
+  "tools-version": 3,
+  "type": "fhir.ig",
+  "license": "CC0-1.0",
+  "title": "FHIR Bulk Data Access",
+  "author": "FHIR Project",
+  "directories": {
+    "lib": "package",
+    "example": "example"
+  },
+  "version": "1.0.0",
+  "name": "hl7.fhir.uv.bulkdata",
+  "url": "http://hl7.org/fhir/uv/bulkdata/STU1",
+  "canonical": "http://hl7.org/fhir/uv/bulkdata",
+  "dependencies": {
+    "hl7.fhir.r4.core": "4.0.1"
+  },
+  "fhirVersions": [
+    "4.0.0"
+  ]
+}
