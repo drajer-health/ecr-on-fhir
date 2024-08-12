@@ -1,0 +1,27 @@
+{
+  "name" : "hl7.fhir.us.medmorph",
+  "version" : "1.0.0",
+  "tools-version" : 3,
+  "type" : "IG",
+  "date" : "20230608184843",
+  "license" : "CC0-1.0",
+  "canonical" : "http://hl7.org/fhir/us/medmorph",
+  "url" : "http://hl7.org/fhir/us/medmorph/STU1",
+  "title" : "Making Electronic Data More available for Research and Public Health (MedMorph)",
+  "description" : "MedMorph describes a framework to enable submission of data from healthcare organizations to public health and research organizations. (built Thu, Jun 8, 2023 18:48+0000+00:00)",
+  "fhirVersions" : ["4.0.1"],
+  "dependencies" : {
+    "hl7.fhir.r4.core" : "4.0.1",
+    "hl7.terminology.r4" : "5.0.0",
+    "hl7.fhir.uv.extensions.r4" : "1.0.0",
+    "hl7.fhir.us.core" : "3.1.1",
+    "hl7.fhir.uv.bulkdata" : "1.0.1",
+    "hl7.fhir.uv.smart-app-launch" : "2.0.0",
+    "hl7.fhir.uv.subscriptions-backport.r4" : "1.1.0"
+  },
+  "author" : "HL7 International - Public Health Work Group",
+  "directories" : {
+    "lib" : "package",
+    "example" : "example"
+  }
+}

@@ -39,41 +39,36 @@ public class EicrFhirValidatorApplication extends SpringBootServletInitializer {
 	public Validator initializeValidator() {
 		logger.info("inside the initializeValidator");
 		try {
-//			Resource igRes = resourceLoader.getResource("classpath:igs/package");
+//			Resource uscore = resourceLoader.getResource("classpath:igs/package");
 
-			Resource usCore311 = resourceLoader.getResource("classpath:hl7.fhir.us.core-3.1.1/package");
-			Resource usCore400 = resourceLoader.getResource("classpath:hl7.fhir.us.core-4.0.0/package");
 			Resource usecr211 = resourceLoader.getResource("classpath:hl7.fhir.us.ecr-2.1.1/package");
-			Resource medmorph020 = resourceLoader.getResource("classpath:hl7.fhir.us.medmorph-0.2.0/package");
-			Resource odh110 = resourceLoader.getResource("classpath:hl7.fhir.us.odh-1.1.0/package");
-			Resource commonLibrary100 = resourceLoader.getResource("classpath:hl7.fhir.us.vr-common-library-1.0.0/package");
-			Resource bulkdata100 = resourceLoader.getResource("classpath:hl7.fhir.uv.bulkdata-1.0.0/package");
-			Resource bulkdata101 = resourceLoader.getResource("classpath:hl7.fhir.uv.bulkdata-1.0.1/package");
+			Resource terminologyR4550 = resourceLoader.getResource("classpath:hl7.terminology.r4-5.5.0/package");
+			Resource fhirextensions = resourceLoader.getResource("classpath:hl7.fhir.uv.extensions.r4-5.1.0/package");
+			Resource usCore400 = resourceLoader.getResource("classpath:hl7.fhir.us.core-4.0.0/package");
+			Resource bulkdata100 = resourceLoader.getResource("classpath:hl7.fhir.uv.bulkdata-1.0.1/package");
 			Resource bulkdata110 = resourceLoader.getResource("classpath:hl7.fhir.uv.bulkdata-1.1.0/package");
-			Resource backport010 = resourceLoader.getResource("classpath:hl7.fhir.uv.subscriptions-backport-0.1.0/package");
-			Resource extensions004 = resourceLoader.getResource("classpath:hl7.fhir.xver-extensions-0.0.4/package");
-			Resource terminology431 = resourceLoader.getResource("classpath:hl7.terminology.r4-3.1.0/package");
-			Resource phinvads070 = resourceLoader.getResource("classpath:us.cdc.phinvads-0.7.0/package");
-			Resource phinvads010 = resourceLoader.getResource("classpath:us.cdc.phinvads-0.10.0/package");
 			Resource vsac030 = resourceLoader.getResource("classpath:us.nlm.vsac-0.3.0/package");
-			Resource vsac070 = resourceLoader.getResource("classpath:us.nlm.vsac-0.7.0/package");
-
+			Resource vsac070 = resourceLoader.getResource("classpath:us.nlm.vsac-0.17.0/package");
+			Resource phinvads070 = resourceLoader.getResource("classpath:us.cdc.phinvads-0.7.0/package");
+			Resource phinvads012 = resourceLoader.getResource("classpath:us.cdc.phinvads-0.12.0/package");
+			Resource commonLibrary100 = resourceLoader.getResource("classpath:hl7.fhir.us.vr-common-library-1.0.0/package");
+			Resource odh110 = resourceLoader.getResource("classpath:hl7.fhir.us.odh-1.1.0/package");
+			Resource usCore311 = resourceLoader.getResource("classpath:hl7.fhir.us.core-3.1.1/package");
+			Resource medmorph020 = resourceLoader.getResource("classpath:hl7.fhir.us.medmorph-1.0.0/package");
 
 			List<ImplementationGuide> resList = new ArrayList<>();
 			resList.add(new ImplementationGuide().setUrl(usCore311.getURI().getPath()));
 			resList.add(new ImplementationGuide().setUrl(usCore400.getURI().getPath()));
+			resList.add(new ImplementationGuide().setUrl(fhirextensions.getURI().getPath()));
 			resList.add(new ImplementationGuide().setUrl(usecr211.getURI().getPath()));
 			resList.add(new ImplementationGuide().setUrl(medmorph020.getURI().getPath()));
 			resList.add(new ImplementationGuide().setUrl(odh110.getURI().getPath()));
 			resList.add(new ImplementationGuide().setUrl(commonLibrary100.getURI().getPath()));
 			resList.add(new ImplementationGuide().setUrl(bulkdata100.getURI().getPath()));
-			resList.add(new ImplementationGuide().setUrl(bulkdata101.getURI().getPath()));
 			resList.add(new ImplementationGuide().setUrl(bulkdata110.getURI().getPath()));
-			resList.add(new ImplementationGuide().setUrl(backport010.getURI().getPath()));
-			resList.add(new ImplementationGuide().setUrl(extensions004.getURI().getPath()));
-			resList.add(new ImplementationGuide().setUrl(terminology431.getURI().getPath()));
+			resList.add(new ImplementationGuide().setUrl(terminologyR4550.getURI().getPath()));
 			resList.add(new ImplementationGuide().setUrl(phinvads070.getURI().getPath()));
-			resList.add(new ImplementationGuide().setUrl(phinvads010.getURI().getPath()));
+			resList.add(new ImplementationGuide().setUrl(phinvads012.getURI().getPath()));
 			resList.add(new ImplementationGuide().setUrl(vsac030.getURI().getPath()));
 			resList.add(new ImplementationGuide().setUrl(vsac070.getURI().getPath()));
 
