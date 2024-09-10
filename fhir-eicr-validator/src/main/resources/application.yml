@@ -1,2 +1,5 @@
 eicr:
-  cacheDownloadFolderPath: c:\temp\eicr
+  cacheDownloadFolderPath: c:\tmp
+
+server:
+  port: 8081
