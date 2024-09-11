@@ -1,20 +1,27 @@
 package org.sitenv.spring;
 
+
+import jakarta.servlet.annotation.WebServlet;
+
+import java.util.ArrayList;
+import java.util.List;
+
 import ca.uhn.fhir.context.FhirContext;
 import ca.uhn.fhir.rest.api.EncodingEnum;
 import ca.uhn.fhir.rest.server.IResourceProvider;
 import ca.uhn.fhir.rest.server.RestfulServer;
 
-import javax.servlet.annotation.WebServlet;
-import java.util.ArrayList;
-import java.util.List;
-
 
 @WebServlet(urlPatterns = {"/fhir/*"}, displayName = "FHIR Server")
-public class DAFServer extends RestfulServer {
+public class DAFServer extends RestfulServer{
 
 
     /**
+	 * 
+	 */
+	private static final long serialVersionUID = 1L;
+
+	/**
      * Constructor
      */
     public DAFServer() {
@@ -28,11 +35,7 @@ public class DAFServer extends RestfulServer {
     @Override
     public void initialize() {
 
-      /*
-       * The servlet defines any number of resource providers, and
-       * configures itself to use them by calling
-       * setResourceProviders()
-       */
+    
 
         List<IResourceProvider> resourceProviders = new ArrayList<IResourceProvider>();
       

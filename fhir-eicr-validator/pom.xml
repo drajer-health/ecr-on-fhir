@@ -19,7 +19,6 @@
 		<java.version>17</java.version>
 		<hapi.fhir.r5.version>6.6.0</hapi.fhir.r5.version>
 	</properties>
-
 	<dependencyManagement>
 		<dependencies>
 			<dependency>
