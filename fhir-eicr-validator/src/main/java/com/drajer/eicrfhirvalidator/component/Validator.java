@@ -59,52 +59,41 @@ public class Validator {
 			Path cachePath = Paths.get(terminologycachePath+"/.fhir/packages");
 			Files.createDirectories(cachePath);
 
-			FilesystemPackageCacheManager cacheManager = new FilesystemPackageCacheManager(
-					FilesystemPackageCacheManager.FilesystemPackageCacheMode.USER);
-			String path1 = this.getClass().getClassLoader().getResource("packages").getPath().toString();
-			String path = new ClassPathResource("packages").getURI().toString();
-			Resource[] resources = new PathMatchingResourcePatternResolver().getResources("classpath:/packages/*");
-			File packagePath = new File(path);
-			List<String> loaderSrcs = new ArrayList<>();
+			 FilesystemPackageCacheManager cacheManager =
+	                    new FilesystemPackageCacheManager(
+	                            FilesystemPackageCacheManager.FilesystemPackageCacheMode.USER);
+	            String path = this.getClass().getClassLoader().getResource("packages").getPath().toString();
+	            File packagePath = new File(path);
+	            List<String> loaderSrcs = new ArrayList<>();
+	            if (packagePath.exists() && packagePath.isDirectory() && packagePath.listFiles().length > 0) {
+	                for (File file : packagePath.listFiles()) {
+	                    String fullName = file.getName();
+	                    String fileName = fullName.substring(0, fullName.lastIndexOf("."));
+	                    String[] parts = fullName.split("\\W+");
+	                    String version = "";
+	                    for (int i = 0; i < parts.length - 1; i++) {
+	                        if (parts.length - i <= 4) {
+	                            version += parts[i] + ".";
+	                        }
+	                    }
+	                    version = version.substring(0, version.length() - 1);
+	                    String packageName = fileName.replace(version, "");
+	                    packageName = packageName.substring(0, packageName.length() - 1);
+	                    cacheManager.addPackageToCache(
+	                            packageName, version, new FileInputStream(file), packageName);
+	                    loaderSrcs.add(packageName + "#" + version);
+	                }
+	            }
 
-			Arrays.stream(resources).parallel().forEach(resource -> {
-				if (resource.exists() && resource.isReadable()) {
-					try (InputStream is = resource.getInputStream()) {
-						String fullName = resource.getFilename();
-						String fileName = fullName.substring(0, fullName.lastIndexOf("."));
-						String[] parts = fullName.split("\\W+");
-						String version = "";
-						for (int i = 0; i < parts.length - 1; i++) {
-							if (parts.length - i <= 4) {
-								version += parts[i] + ".";
-							}
-						}
-						version = version.substring(0, version.length() - 1);
-						String packageName = fileName.replace(version, "");
-						packageName = packageName.substring(0, packageName.length() - 1);
-						cacheManager.addPackageToCache(packageName, version, is, packageName);
-						loaderSrcs.add(packageName + "#" + version);
+	            logger.info("initializing hl7Validator inside  Validator");
+	            ValidationEngine validationEngine = getValidationEngine(definitions, path, true, fhirVersion, cacheManager,terminologycachePath);
+	            logger.info("Done initializing");
 
-					} catch (Exception e) {
-						logger.error("Error loading resource: " + resource.getFilename(), e);
-					}
-				}
-			});
 
-			logger.info("Initializing HL7 Validator inside Validator");
-			ValidationEngine validationEngine = getValidationEngine(definitions, null, true, fhirSpecVersion,
-					cacheManager, terminologycachePath);
-			logger.info("Done initializing");
-
-			IgLoader igLoader = new IgLoader(cacheManager, validationEngine.getContext(),
-					validationEngine.getVersion());
-			loaderSrcs.parallelStream().forEach(loaderSrc -> {
-				try {
-					igLoader.loadIg(validationEngine.getIgs(), validationEngine.getBinaries(), loaderSrc, false);
-				} catch (Exception e) {
-					logger.error("Error loading IG: " + loaderSrc, e);
-				}
-			});
+	            IgLoader igLoader = new IgLoader(cacheManager, validationEngine.getContext(), validationEngine.getVersion());
+	            for (String loaderSrc : loaderSrcs) {
+	                igLoader.loadIg(validationEngine.getIgs(), validationEngine.getBinaries(), loaderSrc, false);
+	            }
 
             validationEngine.connectToTSServer(txServer, null, FhirPublication.R4);
             validationEngine.setAnyExtensionsAllowed(true);
