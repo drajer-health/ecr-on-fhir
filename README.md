@@ -1,7 +1,7 @@
 # ecr-on-fhir
 Prerequisites:
-1.	Java 8
-2.	Apache Tomcat 7 or 8
+1.	Java 17
+2.	Apache Tomcat 10 or higher
 3.	PostgresSql Database 10.x
 4.	Maven 3.3.x
 5.	GIT
@@ -28,9 +28,9 @@ jdbc.username=<username>
 jdbc.password=<password>
 ```
 
-update the ‘validator.ednpoint’ property in application.properties file to point the fhir-validator running in your local or any external system
+update the ‘validator.ednpoint’ property in application.properties file to point the fhirvalidator running in your local or any external system
 
-```validator.endpoint=http://localhost:8080/fhir-validator/r4/resource/validate```
+```validator.endpoint=http://localhost:8080/fhirvalidator/r4/resource/validate```
 
 Then navigate to  fhir-eicr-r4 service directory `/ecr-on-fhir/fhir-eicr-r4 / ` and run Maven build to build application war file.
 
@@ -39,7 +39,7 @@ $ mvn clean install
 ```
 
 
-This will generate a war file under target/fhir-eicr-r4.war. Copy this to your tomcat webapp directory for deployment.
+This will generate a war file under target/r4.war. Copy this to your tomcat webapp directory for deployment.
 
 Build FHIR ValidatorService:
 Navigate to  fhir-eicr-validator service directory `/ecr-on-fhir/fhir-eicr-validator/ ` and run Maven build to build application war file.
@@ -48,7 +48,7 @@ Navigate to  fhir-eicr-validator service directory `/ecr-on-fhir/fhir-eicr-valid
 $ mvn clean install
 ```
 
-This will generate a war file under target/fhir-eicr-validator.war. Copy this to your tomcat webapp directory for deployment.
+This will generate a war file under target/fhirvalidator.war. Copy this to your tomcat webapp directory for deployment.
 
 Start Tomcat Service 
 If the tomcat is started successfully then you should be able to access below endpoints
