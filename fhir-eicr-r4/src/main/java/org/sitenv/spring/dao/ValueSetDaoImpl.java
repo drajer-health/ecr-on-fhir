@@ -4,6 +4,7 @@ import java.util.List;
 
 import org.hibernate.Criteria;
 import org.hibernate.criterion.Restrictions;
+import org.sitenv.spring.dao.ValueSetDao;
 import org.sitenv.spring.model.DafValueSet;
 import org.springframework.stereotype.Repository;
 
