@@ -139,25 +139,21 @@
 		</dependency>
 
 
-		<!-- Jackson Core -->
-		<dependency>
-			<groupId>com.fasterxml.jackson.core</groupId>
-			<artifactId>jackson-core</artifactId>
-			<version>2.15.3</version> <!-- or another compatible version -->
-		</dependency>
-
-		<!-- Jackson Databind -->
+		<!-- https://mvnrepository.com/artifact/com.fasterxml.jackson.core/jackson-databind -->
 		<dependency>
 			<groupId>com.fasterxml.jackson.core</groupId>
 			<artifactId>jackson-databind</artifactId>
-			<version>2.15.3</version> <!-- or another compatible version -->
+			<version>2.17.1</version>
 		</dependency>
-
-		<!-- Jackson Annotations -->
+		<dependency>
+			<groupId>com.fasterxml.jackson.core</groupId>
+			<artifactId>jackson-core</artifactId>
+			<version>2.17.2</version>
+		</dependency>
 		<dependency>
 			<groupId>com.fasterxml.jackson.core</groupId>
 			<artifactId>jackson-annotations</artifactId>
-			<version>2.15.3</version> <!-- or another compatible version -->
+			<version>2.17.1</version>
 		</dependency>
 
 
