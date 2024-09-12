@@ -1,4 +1,4 @@
-FROM 3.8-openjdk-17-slim as maven
+FROM maven:3.8-openjdk-17-slim as maven
 COPY ./ /app/
 WORKDIR /app/fhir-eicr-r4
 RUN mvn clean install
