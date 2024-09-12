@@ -7,14 +7,16 @@ import org.slf4j.LoggerFactory;
 import org.springframework.stereotype.Component;
 import org.springframework.util.ResourceUtils;
 
-import javax.net.ssl.HostnameVerifier;
-import javax.net.ssl.SSLSession;
-import javax.servlet.http.HttpServletRequest;
+import jakarta.servlet.http.HttpServletRequest;
+
 import java.io.File;
 import java.io.FileInputStream;
 import java.io.IOException;
 import java.io.InputStream;
 import java.util.Properties;
+
+import javax.net.ssl.HostnameVerifier;
+import javax.net.ssl.SSLSession;
 
 @Component("keyCloackTokenValidationClient")
 public class KeyCloackTokenValidationClient {
