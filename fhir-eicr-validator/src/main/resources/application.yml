@@ -3,3 +3,5 @@ eicr:
 
 server:
   port: 8081
+
+messageHeader.message.types: ${MESSAGE_TYPE_VALUE:eicr-case-report-message}

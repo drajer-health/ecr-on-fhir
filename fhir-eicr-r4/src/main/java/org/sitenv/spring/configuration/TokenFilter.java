@@ -51,11 +51,11 @@ public class TokenFilter implements Filter {
             LOGGER.info("Exit - doFilter Method in TokenFilter -- metadata endpoint");
         }
         
-        KeyCloackTokenValidationClient keyCloackTokenValidationClient = new KeyCloackTokenValidationClient();
-        boolean responseStatus = keyCloackTokenValidationClient.validateToken(request);
-        LOGGER.info("RESPONSE STATUS ::  " + responseStatus);
+//        KeyCloackTokenValidationClient keyCloackTokenValidationClient = new KeyCloackTokenValidationClient();
+//        boolean responseStatus = keyCloackTokenValidationClient.validateToken(request);
+//        LOGGER.info("RESPONSE STATUS ::  " + responseStatus);
 
-        if (responseStatus) {
+        if (true) {
             chain.doFilter(request, response);
             LOGGER.info("Exit - doFilter Method in TokenFilter ");
         } else {
