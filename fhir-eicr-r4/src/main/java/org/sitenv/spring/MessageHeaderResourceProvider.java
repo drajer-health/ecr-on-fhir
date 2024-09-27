@@ -7,20 +7,11 @@ import java.io.InputStream;
 import java.nio.file.Files;
 import java.nio.file.Path;
 import java.nio.file.Paths;
-import java.util.ArrayList;
-import java.util.Date;
-import java.util.List;
-import java.util.Properties;
-import java.util.UUID;
+import java.util.*;
 
 import org.hl7.fhir.instance.model.api.IBaseResource;
-import org.hl7.fhir.r4.model.Bundle;
+import org.hl7.fhir.r4.model.*;
 import org.hl7.fhir.r4.model.Bundle.BundleEntryComponent;
-import org.hl7.fhir.r4.model.CanonicalType;
-import org.hl7.fhir.r4.model.IdType;
-import org.hl7.fhir.r4.model.MessageHeader;
-import org.hl7.fhir.r4.model.Meta;
-import org.hl7.fhir.r4.model.OperationOutcome;
 import org.hl7.fhir.r4.model.OperationOutcome.IssueSeverity;
 import org.hl7.fhir.r4.model.OperationOutcome.OperationOutcomeIssueComponent;
 import org.sitenv.spring.configuration.AppConfig;
@@ -65,7 +56,7 @@ public class MessageHeaderResourceProvider {
 	AmazonClientService amazonClientService;
 	Environment environment;
 
-	public MessageHeaderResourceProvider() {
+	public  MessageHeaderResourceProvider() {
 		context = new AnnotationConfigApplicationContext(AppConfig.class);
 		planDefinition = (PlanDefinitionService) context.getBean("PlanDefinitionService");
 		bundleService = (BundleService) context.getBean("BundleService");
@@ -95,10 +86,19 @@ public class MessageHeaderResourceProvider {
 		try {
 			String requestBdl = "";
 			String resProfile = "";
-
+             String validatorMessageType="";
 			for (BundleEntryComponent next : bundle.getEntry()) {
 				if (next.getResource() instanceof MessageHeader) {
 					MessageHeader msgHeader = (MessageHeader) next.getResource();
+					Optional<String> eventCodeFromMessageHeader = getEventCodeFromMessageHeader(msgHeader);
+					if(eventCodeFromMessageHeader.isEmpty())
+					{
+						logger.error("Event code not found in the MessageHeader for validation.");
+						throw new RuntimeException("Event code missing in the MessageHeader.");
+					}
+					validatorMessageType=eventCodeFromMessageHeader.get();
+
+
 					metaData.setMessageId(((IdType) msgHeader.getIdElement()).getIdPart());
 					metaData.setSenderUrl(msgHeader.getSource().getEndpoint());
 				}
@@ -117,7 +117,7 @@ public class MessageHeaderResourceProvider {
 				}
 			}
 
-			outcome = new CommonUtil().validateResource(resourceBdl, validatorEndpoint, r4Context);
+			outcome = new CommonUtil().validateResource(resourceBdl, validatorEndpoint, r4Context,validatorMessageType);
 
 			// Convert JSON to XML
 			IParser ip = r4Context.newJsonParser(), op = r4Context.newXmlParser();
@@ -235,4 +235,19 @@ public class MessageHeaderResourceProvider {
 		return directoryPath.resolve(filePrefix + System.currentTimeMillis() + ".json").toString();
 	}
 
+	public Optional<String> getEventCodeFromMessageHeader(MessageHeader messageHeader) {
+
+		IParser jsonParser = r4Context.newJsonParser();
+
+		try {
+			Coding eventCoding = messageHeader.getEventCoding();
+			if (eventCoding != null && eventCoding.hasCode()) {
+				return Optional.of(eventCoding.getCode());
+			}
+		} catch (Exception e) {
+			logger.info("error",e);
+		}
+
+		return Optional.empty();
+	}
 }

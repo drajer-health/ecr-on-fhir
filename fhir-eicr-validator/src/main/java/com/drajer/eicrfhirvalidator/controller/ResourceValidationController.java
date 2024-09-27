@@ -18,6 +18,7 @@ import org.springframework.http.HttpStatus;
 import org.springframework.http.ResponseEntity;
 import org.springframework.web.bind.annotation.PostMapping;
 import org.springframework.web.bind.annotation.RequestBody;
+import org.springframework.web.bind.annotation.RequestHeader;
 import org.springframework.web.bind.annotation.RestController;
 
 
@@ -45,7 +46,7 @@ public class ResourceValidationController {
      */
     @PostMapping(value = "/r4/resource/validate")
     public ResponseEntity<?> validateR4Resource(@RequestBody String bodyStr,
-                                                @OptionalParam(name = "profile") String profile) throws Exception {
+                                                @OptionalParam(name = "profile") String profile,@RequestHeader(name = "validator_message_type" ,required = false) String validatorMessageType) throws Exception {
         String output = null;
         FhirValidator validator = r4Context.newValidator();
         Resource resource = (Resource) r4Context.newJsonParser().setPrettyPrint(true).parseResource(bodyStr);
@@ -64,7 +65,7 @@ public class ResourceValidationController {
             try {
                 String results;
                 logger.info("Validating with Profile : "+ profile);
-                OperationOutcome oo = validationService.validate(bodyStr, profile);
+                OperationOutcome oo = validationService.validate(bodyStr, profile,validatorMessageType);
                 results = r5Context.newJsonParser().setPrettyPrint(true).encodeResourceToString(oo);
                 return new ResponseEntity<>(results, HttpStatus.OK);
 
@@ -106,7 +107,7 @@ public class ResourceValidationController {
      */
     @PostMapping(value = "/fhir/Bundle/$validate")
     public ResponseEntity<?> validateR4Bundle(@RequestBody String bodyStr,
-                                                @OptionalParam(name = "profile") String profile) throws Exception {
+    		 @OptionalParam(name = "profile") String profile,@RequestHeader(name = "validator_message_type" ,required = false) String validatorMessageType) throws Exception {
         String output = null;
         FhirValidator validator = r4Context.newValidator();
         Resource resource = (Resource) r4Context.newJsonParser().setPrettyPrint(true).parseResource(bodyStr);
@@ -125,7 +126,7 @@ public class ResourceValidationController {
             try {
                 String results;
                 logger.info("Validating with Profile : "+ profile);
-                OperationOutcome oo = validationService.validate(bodyStr, profile);
+                OperationOutcome oo = validationService.validate(bodyStr, profile,validatorMessageType);
                 results = r5Context.newJsonParser().setPrettyPrint(true).encodeResourceToString(oo);
                 return new ResponseEntity<>(results, HttpStatus.OK);
 

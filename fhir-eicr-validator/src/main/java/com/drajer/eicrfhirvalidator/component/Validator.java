@@ -38,8 +38,6 @@ public class Validator {
 
 	public static final String VERSION_5_0_0 = "5.0.0";
 
-	@Value("${messageHeader.message.types}")
-	private String messageTypeSettings;
 
 	private static final Map<String, String> IG_PATHS = new HashMap<>();
 
@@ -52,8 +50,8 @@ public class Validator {
 	public static String getIgPathByMessageType(String messageType) {
 		return IG_PATHS.get(messageType.toLowerCase());
 	}
-
-	public String getIgPath() {
+	
+	public String getIgPathBySetting(String messageTypeSettings) {
 		return getIgPathByMessageType(messageTypeSettings);
 	}
 
@@ -62,9 +60,8 @@ public class Validator {
 		this.resourceLoader = resourceLoader;
 	}
 
-	@Bean
-	@ConditionalOnProperty(prefix = "eicr", name = "fhir-validation-disable", havingValue = "false", matchIfMissing = true)
-	public ValidationEngine createValidationEngine() {
+	
+	public ValidationEngine createValidationEngine(String messageTypeSettings) {
 		try {
 			Path terminologycachePath = Path.of(properties.getCacheDownloadFolderPath()+"/"+messageTypeSettings);
 			logger.info("terminologycache Path:::::{}", terminologycachePath);
@@ -81,7 +78,7 @@ public class Validator {
 
 			FilesystemPackageCacheManager cacheManager = new FilesystemPackageCacheManager(
 					FilesystemPackageCacheManager.FilesystemPackageCacheMode.USER);
-			String path = this.getClass().getClassLoader().getResource(getIgPath()).getPath().toString();
+			String path = this.getClass().getClassLoader().getResource(getIgPathBySetting(messageTypeSettings)).getPath().toString();
 			File packagePath = new File(path);
 			List<String> loaderSrcs = new ArrayList<>();
 			if (packagePath.exists() && packagePath.isDirectory() && packagePath.listFiles().length > 0) {

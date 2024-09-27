@@ -6,6 +6,7 @@ import org.hl7.fhir.r4.model.OperationOutcome;
 import org.hl7.fhir.r4.model.Resource;
 import org.json.JSONObject;
 import org.springframework.beans.factory.annotation.Autowired;
+import org.springframework.http.HttpEntity;
 import org.springframework.http.HttpHeaders;
 import org.springframework.http.ResponseEntity;
 import org.springframework.stereotype.Component;
@@ -93,15 +94,17 @@ public class CommonUtil {
 
     }
 	
-	public OperationOutcome validateResource(Resource resource,String validatorEndpoint,FhirContext r4Context) {
+	public OperationOutcome validateResource(Resource resource,String validatorEndpoint,FhirContext r4Context ,String validatorMessageType) {
 		OperationOutcome outcome = new OperationOutcome();
 		try {
 			RestTemplate restTemplate = new RestTemplate();
 			HttpHeaders headers = new HttpHeaders();
+			headers.add("validator_message_type",validatorMessageType);
 			//headers.add("Accept", MediaType.APPLICATION_JSON_VALUE);
 			String request = r4Context.newJsonParser().encodeResourceToString(resource);
 
-			ResponseEntity<String> response = restTemplate.postForEntity(validatorEndpoint , request,
+			HttpEntity<String> requestEntity = new HttpEntity<>(request, headers);
+			ResponseEntity<String> response = restTemplate.postForEntity(validatorEndpoint , requestEntity,
 					String.class);
 			outcome = (OperationOutcome) r4Context.newJsonParser().parseResource(response.getBody());
 

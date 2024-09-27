@@ -24,5 +24,5 @@ public interface IFhirValidator<I, O> {
    * @return Optional String
    * @throws Exception, when validation failed
    */
-  Optional<O> validate(I resourceData, String profile) throws EicrException;
+  Optional<O> validate(I resourceData, String profile,String validatorMessageType) throws EicrException;
 }
