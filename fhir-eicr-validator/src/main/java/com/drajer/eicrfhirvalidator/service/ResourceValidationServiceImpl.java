@@ -2,7 +2,6 @@ package com.drajer.eicrfhirvalidator.service;
 
 
 import ca.uhn.fhir.context.FhirContext;
-import ca.uhn.fhir.parser.StrictErrorHandler;
 import ca.uhn.fhir.validation.FhirValidator;
 import ca.uhn.fhir.validation.ValidationResult;
 import com.drajer.eicrfhirvalidator.component.EmbeddedHapiFhirValidator;
@@ -30,10 +29,9 @@ public class ResourceValidationServiceImpl implements ResourceValidationService 
 
 	private IFhirValidator<String, OperationOutcome> fhirValidator;
 
-
 	/**
 	 * Validates r4 resources
-	 * 
+	 *
 	 * @param fhirContext
 	 * @param val
 	 * @param bodyStr
@@ -42,10 +40,9 @@ public class ResourceValidationServiceImpl implements ResourceValidationService 
 	public ValidationResult validateR4Resource(FhirContext fhirContext, FhirValidator val, String bodyStr) {
 		IBaseResource resource = null;
 		ValidationResult result  = fhirContext.newValidator().validateWithResult(bodyStr);
-		//resource = fhirContext.newJsonParser().setParserErrorHandler(new StrictErrorHandler()).parseResource(bodyStr);
-		//ValidationResult result = val.validateWithResult(resource);
 		return result;
 	}
+
 
 	@PostConstruct
 	public void setUp() {
@@ -61,7 +58,9 @@ public class ResourceValidationServiceImpl implements ResourceValidationService 
 		return fhirValidator;
 	}
 
-	public OperationOutcome validate(String resourceData, String resourceProfile) {
+
+
+	public OperationOutcome validate(String bodyStr, String resourceProfile) {
 		try {
 			if (Objects.isNull(fhirValidator)) {
 				logger.error("FHIR Server is not available: {}", resourceProfile);
@@ -69,7 +68,7 @@ public class ResourceValidationServiceImpl implements ResourceValidationService 
 			}
 			logger.debug("Profile: {}", resourceProfile);
 			Long startTime = System.currentTimeMillis();
-			OperationOutcome operationOutcome = fhirValidator.validate(resourceData, resourceProfile).orElse(null);
+			OperationOutcome operationOutcome = fhirValidator.validate(bodyStr, resourceProfile).orElse(null);
 			logger.debug("{} Ends Level2 Fhir server validation Time Taken in milliseconds in resource validator: {}", resourceProfile,(System.currentTimeMillis()-startTime)/1000);
 
 			return operationOutcome;

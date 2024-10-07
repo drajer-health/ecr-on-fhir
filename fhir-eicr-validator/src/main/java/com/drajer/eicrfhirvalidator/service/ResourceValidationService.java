@@ -8,6 +8,6 @@ import org.hl7.fhir.r5.model.OperationOutcome;
 public interface ResourceValidationService {
 
 	ValidationResult validateR4Resource(FhirContext r4Context, FhirValidator validator, String bodyStr);
-	OperationOutcome validate(String resource, String profile) throws Exception;
+	OperationOutcome validate(String bodyStr, String profile) throws Exception;
 
 }
