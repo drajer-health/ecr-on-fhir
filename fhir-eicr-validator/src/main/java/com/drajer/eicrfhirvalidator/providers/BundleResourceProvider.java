@@ -18,6 +18,7 @@ import org.hl7.fhir.r5.model.OperationOutcome;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 import org.springframework.beans.factory.annotation.Autowired;
+import org.springframework.beans.factory.annotation.Qualifier;
 import org.springframework.http.HttpStatus;
 import org.springframework.stereotype.Component;
 
@@ -31,7 +32,12 @@ public class BundleResourceProvider implements IResourceProvider {
     }
 
     @Autowired
-    private FhirContext ctx;
+    @Qualifier("r4FhirContext")
+    private FhirContext r4Context;
+
+    @Autowired
+    @Qualifier("r5FhirContext")
+    private FhirContext r5Context;
 
     @Autowired
     ResourceValidationService validationService;
@@ -42,15 +48,14 @@ public class BundleResourceProvider implements IResourceProvider {
             @OperationParam(name = "profile") String profile,
             RequestDetails requestDetails) {
 
-        String output = null;
-        FhirValidator validator = ctx.newValidator();
-        Resource resource = (Resource) bundle;
-        String bundleAsJsonString = ctx.newJsonParser().setPrettyPrint(true).encodeResourceToString(bundle);
+        System.out.println("bundle.getStructureFhirVersionEnum() == "+ bundle.getStructureFhirVersionEnum());
 
+        FhirValidator validator = r4Context.newValidator();
+        String bundleAsJsonString = r4Context.newJsonParser().setPrettyPrint(true).encodeResourceToString(bundle);
 
         if(profile == null){
-            if(resource.hasMeta()) {
-                Meta resMeta = resource.getMeta();
+            if(bundle.hasMeta()) {
+                Meta resMeta = bundle.getMeta();
                 if(resMeta.hasProfile()) {
                     CanonicalType canonicalProfileType =resMeta.getProfile().get(0);
                     profile = canonicalProfileType.asStringValue();
@@ -62,42 +67,32 @@ public class BundleResourceProvider implements IResourceProvider {
             try {
                 String results;
                 logger.info("Validating with Profile : "+ profile);
-                OperationOutcome oo = validationService.validate(bundleAsJsonString, profile);
-                return oo;
+                OperationOutcome outcomes = validationService.validate(bundleAsJsonString, profile);
+                return outcomes;
 
             } catch (Exception e) {
                 OperationOutcome outcomes = new OperationOutcome();
                 outcomes.addIssue().setSeverity(OperationOutcome.IssueSeverity.ERROR)
                         .setDiagnostics("Failed to parse request body as JSON resource. Error was: " + e.getMessage());
-                output = ctx.newJsonParser().setPrettyPrint(true).encodeResourceToString(outcomes);
+                return outcomes;
             }
         }else{
             try {
-                ValidationResult results = validationService.validateR4Resource(ctx, validator, bundleAsJsonString);
+                ValidationResult results = validationService.validateR4Resource(r4Context, validator, bundleAsJsonString);
                 if (results instanceof ValidationResult && results.isSuccessful()) {
                     logger.info("Validation passed");
                 } else {
                     logger.error("Failed to validateR4Resource.");
                 }
-                OperationOutcome oo = (OperationOutcome) results
-                        .toOperationOutcome();
-                return oo;
+                OperationOutcome outcomes = (OperationOutcome) results.toOperationOutcome();
+                return outcomes;
             } catch (DataFormatException e) {
                 logger.error("Exception in validateR4Resource");
                 OperationOutcome outcomes = new OperationOutcome();
                 outcomes.addIssue().setSeverity(OperationOutcome.IssueSeverity.ERROR)
                         .setDiagnostics("Failed to parse request body as JSON resource. Error was: " + e.getMessage());
-                output = ctx.newJsonParser().setPrettyPrint(true).encodeResourceToString(outcomes);
+                return outcomes;
             }
         }
-        OperationOutcome outcomes = new OperationOutcome();
-        outcomes.addIssue().setSeverity(OperationOutcome.IssueSeverity.ERROR)
-                .setDiagnostics("Failed to parse request. Error was: "+HttpStatus.INTERNAL_SERVER_ERROR);
-        logger.info("Before Return");
-        return outcomes;
-
     }
-
-
-
 }
