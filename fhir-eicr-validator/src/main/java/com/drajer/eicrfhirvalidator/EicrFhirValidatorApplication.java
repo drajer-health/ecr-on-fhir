@@ -1,20 +1,29 @@
 package com.drajer.eicrfhirvalidator;
 
-import org.slf4j.Logger;
-import org.slf4j.LoggerFactory;
+
+import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.boot.SpringApplication;
 import org.springframework.boot.autoconfigure.SpringBootApplication;
-import org.springframework.boot.autoconfigure.orm.jpa.HibernateJpaAutoConfiguration;
+import org.springframework.boot.web.servlet.ServletRegistrationBean;
 import org.springframework.boot.web.servlet.support.SpringBootServletInitializer;
+import org.springframework.context.ApplicationContext;
+import org.springframework.context.annotation.Bean;
 
-@SpringBootApplication(exclude = HibernateJpaAutoConfiguration.class)
+@SpringBootApplication
 public class EicrFhirValidatorApplication extends SpringBootServletInitializer {
 
-	private final Logger logger = LoggerFactory.getLogger(EicrFhirValidatorApplication.class);
+    @Autowired
+    private ApplicationContext context;
 
+    public static void main(String[] args) {
 
-	public static void main(String[] args) {
-		SpringApplication.run(EicrFhirValidatorApplication.class, args);
-	}
+        SpringApplication.run(EicrFhirValidatorApplication.class, args);
+    }
 
+    @Bean
+    public ServletRegistrationBean ServletRegistrationBean() {
+        ServletRegistrationBean registration= new ServletRegistrationBean(new FhirRestfulServer(context),"/fhir/*");
+        registration.setName("FhirServlet");
+        return registration;
+    }
 }
