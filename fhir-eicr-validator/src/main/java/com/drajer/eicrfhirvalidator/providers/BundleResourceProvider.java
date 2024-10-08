@@ -13,13 +13,11 @@ import org.hl7.fhir.instance.model.api.IBaseResource;
 import org.hl7.fhir.r4.model.Bundle;
 import org.hl7.fhir.r4.model.CanonicalType;
 import org.hl7.fhir.r4.model.Meta;
-import org.hl7.fhir.r4.model.Resource;
 import org.hl7.fhir.r5.model.OperationOutcome;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.beans.factory.annotation.Qualifier;
-import org.springframework.http.HttpStatus;
 import org.springframework.stereotype.Component;
 
 @Component
@@ -47,8 +45,6 @@ public class BundleResourceProvider implements IResourceProvider {
             @OperationParam(name = "resource") Bundle bundle,
             @OperationParam(name = "profile") String profile,
             RequestDetails requestDetails) {
-
-        System.out.println("bundle.getStructureFhirVersionEnum() == "+ bundle.getStructureFhirVersionEnum());
 
         FhirValidator validator = r4Context.newValidator();
         String bundleAsJsonString = r4Context.newJsonParser().setPrettyPrint(true).encodeResourceToString(bundle);
