@@ -4,16 +4,16 @@ import org.apache.commons.codec.binary.Base64;
 import org.hl7.fhir.r4.model.DateTimeType;
 import org.hl7.fhir.r4.model.OperationOutcome;
 import org.hl7.fhir.r4.model.Resource;
-import org.json.JSONObject;
-import org.springframework.beans.factory.annotation.Autowired;
+import org.springframework.http.HttpEntity;
 import org.springframework.http.HttpHeaders;
+import org.springframework.http.MediaType;
 import org.springframework.http.ResponseEntity;
-import org.springframework.stereotype.Component;
 import org.springframework.web.client.RestTemplate;
 
 import ca.uhn.fhir.context.FhirContext;
 
 import java.text.SimpleDateFormat;
+import java.util.Collections;
 import java.util.Date;
 import java.util.Random;
 
@@ -98,11 +98,14 @@ public class CommonUtil {
 		try {
 			RestTemplate restTemplate = new RestTemplate();
 			HttpHeaders headers = new HttpHeaders();
-			//headers.add("Accept", MediaType.APPLICATION_JSON_VALUE);
-			String request = r4Context.newJsonParser().encodeResourceToString(resource);
+			headers.setContentType(MediaType.valueOf("application/fhir+json")); // Correct FHIR media type
+			headers.setAccept(Collections.singletonList(MediaType.valueOf("application/fhir+json")));
 
-			ResponseEntity<String> response = restTemplate.postForEntity(validatorEndpoint , request,
-					String.class);
+			String request = r4Context.newJsonParser().encodeResourceToString(resource);
+			// Wrap headers and body in an HttpEntity
+			HttpEntity<String> entity = new HttpEntity<>(request, headers);
+
+			ResponseEntity<String> response = restTemplate.postForEntity(validatorEndpoint, entity, String.class);
 			outcome = (OperationOutcome) r4Context.newJsonParser().parseResource(response.getBody());
 
 		}catch(Exception e) {
