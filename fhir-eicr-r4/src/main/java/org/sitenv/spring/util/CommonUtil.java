@@ -20,7 +20,7 @@ import java.util.Random;
 public class CommonUtil {
     private static final String CHAR_LIST =
             "abcdefghijklmnopqrstuvwxyzABCDEFGHIJKLMNOPQRSTUVWXYZ1234567890-_";
-    
+
     // private static final int RANDOM_STRING_LENGTH = 250;
 
     public static String generateRandomString(int length) {
@@ -83,7 +83,7 @@ public class CommonUtil {
 		}
 		return dateTimeType;
 	}
-    
+
 	public static String base64Decoder(String encodedString) {
 
         //decoding byte array into base64
@@ -92,7 +92,7 @@ public class CommonUtil {
         return new String(decoded);
 
     }
-	
+
 	public OperationOutcome validateResource(Resource resource,String validatorEndpoint,FhirContext r4Context) {
 		OperationOutcome outcome = new OperationOutcome();
 		try {
@@ -100,6 +100,8 @@ public class CommonUtil {
 			HttpHeaders headers = new HttpHeaders();
 			headers.setContentType(MediaType.valueOf("application/fhir+json")); // Correct FHIR media type
 			headers.setAccept(Collections.singletonList(MediaType.valueOf("application/fhir+json")));
+
+			System.out.println("End Point:" +validatorEndpoint);
 
 			String request = r4Context.newJsonParser().encodeResourceToString(resource);
 			// Wrap headers and body in an HttpEntity
@@ -113,7 +115,7 @@ public class CommonUtil {
 			outcome.addIssue().setSeverity(org.hl7.fhir.r4.model.OperationOutcome.IssueSeverity.ERROR)
 					.setDiagnostics("Failed to parse request body as JSON resource. Error was: " + e.getMessage());
 		}
-		
+
 		return outcome;
 	}
 }
