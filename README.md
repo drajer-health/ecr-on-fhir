@@ -4,7 +4,7 @@ Prerequisites:
 2.	Apache Tomcat 10 or higher
 3.	PostgresSql Database 10.x
 4.	Maven 3.3.x
-5.	GIT
+5.	GIT for windows or Linux
 
 Clone the Repository
 Clone the respository using the below command in command prompt
