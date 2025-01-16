@@ -1,25 +1,18 @@
 package org.sitenv.spring;
 
-import java.io.File;
-import java.io.FileInputStream;
-import java.io.IOException;
-import java.io.InputStream;
-import java.util.ArrayList;
-import java.util.Date;
-import java.util.List;
-import java.util.Properties;
-import java.util.UUID;
-
+import ca.uhn.fhir.context.FhirContext;
+import ca.uhn.fhir.parser.IParser;
+import ca.uhn.fhir.rest.annotation.Operation;
+import ca.uhn.fhir.rest.annotation.OperationParam;
+import ca.uhn.fhir.rest.api.server.RequestDetails;
+import ca.uhn.fhir.rest.server.exceptions.UnprocessableEntityException;
+import jakarta.servlet.http.HttpServletRequest;
 import org.hl7.fhir.instance.model.api.IBaseResource;
 import org.hl7.fhir.r4.model.Bundle;
 import org.hl7.fhir.r4.model.Bundle.BundleEntryComponent;
-import org.hl7.fhir.r4.model.CanonicalType;
-import org.hl7.fhir.r4.model.IdType;
 import org.hl7.fhir.r4.model.MessageHeader;
-import org.hl7.fhir.r4.model.Meta;
 import org.hl7.fhir.r4.model.OperationOutcome;
 import org.hl7.fhir.r4.model.OperationOutcome.IssueSeverity;
-import org.hl7.fhir.r4.model.OperationOutcome.OperationOutcomeIssueComponent;
 import org.sitenv.spring.configuration.AppConfig;
 import org.sitenv.spring.model.DafBundle;
 import org.sitenv.spring.model.MetaData;
@@ -34,30 +27,31 @@ import org.springframework.context.annotation.AnnotationConfigApplicationContext
 import org.springframework.context.support.AbstractApplicationContext;
 import org.springframework.util.ResourceUtils;
 
-import ca.uhn.fhir.context.FhirContext;
-import ca.uhn.fhir.model.api.annotation.Description;
-import ca.uhn.fhir.parser.IParser;
-import ca.uhn.fhir.rest.annotation.Operation;
-import ca.uhn.fhir.rest.annotation.OperationParam;
-import ca.uhn.fhir.rest.api.server.RequestDetails;
-import ca.uhn.fhir.rest.server.exceptions.UnprocessableEntityException;
-import jakarta.servlet.http.HttpServletRequest;
+import java.io.FileInputStream;
+import java.io.IOException;
+import java.io.InputStream;
+import java.util.Date;
+import java.util.Properties;
+import java.util.UUID;
 
+/**
+ * Resource provider for handling FHIR MessageHeader resources.
+ * Provides a custom $process-message operation to validate and process incoming FHIR bundles.
+ */
 public class MessageHeaderResourceProvider {
 
-	//need to read from conf file
-	//private static final String validatorEndpoint = "http://ecr.drajer.com/fhir-eicr-validator/r4/resource/validate";
-
 	protected FhirContext r4Context = FhirContext.forR4();
-
 	private static final Logger logger = LoggerFactory.getLogger(MessageHeaderResourceProvider.class);
 
-	AbstractApplicationContext context;
-	PlanDefinitionService planDefinition;
-	BundleService bundleService;
-	CommunicationService communicationService;
-	AmazonClientService amazonClientService;
-	
+	private final AbstractApplicationContext context;
+	private final PlanDefinitionService planDefinition;
+	private final BundleService bundleService;
+	private final CommunicationService communicationService;
+	private final AmazonClientService amazonClientService;
+
+	/**
+	 * Default constructor initializing services from the application context.
+	 */
 	public MessageHeaderResourceProvider() {
 		context = new AnnotationConfigApplicationContext(AppConfig.class);
 		planDefinition = (PlanDefinitionService) context.getBean("PlanDefinitionService");
@@ -66,112 +60,160 @@ public class MessageHeaderResourceProvider {
 		amazonClientService = (AmazonClientService) context.getBean("AmazonClientService");
 	}
 
+	/**
+	 * Custom FHIR operation $process-message for processing and validating FHIR bundles.
+	 *
+	 * @param theServletRequest The HTTP servlet request containing additional headers.
+	 * @param theRequestDetails Details about the FHIR request.
+	 * @param theMessageToProcess The FHIR bundle to process.
+	 * @return A FHIR Bundle containing the processing results.
+	 */
 	@Operation(name = "$process-message", idempotent = false)
 	public Bundle processMessage(HttpServletRequest theServletRequest, RequestDetails theRequestDetails,
-								 @OperationParam(name = "content", min = 1, max = 1) @Description(formalDefinition = "The message to process (or, if using asynchronous messaging, it may be a response message to accept)") Bundle theMessageToProcess) {
+								 @OperationParam(name = "content", min = 1, max = 1) Bundle theMessageToProcess) {
 		logger.info("Validating the Bundle");
-		Bundle bundle	 = theMessageToProcess;
-		Bundle resourceBdl = new Bundle();
-		OperationOutcome outcome = new OperationOutcome();
-		MetaData metaData = new MetaData();
 
-// 		Get validator endpoint
-		Properties prop = fetchProperties();
-		String validatorEndpoint = System.getProperty("validator.endpoint") == null ?  prop.getProperty("validator.endpoint") : System.getProperty("validator.endpoint");
+		Bundle bundle = theMessageToProcess;
+		MetaData metaData = new MetaData();
+		String persistenceId = theServletRequest.getHeader("persistenceId");
+
+		Properties properties = fetchProperties();
+		String validatorEndpoint = System.getProperty("validator.endpoint", properties.getProperty("validator.endpoint"));
 
 		boolean errorExists = false;
 		try {
-			String requestBdl="";
-			String resProfile="";
+			String requestBundleJson = "";
+			String resourceProfile = "";
+			Bundle resourceBundle = extractBundleDetails(bundle, metaData);
 
-			for (BundleEntryComponent next : bundle.getEntry()) {
-				if(next.getResource() instanceof MessageHeader){
-					MessageHeader msgHeader	= (MessageHeader) next.getResource();
-					metaData.setMessageId(((IdType)msgHeader.getIdElement()).getIdPart());
-					metaData.setSenderUrl(msgHeader.getSource().getEndpoint());
-				}
-				if (next.getResource() instanceof Bundle) {
-					resourceBdl = (Bundle) next.getResource();
-					requestBdl  = r4Context.newJsonParser().encodeResourceToString(resourceBdl);
+			if (resourceBundle != null) {
+				requestBundleJson = r4Context.newJsonParser().encodeResourceToString(resourceBundle);
 
-					Meta resMeta = resourceBdl.getMeta();
-					if(resMeta.hasProfile()) {
-						CanonicalType canonicalProfileType = resMeta.getProfile().get(0);
-						resProfile = canonicalProfileType.asStringValue();
-						validatorEndpoint = validatorEndpoint +"?profile="+ resProfile;
-					}
-
-					//System.out.println("Bundle Entry Resource == > "+ requestBdl);
+				if (resourceBundle.getMeta().hasProfile()) {
+					resourceProfile = resourceBundle.getMeta().getProfile().get(0).asStringValue();
+					validatorEndpoint += "?profile=" + resourceProfile;
 				}
 			}
 
-			outcome = new CommonUtil().validateResource(resourceBdl,validatorEndpoint, r4Context);
-
-			//Convert JSON to XML
-			IParser ip = r4Context.newJsonParser(),
-					op = r4Context.newXmlParser();
-			IBaseResource ri = ip.parseResource(requestBdl);
-			String output = op.setPrettyPrint(true).encodeResourceToString(ri);
-
-			//System.out.println("XML Output === "+ "<?xml version=\"1.0\" encoding=\"UTF-8\"?>\n"+output );
-			// write to s3
-			try {
-				// Write Meta Data
-				amazonClientService.uploadMetaDataS3bucket(metaData.getMessageId(), metaData);
-
-				//Check for Message Id and Error Handling
-				amazonClientService.uploadBundle3bucket(metaData.getMessageId() , "<?xml version=\"1.0\" encoding=\"UTF-8\"?>\n"+output);
-			}catch(Exception e) {
-				e.printStackTrace();
-			}
-			System.out.println("Done Writing MetaData and resource Bundle to S3 ");
-
-			if (outcome.hasIssue()) {
-				List<OperationOutcomeIssueComponent> issueCompList = outcome.getIssue();
-				for (OperationOutcomeIssueComponent issueComp : issueCompList) {
-					if (issueComp.getSeverity().equals(IssueSeverity.ERROR)) {
-						errorExists = true;
-					}
-				}
-			}
-			if (!errorExists) {
-				DafBundle dafBundle = new DafBundle();
-				bundle.setId(metaData.getMessageId());
-				dafBundle.setEicrData(r4Context.newJsonParser().encodeResourceToString(bundle));
-				dafBundle.setEicrDataProcessStatus("RECEIVED");
-				dafBundle.setCreatedDate(new Date());
-				bundleService.createBundle(dafBundle);
-			}
-
-			Bundle responseBundle = new Bundle();
-			List<BundleEntryComponent> bundleEntryList = new ArrayList<>();
-			BundleEntryComponent entryComp = new BundleEntryComponent();
-			entryComp.setResource(outcome);
-			bundleEntryList.add(entryComp);
-			responseBundle.setEntry(bundleEntryList);
-			return responseBundle;
+			OperationOutcome outcome = new CommonUtil().validateResource(resourceBundle, validatorEndpoint, r4Context);
+			processValidationOutcome(outcome, metaData, persistenceId, requestBundleJson, resourceBundle);
+			return createResponseBundle(outcome);
 
 		} catch (Exception e) {
-			e.printStackTrace();			
+			logger.error("Error in processing the bundle", e);
 			throw new UnprocessableEntityException("Error in Processing the Bundle");
 		}
 	}
 
-	public String getUUID() {
-		UUID uuid = UUID.randomUUID();
-		String randomUUID = uuid.toString();
-		return randomUUID;
+	/**
+	 * Extracts details from the given bundle and updates metadata accordingly.
+	 *
+	 * @param bundle The FHIR bundle to process.
+	 * @param metaData The metadata object to populate.
+	 * @return The nested bundle resource, if found; null otherwise.
+	 */
+	private Bundle extractBundleDetails(Bundle bundle, MetaData metaData) {
+		for (BundleEntryComponent entry : bundle.getEntry()) {
+			if (entry.getResource() instanceof MessageHeader) {
+				MessageHeader messageHeader = (MessageHeader) entry.getResource();
+				metaData.setMessageId(messageHeader.getIdElement().getIdPart());
+				metaData.setSenderUrl(messageHeader.getSource().getEndpoint());
+			}
+			if (entry.getResource() instanceof Bundle) {
+				return (Bundle) entry.getResource();
+			}
+		}
+		return null;
 	}
-	public static Properties fetchProperties(){
-		Properties properties = new Properties();
+
+	/**
+	 * Processes the validation outcome, uploads metadata and the bundle to S3, and updates the database.
+	 *
+	 * @param outcome The validation outcome.
+	 * @param metaData The metadata object.
+	 * @param persistenceId The unique persistence ID for the bundle.
+	 * @param requestBundleJson The bundle in JSON format.
+	 * @param resourceBundle The resource bundle.
+	 */
+	private void processValidationOutcome(OperationOutcome outcome, MetaData metaData, String persistenceId,
+										  String requestBundleJson, Bundle resourceBundle) {
 		try {
-			File file = ResourceUtils.getFile("classpath:application.properties");
-			InputStream in = new FileInputStream(file);
+			String bundleXml = convertJsonToXml(requestBundleJson);
+			amazonClientService.uploadMetaDataS3bucket(persistenceId, metaData);
+			amazonClientService.uploadBundle3bucket(persistenceId, bundleXml);
+			logger.info("Uploaded metadata and bundle to S3.");
+
+			if (!hasErrorIssues(outcome)) {
+				DafBundle dafBundle = new DafBundle();
+				dafBundle.setEicrData(r4Context.newJsonParser().encodeResourceToString(resourceBundle));
+				dafBundle.setEicrDataProcessStatus("RECEIVED");
+				dafBundle.setCreatedDate(new Date());
+				bundleService.createBundle(dafBundle);
+			}
+		} catch (Exception e) {
+			logger.error("Error in processing validation outcome", e);
+		}
+	}
+
+	/**
+	 * Converts a JSON representation of a bundle to XML.
+	 *
+	 * @param json The JSON string.
+	 * @return The XML string.
+	 */
+	private String convertJsonToXml(String json) {
+		IParser jsonParser = r4Context.newJsonParser();
+		IParser xmlParser = r4Context.newXmlParser();
+		IBaseResource resource = jsonParser.parseResource(json);
+		return xmlParser.setPrettyPrint(true).encodeResourceToString(resource);
+	}
+
+	/**
+	 * Checks if the given OperationOutcome contains any errors.
+	 *
+	 * @param outcome The validation outcome to check.
+	 * @return True if there are error issues, false otherwise.
+	 */
+	private boolean hasErrorIssues(OperationOutcome outcome) {
+		return outcome.getIssue().stream()
+				.anyMatch(issue -> issue.getSeverity() == IssueSeverity.ERROR);
+	}
+
+	/**
+	 * Creates a response bundle containing the given OperationOutcome.
+	 *
+	 * @param outcome The OperationOutcome to include in the response.
+	 * @return The response bundle.
+	 */
+	private Bundle createResponseBundle(OperationOutcome outcome) {
+		Bundle responseBundle = new Bundle();
+		BundleEntryComponent entryComponent = new BundleEntryComponent();
+		entryComponent.setResource(outcome);
+		responseBundle.addEntry(entryComponent);
+		return responseBundle;
+	}
+
+	/**
+	 * Generates a UUID.
+	 *
+	 * @return A randomly generated UUID.
+	 */
+	public String getUUID() {
+		return UUID.randomUUID().toString();
+	}
+
+	/**
+	 * Fetches application properties from the classpath.
+	 *
+	 * @return The loaded properties.
+	 */
+	public static Properties fetchProperties() {
+		Properties properties = new Properties();
+		try (InputStream in = new FileInputStream(ResourceUtils.getFile("classpath:application.properties"))) {
 			properties.load(in);
 		} catch (IOException e) {
-			logger.error(e.getMessage());
+			logger.error("Error loading properties", e);
 		}
 		return properties;
 	}
-
 }

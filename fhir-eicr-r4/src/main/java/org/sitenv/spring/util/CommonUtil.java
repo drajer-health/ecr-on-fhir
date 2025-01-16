@@ -4,6 +4,8 @@ import org.apache.commons.codec.binary.Base64;
 import org.hl7.fhir.r4.model.DateTimeType;
 import org.hl7.fhir.r4.model.OperationOutcome;
 import org.hl7.fhir.r4.model.Resource;
+import org.slf4j.Logger;
+import org.slf4j.LoggerFactory;
 import org.springframework.http.HttpEntity;
 import org.springframework.http.HttpHeaders;
 import org.springframework.http.MediaType;
@@ -18,9 +20,10 @@ import java.util.Date;
 import java.util.Random;
 
 public class CommonUtil {
+	private static final Logger logger = LoggerFactory.getLogger(CommonUtil.class);
     private static final String CHAR_LIST =
             "abcdefghijklmnopqrstuvwxyzABCDEFGHIJKLMNOPQRSTUVWXYZ1234567890-_";
-
+    
     // private static final int RANDOM_STRING_LENGTH = 250;
 
     public static String generateRandomString(int length) {
@@ -83,7 +86,7 @@ public class CommonUtil {
 		}
 		return dateTimeType;
 	}
-
+    
 	public static String base64Decoder(String encodedString) {
 
         //decoding byte array into base64
@@ -92,7 +95,7 @@ public class CommonUtil {
         return new String(decoded);
 
     }
-
+	
 	public OperationOutcome validateResource(Resource resource,String validatorEndpoint,FhirContext r4Context) {
 		OperationOutcome outcome = new OperationOutcome();
 		try {
@@ -101,13 +104,12 @@ public class CommonUtil {
 			headers.setContentType(MediaType.valueOf("application/fhir+json")); // Correct FHIR media type
 			headers.setAccept(Collections.singletonList(MediaType.valueOf("application/fhir+json")));
 
-			System.out.println("End Point:" +validatorEndpoint);
-
 			String request = r4Context.newJsonParser().encodeResourceToString(resource);
 			// Wrap headers and body in an HttpEntity
 			HttpEntity<String> entity = new HttpEntity<>(request, headers);
-
+			logger.info("validatorEndpoint == " + validatorEndpoint);
 			ResponseEntity<String> response = restTemplate.postForEntity(validatorEndpoint, entity, String.class);
+			
 			outcome = (OperationOutcome) r4Context.newJsonParser().parseResource(response.getBody());
 
 		}catch(Exception e) {
@@ -115,7 +117,7 @@ public class CommonUtil {
 			outcome.addIssue().setSeverity(org.hl7.fhir.r4.model.OperationOutcome.IssueSeverity.ERROR)
 					.setDiagnostics("Failed to parse request body as JSON resource. Error was: " + e.getMessage());
 		}
-
+		
 		return outcome;
 	}
 }
