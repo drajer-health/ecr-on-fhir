@@ -140,7 +140,11 @@ public class MessageHeaderResourceProvider {
 		try {
 			String bundleXml = convertJsonToXml(requestBundleJson);
 			amazonClientService.uploadMetaDataS3bucket(persistenceId, metaData);
-			amazonClientService.uploadBundle3bucket(persistenceId, bundleXml);
+			amazonClientService.uploadBundleS3bucketXml(persistenceId, bundleXml);
+			amazonClientService.uploadBundleS3bucketJson(persistenceId, requestBundleJson);
+			amazonClientService.uploadOperationOutcomeS3bucketJson(persistenceId, convertResourceToJson(outcome));
+			amazonClientService.uploadOperationOutcomeS3bucketXml(persistenceId, convertResourceToXml(outcome));
+
 			logger.info("Uploaded metadata and bundle to S3.");
 
 			if (!hasErrorIssues(outcome)) {
@@ -193,14 +197,6 @@ public class MessageHeaderResourceProvider {
 		return responseBundle;
 	}
 
-	/**
-	 * Generates a UUID.
-	 *
-	 * @return A randomly generated UUID.
-	 */
-	public String getUUID() {
-		return UUID.randomUUID().toString();
-	}
 
 	/**
 	 * Fetches application properties from the classpath.
@@ -216,4 +212,28 @@ public class MessageHeaderResourceProvider {
 		}
 		return properties;
 	}
+
+	/**
+	 * Converts a FHIR resource to its JSON representation.
+	 *
+	 * @param resource The FHIR resource to convert.
+	 * @return The JSON representation of the resource.
+	 */
+	private String convertResourceToJson(OperationOutcome resource) {
+		IParser jsonParser = r4Context.newJsonParser().setPrettyPrint(true);
+		return jsonParser.encodeResourceToString(resource);
+	}
+
+	/**
+	 * Converts a FHIR resource to its XML representation.
+	 *
+	 * @param resource The FHIR resource to convert.
+	 * @return The XML representation of the resource.
+	 */
+	private String convertResourceToXml(OperationOutcome resource) {
+		IParser xmlParser = r4Context.newXmlParser().setPrettyPrint(true);
+		return xmlParser.encodeResourceToString(resource);
+	}
+
+
 }

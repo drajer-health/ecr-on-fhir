@@ -68,9 +68,50 @@ public class AmazonClientServiceImpl implements AmazonClientService {
      * @return A success or failure message indicating the result of the upload.
      */
     @Override
-    public String uploadBundle3bucket(String persistenceId, String xml) {
-        String s3Key = generateS3Key("RawFHIR-T-PH-ECR", persistenceId);
+    public String uploadBundleS3bucketXml(String persistenceId, String xml) {
+        String s3Key = generateS3Key("RawFHIR-T-PH-ECR-XML", persistenceId);
         return uploadToS3(s3Key, xml, "application/xml");
+    }
+
+    /**
+     * Uploads a FHIR bundle as an JSON file to the S3 bucket.
+     *
+     * @param persistenceId The unique ID to be used in the S3 key.
+     * @param jsonStr           The FHIR bundle content in JSON format.
+     * @return A success or failure message indicating the result of the upload.
+     */
+
+    @Override
+    public String uploadBundleS3bucketJson(String persistenceId, String jsonStr) {
+        String s3Key = generateS3Key("RawFHIR-T-PH-ECR-JSON", persistenceId);
+        return uploadToS3(s3Key, jsonStr, "application/json");
+    }
+
+
+    /**
+     * Uploads a FHIR Validation OperationOutcome as an XML file to the S3 bucket.
+     *
+     * @param persistenceId The unique ID to be used in the S3 key.
+     * @param xml           The FHIR Validation OperationOutcome content in XML format.
+     * @return A success or failure message indicating the result of the upload.
+     */
+    @Override
+    public String uploadOperationOutcomeS3bucketXml(String persistenceId, String xml) {
+        String s3Key = generateS3Key("FHIRValidationOutputXML", persistenceId);
+        return uploadToS3(s3Key, xml, "application/xml");
+    }
+
+    /**
+     * Uploads a FHIR Validation OperationOutcome as an JSON file to the S3 bucket.
+     *
+     * @param persistenceId The unique ID to be used in the S3 key.
+     * @param jsonStr           The FHIR Validation OperationOutcome content in JSON format.
+     * @return A success or failure message indicating the result of the upload.
+     */
+    @Override
+    public String uploadOperationOutcomeS3bucketJson(String persistenceId, String jsonStr) {
+        String s3Key = generateS3Key("FHIRValidationOutputJSON", persistenceId);
+        return uploadToS3(s3Key, jsonStr, "application/json");
     }
 
     /**

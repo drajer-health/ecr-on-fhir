@@ -15,7 +15,35 @@ public interface AmazonClientService {
 	 * @param xml           The FHIR bundle content in XML format.
 	 * @return A string indicating success or failure of the upload operation.
 	 */
-	String uploadBundle3bucket(String persistenceId, String xml);
+	String uploadBundleS3bucketXml(String persistenceId, String xml);
+
+	/**
+	 * Uploads a FHIR bundle as an JSON file to an S3 bucket.
+	 *
+	 * @param persistenceId The unique identifier for the file to be uploaded.
+	 * @param jsonStr           The FHIR bundle in JSON format.
+	 * @return A string indicating success or failure of the upload operation.
+	 */
+	String uploadBundleS3bucketJson(String persistenceId, String jsonStr);
+
+	/**
+	 * Uploads a FHIR bundle as an XML file to an S3 bucket.
+	 *
+	 * @param persistenceId The unique identifier for the file to be uploaded.
+	 * @param xml           The FHIR bundle content in XML format.
+	 * @return A string indicating success or failure of the upload operation.
+	 */
+	String uploadOperationOutcomeS3bucketXml(String persistenceId, String xml);
+
+	/**
+	 * Uploads a FHIR bundle as an JSON file to an S3 bucket.
+	 *
+	 * @param persistenceId The unique identifier for the file to be uploaded.
+	 * @param jsonStr           The FHIR bundle in JSON format.
+	 * @return A string indicating success or failure of the upload operation.
+	 */
+	String uploadOperationOutcomeS3bucketJson(String persistenceId, String jsonStr);
+
 
 	/**
 	 * Uploads metadata as a JSON file to an S3 bucket.
