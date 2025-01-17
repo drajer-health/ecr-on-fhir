@@ -71,7 +71,7 @@ public class MessageHeaderResourceProvider {
 	@Operation(name = "$process-message", idempotent = false)
 	public Bundle processMessage(HttpServletRequest theServletRequest, RequestDetails theRequestDetails,
 								 @OperationParam(name = "content", min = 1, max = 1) Bundle theMessageToProcess) {
-		logger.info("Validating the Bundle");
+		logger.info("Validating the Bundle - 0.0.2-SNAPSHOT");
 
 		Bundle bundle = theMessageToProcess;
 		MetaData metaData = new MetaData();
@@ -145,7 +145,7 @@ public class MessageHeaderResourceProvider {
 			amazonClientService.uploadOperationOutcomeS3bucketJson(persistenceId, convertResourceToJson(outcome));
 			amazonClientService.uploadOperationOutcomeS3bucketXml(persistenceId, convertResourceToXml(outcome));
 
-			logger.info("Uploaded metadata and bundle to S3.");
+			logger.info("Uploaded metadata and bundle to S3." + persistenceId);
 
 			if (!hasErrorIssues(outcome)) {
 				DafBundle dafBundle = new DafBundle();
