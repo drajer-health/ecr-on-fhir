@@ -124,7 +124,7 @@ public class AmazonClientServiceImpl implements AmazonClientService {
     public String uploadMetaDataS3bucket(String persistenceId, MetaData metaData) {
         try {
             String jsonStr = new ObjectMapper().writeValueAsString(metaData);
-            String s3Key = generateS3Key("MetadataV2", persistenceId);
+            String s3Key = generateS3Key("MetadataV2", persistenceId+"/RawFHIR-T-PH-ECR.json");
             return uploadToS3(s3Key, jsonStr, "application/json");
         } catch (JsonProcessingException e) {
             logger.error("Failed to convert MetaData to JSON: {}", e.getMessage());
