@@ -28,6 +28,7 @@
     </appender>
     <root level="info">
         <appender-ref ref="FILE"/>
+        <appender-ref ref="console"/>
     </root>
     <!-- log file end -->
 
