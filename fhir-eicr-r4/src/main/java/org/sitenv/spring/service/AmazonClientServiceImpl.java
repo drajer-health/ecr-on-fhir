@@ -152,6 +152,7 @@ public class AmazonClientServiceImpl implements AmazonClientService {
             RequestBody requestBody = RequestBody.fromInputStream(inputStream, content.getBytes().length);
             s3Client.putObject(request, requestBody);
             logger.debug("Successfully uploaded to S3: {} / {}", bucketName, s3Key);
+            System.out.println("Successfully uploaded to S3: "+ bucketName +" / "+ s3Key  );
             return "Successfully uploaded to S3 " + bucketName + "/" + s3Key;
         } catch (S3Exception e) {
             logger.error("S3Exception: {}", e.getMessage());
