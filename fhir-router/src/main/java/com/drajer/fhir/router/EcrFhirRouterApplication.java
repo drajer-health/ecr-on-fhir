@@ -14,8 +14,8 @@ public class EcrFhirRouterApplication {
 		
 	}
 	
-//	@Scheduled(fixedDelay = 1000)
+//	@Scheduled(fixedDelay = 10000)
 //	public void run() {
-//		//System.out.println("Running");
+//		System.out.println("Running");
 //	}	
 }

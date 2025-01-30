@@ -11,6 +11,8 @@ public class EchFhirEhxListener {
 	
 	@SqsListener("${cloud.aws.ehx.queue}")
     public void receiveMessage(Message message) {
-        System.out.println("SQS EHS Message Received : {}"+ message);
+        System.out.println("EHX SQS Listener Received Message Id : {}"+ message.messageId());
+        System.out.println("EHX SQS Listener Received Message body : {}"+ message.body());
+        System.out.println("EHX SQS Listener Received Message attributesAsStrings : {}"+ message.attributesAsStrings());
 	}
 }
