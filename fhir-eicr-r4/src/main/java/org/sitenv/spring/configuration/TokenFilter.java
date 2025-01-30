@@ -2,6 +2,8 @@ package org.sitenv.spring.configuration;
 
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
+import org.springframework.context.ApplicationContext;
+import org.springframework.context.annotation.AnnotationConfigApplicationContext;
 import org.springframework.stereotype.Component;
 
 import jakarta.servlet.Filter;
@@ -46,12 +48,15 @@ public class TokenFilter implements Filter {
         HttpServletResponse response = (HttpServletResponse) res;
         
         String path = request.getPathInfo();
-        if ("/metadata".equals(path)) {
+        if ("/metadata".equals(path)||"/api/auth/generate-token".equals(path)) {
             chain.doFilter(request, response);
             LOGGER.info("Exit - doFilter Method in TokenFilter -- metadata endpoint");
         }
-        
-        KeyCloackTokenValidationClient keyCloackTokenValidationClient = new KeyCloackTokenValidationClient();
+
+
+
+        ApplicationContext context = new AnnotationConfigApplicationContext(AppConfig.class);
+        KeyCloackTokenValidationClient keyCloackTokenValidationClient = context.getBean(KeyCloackTokenValidationClient.class);
         boolean responseStatus = keyCloackTokenValidationClient.validateToken(request);
         LOGGER.info("RESPONSE STATUS ::  " + responseStatus);
 
