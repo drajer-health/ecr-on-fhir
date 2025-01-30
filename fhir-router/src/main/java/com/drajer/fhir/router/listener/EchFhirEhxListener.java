@@ -9,7 +9,7 @@ import software.amazon.awssdk.services.sqs.model.Message;
 public class EchFhirEhxListener {
 	
 	
-//	@SqsListener("${cloud.aws.ehx.queue}")
+	@SqsListener("${cloud.aws.ehx.queue}")
     public void receiveMessage(Message message) {
         System.out.println("SQS EHS Message Received : {}"+ message);
 	}
