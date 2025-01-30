@@ -35,9 +35,8 @@ Update following with the secret names
 
 ```
 
-aws.secret.ehk.name=
+aws.secret.ehx.name=
 
-aws.secret.pha.name=
 ```
 
 NOTE: make sure ECS container has access to SQS and Secret
