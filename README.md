@@ -66,3 +66,11 @@ Request Body: <Bundle Resource>
 ```
 
 The above requests will provide the response in Bundle Resource after validating the input Bundle
+
+
+Build FHIR Router:
+Navigate to  fhir-router service directory `/ecr-on-fhir/fhir-router/ ` and run Maven build to build application war file.
+
+```
+$ mvn clean install
+```
