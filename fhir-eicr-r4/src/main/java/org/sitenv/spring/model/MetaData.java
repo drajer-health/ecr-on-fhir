@@ -25,7 +25,7 @@ public class MetaData {
 
     @Override
     public String toString() {
-        return "MetaData [messageId=" + messageId + ", senderUrl=" + senderUrl
+        return "MetaData [RawFHIR-T-PH-ECR.messageId=" + messageId + ", RawFHIR-T-PH-ECR.senderUrl=" + senderUrl
                 + "]";
     }
 

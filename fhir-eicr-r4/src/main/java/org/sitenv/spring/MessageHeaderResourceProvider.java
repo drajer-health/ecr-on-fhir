@@ -7,6 +7,7 @@ import ca.uhn.fhir.rest.annotation.OperationParam;
 import ca.uhn.fhir.rest.api.server.RequestDetails;
 import ca.uhn.fhir.rest.server.exceptions.UnprocessableEntityException;
 import jakarta.servlet.http.HttpServletRequest;
+import org.apache.commons.lang3.StringUtils;
 import org.hl7.fhir.instance.model.api.IBaseResource;
 import org.hl7.fhir.r4.model.Bundle;
 import org.hl7.fhir.r4.model.Bundle.BundleEntryComponent;
@@ -71,11 +72,11 @@ public class MessageHeaderResourceProvider {
 	@Operation(name = "$process-message", idempotent = false)
 	public Bundle processMessage(HttpServletRequest theServletRequest, RequestDetails theRequestDetails,
 								 @OperationParam(name = "content", min = 1, max = 1) Bundle theMessageToProcess) {
-		logger.info("Validating the Bundle - 0.0.2-SNAPSHOT");
+		logger.info("Validating the Bundle - 0.0.4-SNAPSHOT");
 
 		Bundle bundle = theMessageToProcess;
 		MetaData metaData = new MetaData();
-		String persistenceId = theServletRequest.getHeader("persistenceId");
+		String persistenceId = theServletRequest.getHeader("persistenceId");  // if empty dont write to S3
 
 		Properties properties = fetchProperties();
 		String validatorEndpoint = System.getProperty("validator.endpoint", properties.getProperty("validator.endpoint"));
@@ -96,7 +97,11 @@ public class MessageHeaderResourceProvider {
 			}
 
 			OperationOutcome outcome = new CommonUtil().validateResource(resourceBundle, validatorEndpoint, r4Context);
-			processValidationOutcome(outcome, metaData, persistenceId, requestBundleJson, resourceBundle);
+			if(StringUtils.isNotEmpty(persistenceId)) {
+				processValidationOutcome(outcome, metaData, persistenceId, requestBundleJson, resourceBundle);
+			}else{
+				logger.error("persistenceId is empty");
+			}
 			return createResponseBundle(outcome);
 
 		} catch (Exception e) {
