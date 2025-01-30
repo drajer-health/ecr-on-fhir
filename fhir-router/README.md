@@ -14,21 +14,23 @@ Installation Instructions
 Build FHIR Router:
 Navigate to  fhir-router service directory `/ecr-on-fhir/fhir-router/ ` and run Maven build to build application war file.
 
-```
-Add following values to application properties
-```
 
+Add following values to application properties
+
+```
 spring.cloud.aws.credentials.access-key=
 
 spring.cloud.aws.credentials.secret-key=
-
 ```
+
 Update following with the SQS names
+
 ```
 
 cloud.aws.ehx.queue=fhir-ehx-sqs
 
 cloud.aws.pha.queue=fhir-pha-sqs
+```
 
 
 NOTE: make sure EKS container has access to SQS 
