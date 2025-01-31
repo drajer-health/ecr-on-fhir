@@ -1,8 +1,11 @@
 package com.drajer.fhir.router.service;
 
-import org.springframework.beans.factory.annotation.Value;
+import org.json.JSONObject;
 import org.springframework.stereotype.Service;
+import org.springframework.beans.factory.annotation.Value;
 
+import software.amazon.awssdk.auth.credentials.AwsBasicCredentials;
+import software.amazon.awssdk.auth.credentials.StaticCredentialsProvider;
 import software.amazon.awssdk.regions.Region;
 import software.amazon.awssdk.services.secretsmanager.SecretsManagerClient;
 import software.amazon.awssdk.services.secretsmanager.model.GetSecretValueRequest;
@@ -11,17 +14,16 @@ import software.amazon.awssdk.services.secretsmanager.model.GetSecretValueRespon
 @Service
 public class SecretManagerDetails {
 
-	@Value("${aws.secret.name}")
-	private String secretName;
-
-	@Value("${cloud.aws.region.static}")
-	private String awsRegion;
-
-	public void readSecretManager() {
+	public JSONObject getSecret(String secretName, String awsRegion, String accessKey, String secretKey) {
+		JSONObject secretValues;
+		
 		Region region = Region.of(awsRegion);
-
+		
 		// Create a Secrets Manager client
-		SecretsManagerClient client = SecretsManagerClient.builder().region(region).build();
+		SecretsManagerClient client = SecretsManagerClient.builder().region(region)
+				.credentialsProvider(StaticCredentialsProvider
+				        .create(AwsBasicCredentials.create(accessKey, secretKey)))
+				.build();
 
 		GetSecretValueRequest getSecretValueRequest = GetSecretValueRequest.builder().secretId(secretName).build();
 
@@ -29,11 +31,17 @@ public class SecretManagerDetails {
 
 		try {
 			getSecretValueResponse = client.getSecretValue(getSecretValueRequest);
-		} catch (Exception e) {
-			throw e;
-		}
 
 		String secret = getSecretValueResponse.secretString();
-		System.out.println("secret ::::::" + secret);
+	   
+	    JSONObject jsonObject = new JSONObject(secret);   
+	    String jsonKey =  jsonObject.keys().next();
+	    secretValues = new JSONObject(jsonObject.getString(jsonKey));
+	    System.out.println(" secretValues ::::"+ secretValues); 
+		} catch (Exception e) {
+			System.err.println(e.getMessage());
+			throw e;
+		}
+	    return secretValues;
 	}
 }
