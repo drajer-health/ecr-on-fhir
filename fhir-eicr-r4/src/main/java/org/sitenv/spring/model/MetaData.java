@@ -1,9 +1,14 @@
 package org.sitenv.spring.model;
 
+import com.fasterxml.jackson.annotation.JsonProperty;
+
 import java.util.List;
 public class MetaData {
 
+    @JsonProperty("RawFHIR-T-PH-ECR.messageId")
     private String messageId;
+
+    @JsonProperty("RawFHIR-T-PH-ECR.senderUrl")
     private String senderUrl;
 
     public String getMessageId() {
