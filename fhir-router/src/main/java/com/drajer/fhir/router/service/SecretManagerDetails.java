@@ -1,8 +1,9 @@
 package com.drajer.fhir.router.service;
 
 import org.json.JSONObject;
+import org.slf4j.Logger;
+import org.slf4j.LoggerFactory;
 import org.springframework.stereotype.Service;
-import org.springframework.beans.factory.annotation.Value;
 
 import software.amazon.awssdk.auth.credentials.AwsBasicCredentials;
 import software.amazon.awssdk.auth.credentials.StaticCredentialsProvider;
@@ -13,16 +14,18 @@ import software.amazon.awssdk.services.secretsmanager.model.GetSecretValueRespon
 
 @Service
 public class SecretManagerDetails {
+	private static final Logger logger = LoggerFactory.getLogger(SecretManagerDetails.class);
 
 	public JSONObject getSecret(String secretName, String awsRegion, String accessKey, String secretKey) {
 		JSONObject secretValues;
-		
+
 		Region region = Region.of(awsRegion);
-		
+
+		logger.info("Secret Name :" + secretName);
+
 		// Create a Secrets Manager client
 		SecretsManagerClient client = SecretsManagerClient.builder().region(region)
-				.credentialsProvider(StaticCredentialsProvider
-				        .create(AwsBasicCredentials.create(accessKey, secretKey)))
+				.credentialsProvider(StaticCredentialsProvider.create(AwsBasicCredentials.create(accessKey, secretKey)))
 				.build();
 
 		GetSecretValueRequest getSecretValueRequest = GetSecretValueRequest.builder().secretId(secretName).build();
@@ -32,16 +35,24 @@ public class SecretManagerDetails {
 		try {
 			getSecretValueResponse = client.getSecretValue(getSecretValueRequest);
 
-		String secret = getSecretValueResponse.secretString();
-	   
-	    JSONObject jsonObject = new JSONObject(secret);   
-	    String jsonKey =  jsonObject.keys().next();
-	    secretValues = new JSONObject(jsonObject.getString(jsonKey));
-	    System.out.println(" secretValues ::::"+ secretValues); 
+			logger.info("GetSecretValueResponse string  ::::" + getSecretValueResponse.toString());
+
+			String secret = getSecretValueResponse.secretString();
+
+			logger.info(" secret string ::::" + secret);
+
+			JSONObject jsonObject = new JSONObject(secret);
+			String jsonKey = jsonObject.keys().next();
+
+			logger.info("jsonObject string ::::" + jsonObject.toString());
+			logger.info("jsonKey ::::" + jsonKey);
+			secretValues = new JSONObject(jsonObject.getString(jsonKey));
+			logger.info(" secretValues ::::" + secretValues);
 		} catch (Exception e) {
+			e.printStackTrace();
 			System.err.println(e.getMessage());
 			throw e;
 		}
-	    return secretValues;
+		return secretValues;
 	}
 }
