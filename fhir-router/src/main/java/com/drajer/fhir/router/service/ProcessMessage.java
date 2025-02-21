@@ -127,7 +127,7 @@ public class ProcessMessage {
 		
 		// put object to s3
 		//Key
-		key = key.replace(folderName,"FHIRValidationOutputXML");
+		key = key.replace(folderName,"FHIROutboundResponseV2");
 		logger.info("Key before store to S3 : {} ", key);
 		storeToS3(s3client,bucket,key,responseBody);
 	}
