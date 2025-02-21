@@ -40,7 +40,7 @@ public class FhirServiceImpl{
 			FhirContext context = fhirContextInitializer.getFhirContext("R4");
 
 			// create reporting bundle
-			IParser target = r4Context.newJsonParser(); // new JSON parser
+			IParser target = r4Context.newXmlParser(); // new JSON parser
 			Bundle bundle = target.parseResource(Bundle.class, requestData);
 			
 			// Initialize the Client
@@ -50,7 +50,9 @@ public class FhirServiceImpl{
 			
 			Bundle responseBundle = fhirContextInitializer.submitProcessMessage(client, bundle);
 			logger.info("Fhir response after submit processMessage ::::" + responseBundle.toString());
-			message = "Successfully sent bundle to FHIR. ";
+			message =  target.encodeResourceToString(responseBundle);
+
+			logger.info("Successfully sent bundle to FHIR. ");
 		} catch (Exception e) {
 			if (e.getMessage().length() > 200) {
 				logger.error("Error submiting data to fhir  :::::" + e.getMessage().substring(0, 200));

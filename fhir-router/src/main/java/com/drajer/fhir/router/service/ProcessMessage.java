@@ -8,20 +8,23 @@ import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.beans.factory.annotation.Value;
+import org.springframework.http.ResponseEntity;
 import org.springframework.stereotype.Service;
 
 import com.drajer.fhir.router.constant.FhirRouterConstants;
-import com.drajer.fhir.router.listener.EchFhirPhaListener;
 import com.fasterxml.jackson.databind.JsonNode;
 import com.fasterxml.jackson.databind.ObjectMapper;
 
 import software.amazon.awssdk.auth.credentials.AwsBasicCredentials;
 import software.amazon.awssdk.auth.credentials.StaticCredentialsProvider;
 import software.amazon.awssdk.core.ResponseInputStream;
+import software.amazon.awssdk.core.sync.RequestBody;
 import software.amazon.awssdk.regions.Region;
 import software.amazon.awssdk.services.s3.S3Client;
 import software.amazon.awssdk.services.s3.model.GetObjectRequest;
 import software.amazon.awssdk.services.s3.model.GetObjectResponse;
+import software.amazon.awssdk.services.s3.model.PutObjectRequest;
+import software.amazon.awssdk.services.s3.model.PutObjectResponse;
 import software.amazon.awssdk.services.sqs.model.Message;
 
 @Service
@@ -108,11 +111,37 @@ public class ProcessMessage {
 		key = key.replace("FHIROutboundV2", folderName);
 		key = key.replace("FHIROutboundPHAV2", folderName);
 
-		logger.info("Read file from  : " + key);
+		logger.info("Read file from  : " , key);
 		getObjectRequest = GetObjectRequest.builder().bucket(bucket).key(key).build();
 		responseInputStream = s3client.getObject(getObjectRequest);
 
-		fhirServiceImpl.submitToFhir(fhirUrl, key, accessToken);
+		ResponseEntity<String> operationOutcome = fhirServiceImpl.submitToFhir(fhirUrl, key, accessToken);
+		String responseBody = operationOutcome.getBody();
+		if (operationOutcome.getStatusCode().is2xxSuccessful()) {
+		    // Process the response body
+		    logger.info("Fhir response : {} ", responseBody);
+		} else {
+		    // Handle error scenarios
+			logger.error("Request failed with status code: {} " , operationOutcome.getStatusCode());
+		}
+		
+		// put object to s3
+		//Key
+		key = key.replace(folderName,"FHIRValidationOutputXML");
+		logger.info("Key before store to S3 : {} ", key);
+		storeToS3(s3client,bucket,key,responseBody);
 	}
 
+	
+	public void storeToS3(S3Client s3Client, String bucketName, String objectKey, String strValue) {
+		
+        PutObjectRequest putOb = PutObjectRequest.builder()
+                .bucket(bucketName)
+                .key(objectKey)
+                .build();
+
+        PutObjectResponse response = s3Client.putObject(putOb,
+                RequestBody.fromString(strValue));
+        logger.info( "S3 Put object response : ", response.eTag());
+	}
 }
