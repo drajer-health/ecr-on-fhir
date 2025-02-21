@@ -70,6 +70,7 @@ public class ProcessMessage {
 
 		String bucket = bucketNode.get("name").asText();
 		String key = keyObjectNode.get("key").asText(); // record.getS3().getObject().getKey();
+		String orgKey = key;
 
 		logger.info("BucketName : " + bucket);
 		logger.info("Key:" + key);
@@ -127,7 +128,14 @@ public class ProcessMessage {
 		
 		// put object to s3
 		//Key
-		key = key.replace(folderName,"FHIROutboundResponseV2");
+		
+		//FHIROutboundV2 --> FHIROutboundResponseV2
+		//FHIROutboundPHAV2 --> FHIROutboundPHAResponseV2 	
+		
+		
+		orgKey = orgKey.replace("FHIROutboundV2", "FHIROutboundResponseV2");
+		orgKey = orgKey.replace("FHIROutboundPHAV2", "FHIROutboundPHAResponseV2");		
+		
 		logger.info("Key before store to S3 : {} ", key);
 		storeToS3(s3client,bucket,key,responseBody);
 	}
