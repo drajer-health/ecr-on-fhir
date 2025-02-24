@@ -21,11 +21,11 @@ import jakarta.transaction.Transactional;
  */
 @Service
 @Transactional
-public class FhirServiceImpl{
+public class FhirServiceImpl {
 	public static final String RR_DOC_CONTENT_TYPE = "application/xml;charset=utf-8";
 	private static final Logger logger = LoggerFactory.getLogger(FhirServiceImpl.class);
 	protected FhirContext r4Context = FhirContext.forR4();
-	
+
 	@Autowired
 	FhirContextInitializer fhirContextInitializer;
 
@@ -34,30 +34,30 @@ public class FhirServiceImpl{
 	 */
 	public ResponseEntity<String> submitToFhir(String fhirUrl, String accessToken, String requestData) {
 		String message = "Send bundle to FHIR.";
-		logger.info("submit To Fhir:::::" + message);
+		logger.info("submit To Fhir : {} ", message);
 		try {
 			// Initialize the FHIR Context based on FHIR Version
 			FhirContext context = fhirContextInitializer.getFhirContext("R4");
 
+			logger.info("requestData before creating bundle : {} ");
 			// create reporting bundle
 			IParser target = r4Context.newXmlParser(); // new JSON parser
 			Bundle bundle = target.parseResource(Bundle.class, requestData);
-			
+
 			// Initialize the Client
-			IGenericClient client = fhirContextInitializer.createClient(context, fhirUrl,
-					accessToken);
-			logger.info("Client after Initializing ::::"+client);
-			
+			IGenericClient client = fhirContextInitializer.createClient(context, fhirUrl, accessToken);
+			logger.info("Client after Initializing : {} ", client);
+
 			Bundle responseBundle = fhirContextInitializer.submitProcessMessage(client, bundle);
-			logger.info("Fhir response after submit processMessage ::::" + responseBundle.toString());
-			message =  target.encodeResourceToString(responseBundle);
+			logger.info("Fhir response after submit processMessage : {} ", responseBundle.toString());
+			message = target.encodeResourceToString(responseBundle);
 
 			logger.info("Successfully sent bundle to FHIR. ");
 		} catch (Exception e) {
 			if (e.getMessage().length() > 200) {
-				logger.error("Error submiting data to fhir  :::::" + e.getMessage().substring(0, 200));
+				logger.error("Error submiting data to fhir  : {} ", e.getMessage().substring(0, 200));
 			} else {
-				logger.error("Error submiting data to fhir  :::::" + e.getMessage());
+				logger.error("Error submiting data to fhir  : {} ", e.getMessage());
 			}
 			return (ResponseEntity.status(HttpStatus.OK).body(e.getMessage()));
 		}

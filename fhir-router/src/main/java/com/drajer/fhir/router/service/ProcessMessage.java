@@ -1,8 +1,10 @@
 package com.drajer.fhir.router.service;
 
+import java.io.IOException;
 import java.security.KeyStoreException;
 import java.util.Map;
 
+import org.apache.commons.io.IOUtils;
 import org.json.JSONObject;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
@@ -58,7 +60,7 @@ public class ProcessMessage {
 			rootNode = objectMapper.readTree(jsonBody);
 		} catch (Exception e) {
 			e.printStackTrace();
-			logger.info("objectMapper error  : " + e.getMessage());
+			logger.info("objectMapper error  : {} ", e.getMessage());
 		}
 
 		JsonNode detailNode = rootNode.get("detail");
@@ -72,8 +74,8 @@ public class ProcessMessage {
 		String key = keyObjectNode.get("key").asText(); // record.getS3().getObject().getKey();
 		String orgKey = key;
 
-		logger.info("BucketName : " + bucket);
-		logger.info("Key:" + key);
+		logger.info("BucketName : {} ", bucket);
+		logger.info("Key : {} ", key);
 
 		AwsBasicCredentials credentials = AwsBasicCredentials.create(awsAccessKey, awsSecretKey);
 		S3Client s3client = S3Client.builder().region(Region.of(awsRegion))
@@ -81,17 +83,17 @@ public class ProcessMessage {
 
 		GetObjectRequest getObjectRequest = GetObjectRequest.builder().bucket(bucket).key(key).build();
 		ResponseInputStream<GetObjectResponse> responseInputStream = s3client.getObject(getObjectRequest);
-		logger.info("ResponseInputStream  to string :" + responseInputStream.response().toString());
+		logger.info("ResponseInputStream  to string : {} ", responseInputStream.response().toString());
 		GetObjectResponse objectResponse = responseInputStream.response();
-		logger.info("metadata  to string :" + objectResponse.metadata().toString());
+		logger.info("metadata  to string : {} ", objectResponse.metadata().toString());
 		Map<String, String> metadataMap = objectResponse.metadata();
-		logger.info("metadataMap  :" + metadataMap);
-		logger.info("metadataMap  size:" + metadataMap.size());
+		logger.info("metadataMap  : {} ", metadataMap);
+		logger.info("metadataMap  size: {} ", metadataMap.size());
 		String secretName = metadataMap.get("secretname");
-		logger.info("metadataMap  secretname:" + secretName);
+		logger.info("metadataMap  secretname: {} ", secretName);
 		// get secrets
 		JSONObject secretValues = secretManagerDetails.getSecret(secretName, awsRegion, awsAccessKey, awsSecretKey);
-		logger.info("Secret token url : {}" + secretValues.get(FhirRouterConstants.TOKEN_URL));
+		logger.info("Secret token url : {} ", secretValues.get(FhirRouterConstants.TOKEN_URL));
 
 		String tokenEndpoint = (String) secretValues.get(FhirRouterConstants.TOKEN_URL);
 		String clientId = (String) secretValues.get(FhirRouterConstants.CLIENT_ID);
@@ -104,7 +106,7 @@ public class ProcessMessage {
 			logger.info("accessTokenObj :" + accessTokenObj.toString());
 			accessToken = accessTokenObj.toString();
 		} catch (KeyStoreException e) {
-			logger.info("Error get access token :::: " + e.getMessage());
+			logger.info("Error get access token : {} ", e.getMessage());
 			e.printStackTrace();
 		}
 
@@ -112,44 +114,46 @@ public class ProcessMessage {
 		key = key.replace("FHIROutboundV2", folderName);
 		key = key.replace("FHIROutboundPHAV2", folderName);
 
-		logger.info("Read file from  : " , key);
+		logger.info("Read file from  : {}", key);
 		getObjectRequest = GetObjectRequest.builder().bucket(bucket).key(key).build();
 		responseInputStream = s3client.getObject(getObjectRequest);
 
-		ResponseEntity<String> operationOutcome = fhirServiceImpl.submitToFhir(fhirUrl, key, accessToken);
+		byte[] fileContent = null;
+		try {
+			fileContent = IOUtils.toByteArray(responseInputStream);
+		} catch (IOException e) {
+			logger.error("IO Excepiton error : {} ", e);
+			e.printStackTrace();
+		}
+		String s3Response = new String(fileContent);
+
+		ResponseEntity<String> operationOutcome = fhirServiceImpl.submitToFhir(fhirUrl, accessToken, s3Response);
 		String responseBody = operationOutcome.getBody();
 		if (operationOutcome.getStatusCode().is2xxSuccessful()) {
-		    // Process the response body
-		    logger.info("Fhir response : {} ", responseBody);
+			// Process the response body
+			logger.info("Fhir response : {} ", responseBody);
 		} else {
-		    // Handle error scenarios
-			logger.error("Request failed with status code: {} " , operationOutcome.getStatusCode());
+			// Handle error scenarios
+			logger.error("Request failed with status code: {} ", operationOutcome.getStatusCode());
 		}
-		
+
 		// put object to s3
-		//Key
-		
-		//FHIROutboundV2 --> FHIROutboundResponseV2
-		//FHIROutboundPHAV2 --> FHIROutboundPHAResponseV2 	
-		
-		
+		// Key
+
+		// FHIROutboundV2 --> FHIROutboundResponseV2
+		// FHIROutboundPHAV2 --> FHIROutboundPHAResponseV2
+
 		orgKey = orgKey.replace("FHIROutboundV2", "FHIROutboundResponseV2");
-		orgKey = orgKey.replace("FHIROutboundPHAV2", "FHIROutboundPHAResponseV2");		
-		
+		orgKey = orgKey.replace("FHIROutboundPHAV2", "FHIROutboundPHAResponseV2");
+
 		logger.info("Key before store to S3 : {} ", key);
-		storeToS3(s3client,bucket,key,responseBody);
+		storeToS3(s3client, bucket, key, responseBody);
 	}
 
-	
 	public void storeToS3(S3Client s3Client, String bucketName, String objectKey, String strValue) {
-		
-        PutObjectRequest putOb = PutObjectRequest.builder()
-                .bucket(bucketName)
-                .key(objectKey)
-                .build();
+		PutObjectRequest putOb = PutObjectRequest.builder().bucket(bucketName).key(objectKey).build();
 
-        PutObjectResponse response = s3Client.putObject(putOb,
-                RequestBody.fromString(strValue));
-        logger.info( "S3 Put object response : ", response.eTag());
+		PutObjectResponse response = s3Client.putObject(putOb, RequestBody.fromString(strValue));
+		logger.info("S3 Put object response : ", response.eTag());
 	}
 }
