@@ -22,6 +22,6 @@ public class EchFhirEhxListener {
         System.out.println("SQS EHX Listener Received Message body : {}"+ message.body());
         System.out.println("SQS EHX Listener Received Message attributesAsStrings : {}"+ message.attributesAsStrings());
         		
-		processMessage.processListnerMessage(message,"eICRMessageFHIRV2");
+		processMessage.processListnerMessage(message);
     }
 }

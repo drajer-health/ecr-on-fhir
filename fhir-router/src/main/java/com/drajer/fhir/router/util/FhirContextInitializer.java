@@ -51,7 +51,7 @@ public class FhirContextInitializer {
 		IGenericClient client = context.newRestfulGenericClient(url);
 		context.getRestfulClientFactory().setSocketTimeout(30 * 1000);
 		client.registerInterceptor(new BearerTokenAuthInterceptor(accessToken));
-		client.setEncoding(EncodingEnum.JSON);
+		client.setEncoding(EncodingEnum.XML);
 		if (logger.isDebugEnabled()) {
 			client.registerInterceptor(new LoggingInterceptor(true));
 		}

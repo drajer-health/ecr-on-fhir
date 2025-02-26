@@ -52,7 +52,7 @@ public class ProcessMessage {
 
 	private static final Logger logger = LoggerFactory.getLogger(ProcessMessage.class);
 
-	public void processListnerMessage(Message message, String folderName) {
+	public void processListnerMessage(Message message) {
 		String jsonBody = message.body();
 		ObjectMapper objectMapper = new ObjectMapper();
 		JsonNode rootNode = null;
@@ -104,15 +104,16 @@ public class ProcessMessage {
 		try {
 			JSONObject accessTokenObj = generateAccessToken.getAccessToken(jwtSignToken, tokenEndpoint, clientId);
 			logger.info("accessTokenObj :" + accessTokenObj.toString());
-			accessToken = accessTokenObj.toString();
+			
+			accessToken = accessTokenObj.getString("access_token");
 		} catch (KeyStoreException e) {
 			logger.info("Error get access token : {} ", e.getMessage());
 			e.printStackTrace();
 		}
 
 		// read the file
-		key = key.replace("FHIROutboundV2", folderName);
-		key = key.replace("FHIROutboundPHAV2", folderName);
+//		key = key.replace("FHIROutboundV2", folderName);
+//		key = key.replace("FHIROutboundPHAV2", folderName);
 
 		logger.info("Read file from  : {}", key);
 		getObjectRequest = GetObjectRequest.builder().bucket(bucket).key(key).build();
@@ -126,6 +127,8 @@ public class ProcessMessage {
 			e.printStackTrace();
 		}
 		String s3Response = new String(fileContent);
+
+		logger.info("accessToken :" + accessToken);
 
 		ResponseEntity<String> operationOutcome = fhirServiceImpl.submitToFhir(fhirUrl, accessToken, s3Response);
 		String responseBody = operationOutcome.getBody();
@@ -146,8 +149,8 @@ public class ProcessMessage {
 		orgKey = orgKey.replace("FHIROutboundV2", "FHIROutboundResponseV2");
 		orgKey = orgKey.replace("FHIROutboundPHAV2", "FHIROutboundPHAResponseV2");
 
-		logger.info("Key before store to S3 : {} ", key);
-		storeToS3(s3client, bucket, key, responseBody);
+		logger.info("Key before store to S3 : {} ", orgKey);
+		storeToS3(s3client, bucket, orgKey, responseBody);
 	}
 
 	public void storeToS3(S3Client s3Client, String bucketName, String objectKey, String strValue) {

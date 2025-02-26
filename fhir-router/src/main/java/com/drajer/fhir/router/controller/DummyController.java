@@ -8,6 +8,7 @@ import org.hl7.fhir.r4.model.OperationOutcome.IssueType;
 import org.springframework.http.HttpStatus;
 import org.springframework.http.ResponseEntity;
 import org.springframework.web.bind.annotation.GetMapping;
+import org.springframework.web.bind.annotation.PostMapping;
 import org.springframework.web.bind.annotation.RestController;
 
 @RestController
@@ -28,7 +29,7 @@ public class DummyController {
         return new ResponseEntity<>(outcome, HttpStatus.INTERNAL_SERVER_ERROR);
     }
     
-    @GetMapping("/fhirsuccess")
+    @PostMapping("/fhirsuccess/$process-message")
     public ResponseEntity<OperationOutcome> returnSuccess() {
     	System.out.println("success fhir OperationOutcome !!!!!$$$$$$$$");
          OperationOutcome outcome = new OperationOutcome();

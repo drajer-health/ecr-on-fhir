@@ -1,12 +1,19 @@
 package com.drajer.fhir.router.service;
 
+import org.apache.http.HttpEntity;
+import org.apache.http.HttpHeaders;
+import org.hl7.fhir.instance.model.api.IBaseResource;
 import org.hl7.fhir.r4.model.Bundle;
+import org.hl7.fhir.r4.model.OperationOutcome;
+import org.hl7.fhir.r4.model.Resource;
+import org.hl7.fhir.r4.model.codesystems.MediaType;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.http.HttpStatus;
 import org.springframework.http.ResponseEntity;
 import org.springframework.stereotype.Service;
+import org.springframework.web.client.RestTemplate;
 
 import com.drajer.fhir.router.util.FhirContextInitializer;
 
@@ -41,9 +48,22 @@ public class FhirServiceImpl {
 
 			logger.info("requestData before creating bundle : {} ");
 			// create reporting bundle
-			IParser target = r4Context.newXmlParser(); // new JSON parser
-			Bundle bundle = target.parseResource(Bundle.class, requestData);
+//			IParser target = r4Context.newJsonParser(); // new JSON parser
+//			Bundle bundle = target.parseResource(Bundle.class, requestData);
 
+			
+			
+			IParser       source   = r4Context.newXmlParser();                         // new XML parser
+			IBaseResource resource = source.parseResource( requestData );                // parse the resource
+			IParser       target   = context.newJsonParser();                        // new JSON parser
+			String jsonResource =  target.setPrettyPrint( true ).encodeResourceToString( resource ); 
+			logger.info("jsonResource string   : {} " , jsonResource);
+			Bundle bundle = target.parseResource(Bundle.class, jsonResource);
+			
+//			 target.setPrettyPrint( true ).encodeResourceToString( resource ); // output JSON
+//			 Bundle bundle = target.parseResource(Bundle.class, requestData);
+			 
+			logger.info("FHIR URL : {} ",fhirUrl);
 			// Initialize the Client
 			IGenericClient client = fhirContextInitializer.createClient(context, fhirUrl, accessToken);
 			logger.info("Client after Initializing : {} ", client);
@@ -63,4 +83,5 @@ public class FhirServiceImpl {
 		}
 		return ResponseEntity.status(HttpStatus.OK).body(message);
 	}
+	
 }

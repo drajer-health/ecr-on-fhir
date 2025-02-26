@@ -22,6 +22,6 @@ public class EchFhirPhaListener {
 		logger.info("SQS PHA Listener Received Message Id : {}"+ message.messageId());
 		logger.info("SQS PHA Listener Received Message body : {}"+ message.body());
 		logger.info("SQS PHA Listener Received Message attributesAsStrings : {}"+ message.attributesAsStrings());
-        processMessage.processListnerMessage(message,"PHAeICRMessageV2");
+        processMessage.processListnerMessage(message);
 	}
 }
