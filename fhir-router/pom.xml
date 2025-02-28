@@ -10,7 +10,7 @@
 	</parent>
 	<groupId>com.drajer.fhir.router</groupId>
 	<artifactId>fhir-router</artifactId>
-	<version>0.0.3-SNAPSHOT</version>
+	<version>0.0.4-SNAPSHOT</version>
 	<packaging>war</packaging>
 	<name>fhir-router</name>
 	<description>fhir router</description>
