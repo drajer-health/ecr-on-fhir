@@ -134,7 +134,7 @@ public class ProcessMessage {
 		String responseBody = operationOutcome.getBody();
 		if (operationOutcome.getStatusCode().is2xxSuccessful()) {
 			// Process the response body
-			logger.info("Fhir response : {} ", responseBody);
+			logger.info("Fhir response Successful : {} ");
 		} else {
 			// Handle error scenarios
 			logger.error("Request failed with status code: {} ", operationOutcome.getStatusCode());
