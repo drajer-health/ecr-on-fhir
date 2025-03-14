@@ -5,24 +5,19 @@
     <parent>
         <groupId>org.springframework.boot</groupId>
         <artifactId>spring-boot-starter-parent</artifactId>
-        <version>3.4.3</version>
+        <version>3.3.4</version>
         <relativePath/> <!-- lookup parent from repository -->
     </parent>
     <groupId>com.drajer</groupId>
     <artifactId>fhirvalidator</artifactId>
-    <version>0.0.3-SNAPSHOT</version>
+    <version>0.0.2-SNAPSHOT</version>
     <packaging>war</packaging>
     <name>fhirvalidator</name>
     <description>EICR FHIR Validator</description>
 
     <properties>
         <java.version>17</java.version>
-        <fhir.version>8.0.0</fhir.version>
-        <org.json.version>20240303</org.json.version>
-        <org.hl7.fhir.r5.version>6.5.14</org.hl7.fhir.r5.version>
-       <org.hl7.fhir.validation.version>6.5.14</org.hl7.fhir.validation.version>
-       <okhttp.version>4.12.0</okhttp.version>
-       <kotlin.stdlib.version>2.1.20-RC2</kotlin.stdlib.version>
+        <fhir.version>7.0.2</fhir.version>
     </properties>
 
     <!-- FHIR Dependecies -->
@@ -66,7 +61,7 @@
         <dependency>
             <groupId>ca.uhn.hapi.fhir</groupId>
             <artifactId>org.hl7.fhir.validation</artifactId>
-            <version>${org.hl7.fhir.validation.version}</version>
+            <version>6.1.16</version>
             <exclusions>
                 <exclusion>
                     <groupId>info.cqframework</groupId>
@@ -110,7 +105,7 @@
         <dependency>
             <groupId>ca.uhn.hapi.fhir</groupId>
             <artifactId>org.hl7.fhir.r5</artifactId>
-            <version>${org.hl7.fhir.r5.version}</version>
+            <version>6.1.16</version>
         </dependency>
         <dependency>
             <groupId>org.fhir</groupId>
@@ -130,7 +125,7 @@
         <dependency>
             <groupId>org.json</groupId>
             <artifactId>json</artifactId>
-            <version>${org.json.version}</version>
+            <version>20230618</version>
         </dependency>
         <dependency>
             <groupId>com.fasterxml.jackson.core</groupId>
@@ -150,7 +145,7 @@
         <dependency>
             <groupId>com.squareup.okhttp3</groupId>
             <artifactId>okhttp</artifactId>
-            <version>${okhttp.version}</version>
+            <version>4.10.0</version>
         </dependency>
 
         <!--Spring Support Dependencies-->
@@ -179,14 +174,6 @@
             <artifactId>spring-boot-starter-test</artifactId>
             <scope>test</scope>
         </dependency>
-        
-<!-- https://mvnrepository.com/artifact/org.jetbrains.kotlin/kotlin-stdlib -->
-<dependency>
-    <groupId>org.jetbrains.kotlin</groupId>
-    <artifactId>kotlin-stdlib</artifactId>
-    <version>${kotlin.stdlib.version}</version>
-</dependency>
-        
     </dependencies>
 
 
