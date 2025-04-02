@@ -4,6 +4,7 @@ import com.drajer.eicrfhirvalidator.configuration.EicrValidationProperties;
 import org.hl7.fhir.utilities.FhirPublication;
 import org.hl7.fhir.utilities.VersionUtilities;
 import org.hl7.fhir.utilities.npm.FilesystemPackageCacheManager;
+import org.hl7.fhir.validation.BaseValidator;
 import org.hl7.fhir.validation.IgLoader;
 import org.hl7.fhir.validation.ValidationEngine;
 import org.slf4j.Logger;
@@ -118,7 +119,7 @@ public class Validator {
 			validationEngine.setNoInvariantChecks(true);
 			validationEngine.setAssumeValidRestReferences(true);
 			validationEngine.setDebug(true);
-
+			validationEngine.setDoNative(true);
 			validationEngine.prepare();
 
 			return validationEngine;

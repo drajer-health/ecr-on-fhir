@@ -5,20 +5,21 @@ import java.util.List;
 import java.util.Map;
 import java.util.stream.Collectors;
 
+import com.google.crypto.tink.proto.Common;
 import okhttp3.*;
+import okhttp3.RequestBody;
 import org.json.JSONObject;
 import org.sitenv.spring.configuration.KeyCloackTokenValidationClient;
 import org.sitenv.spring.exception.KeycloakCredentialsException;
+import org.sitenv.spring.util.CommonUtil;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.core.env.Environment;
+import org.springframework.http.HttpHeaders;
 import org.springframework.http.HttpStatus;
 import org.springframework.http.ResponseEntity;
-import org.springframework.web.bind.annotation.PostMapping;
-import org.springframework.web.bind.annotation.RequestMapping;
-import org.springframework.web.bind.annotation.RequestParam;
-import org.springframework.web.bind.annotation.RestController;
+import org.springframework.web.bind.annotation.*;
 
 import javax.net.ssl.HostnameVerifier;
 import javax.net.ssl.SSLSession;
@@ -69,13 +70,24 @@ public class KeyCloakTokenProviderController {
     }
 
     @PostMapping("/generate-token")
-    public Object generateToken(@RequestParam Map<String, Object> authenciationTokenDetails) throws IOException {
+    public Object generateToken(@RequestParam Map<String, Object> authenciationTokenDetails,@RequestHeader(HttpHeaders.AUTHORIZATION) String authHeader) throws IOException {
         LOGGER.info("Entry - validateToken Method in KeyCloakTokenValidationClient");
 
+        boolean isSuccess=true;
       if(!isConfigValidated)
       {
           validateConfig();
       }
+
+
+        Map<String, Object> authDetails = CommonUtil.extractClientCredentials(authHeader);
+        authenciationTokenDetails.remove("scope");
+      if(!authenciationTokenDetails.containsKey("client_id") && !authenciationTokenDetails.containsKey("client_secrets"))
+      {
+          authenciationTokenDetails.putAll(authDetails);
+
+      }
+
 
         String url = String.format("%s/realms/%s/protocol/openid-connect/token", authUrl, realm);
 
@@ -107,24 +119,22 @@ public class KeyCloakTokenProviderController {
                 return true;  // Always returns true, effectively disabling hostname verification
             }
         }).build();
+
         try (Response response = client.newCall(requestOne).execute()) {
 
             if (!response.isSuccessful()) {
                 LOGGER.error("Failed to authenticate: {}", response.message());
-                return false;
+                isSuccess=false;
             }
 
             String responseBody = response.body() != null ? response.body().string() : "{}";
-            JSONObject tokenResponse= new JSONObject(responseBody);
 
-            if (tokenResponse != null) {
-                return ResponseEntity.ok()
-                        .contentType(org.springframework.http.MediaType.APPLICATION_JSON)
-                        .body(tokenResponse.toString());
+            HttpStatus status = isSuccess ? HttpStatus.OK : HttpStatus.UNAUTHORIZED;
+            return ResponseEntity.status(status)
+                    .contentType(org.springframework.http.MediaType.APPLICATION_JSON)
+                    .body( new JSONObject(responseBody).toString());
 
-            } else {
-                return ResponseEntity.status(HttpStatus.UNAUTHORIZED).body("Token validation failed.");
-            }
+
 
         } catch (IOException e) {
             LOGGER.error("Exception - validateToken Method in KeyCloakTokenValidationClient", e);

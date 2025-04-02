@@ -14,8 +14,11 @@ import org.springframework.web.client.RestTemplate;
 
 import ca.uhn.fhir.context.FhirContext;
 
+import java.nio.charset.StandardCharsets;
 import java.text.SimpleDateFormat;
 import java.util.Date;
+import java.util.HashMap;
+import java.util.Map;
 import java.util.Random;
 
 public class CommonUtil {
@@ -115,5 +118,30 @@ public class CommonUtil {
 		}
 		
 		return outcome;
+	}
+
+	public static Map<String, Object> extractClientCredentials(String authHeader) {
+		Map<String, Object> credentialsMap = new HashMap<>();
+
+		if (authHeader == null || !authHeader.startsWith("Basic ")) {
+			credentialsMap.put("error", "Invalid or missing Authorization header");
+			return credentialsMap;
+		}
+
+		try {
+			// Remove "Basic " prefix and decode Base64
+			String base64Credentials = authHeader.substring("Basic ".length()).trim();
+			byte[] decodedBytes = Base64.decodeBase64(base64Credentials);
+			String credentials = new String(decodedBytes, StandardCharsets.UTF_8);
+
+			// Split into clientId and clientSecret
+			String[] parts = credentials.split(":", 2);
+			credentialsMap.put("client_id", parts[0]);
+			credentialsMap.put("client_secret", parts.length > 1 ? parts[1] : "");
+		} catch (IllegalArgumentException e) {
+			credentialsMap.put("error", "Failed to decode Base64 credentials");
+		}
+
+		return credentialsMap;
 	}
 }
