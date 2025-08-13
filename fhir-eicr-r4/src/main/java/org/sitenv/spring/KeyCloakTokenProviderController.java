@@ -70,7 +70,10 @@ public class KeyCloakTokenProviderController {
     }
 
     @PostMapping("/generate-token")
-    public Object generateToken(@RequestParam Map<String, Object> authenciationTokenDetails,@RequestHeader(HttpHeaders.AUTHORIZATION) String authHeader) throws IOException {
+    public Object generateToken(
+    @RequestParam Map<String, Object> authenciationTokenDetails,
+    @RequestHeader(name= HttpHeaders.AUTHORIZATION, required = false) String authHeader
+) throws IOException {
         LOGGER.info("Entry - validateToken Method in KeyCloakTokenValidationClient");
 
         boolean isSuccess=true;
