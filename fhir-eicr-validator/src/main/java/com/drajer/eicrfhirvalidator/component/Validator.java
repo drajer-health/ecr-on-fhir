@@ -22,6 +22,11 @@ import java.nio.file.Paths;
 import java.util.ArrayList;
 import java.util.List;
 
+/**
+ * Builds and configures the {@link ValidationEngine} bean used for full IG-profile FHIR
+ * validation, loading implementation guide packages bundled under {@code classpath:packages}
+ * into the FHIR package cache.
+ */
 @Component
 public class Validator {
     private final Logger logger = LoggerFactory.getLogger(Validator.class);
@@ -36,6 +41,16 @@ public class Validator {
         this.resourceLoader = resourceLoader;
     }
 
+    /**
+     * Creates and prepares the {@link ValidationEngine} used for profile-based validation:
+     * loads bundled FHIR packages (found under {@code classpath:packages}) into a
+     * {@link FilesystemPackageCacheManager}, registers them as implementation guides, connects
+     * to the FHIR terminology server, and applies the engine's validation settings.
+     *
+     * <p>Disabled when the {@code eicr.fhir-validation-disable} property is {@code true}.
+     *
+     * @return the prepared {@link ValidationEngine}, or {@code null} if initialization fails
+     */
     @Bean
     @ConditionalOnProperty(prefix = "eicr", name = "fhir-validation-disable", havingValue = "false", matchIfMissing = true)
     public ValidationEngine createValidationEngine() {
@@ -109,6 +124,20 @@ public class Validator {
     }
 
 
+    /**
+     * Builds a {@link ValidationEngine} for the given FHIR version, sourced from the given
+     * package/definitions reference.
+     *
+     * @param src the package definitions source, e.g. {@code "hl7.fhir.r4.core#4.0.1"}
+     * @param path filesystem path used as the package loading context
+     * @param canRunWithoutTerminologyServer whether the engine may operate without a reachable
+     *     terminology server
+     * @param vString the FHIR version string, e.g. {@code "4.0.1"}
+     * @param pcm the package cache manager to use
+     * @param terminologycachePath filesystem path for the terminology cache
+     * @return a configured but not-yet-prepared {@link ValidationEngine}
+     * @throws Exception if the engine cannot be built from the given source
+     */
     public static ValidationEngine getValidationEngine(
             String src,
             String path,

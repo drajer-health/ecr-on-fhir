@@ -2,7 +2,8 @@
 package com.drajer.eicrfhirvalidator.exception;
 
 /**
- * Class FhirServerNotAvailableException TODO
+ * Thrown when the FHIR validation engine has not been configured/initialized and a validation
+ * request cannot be serviced.
  *
  * @author Drajer LLC
  * @since 25-08-2023
