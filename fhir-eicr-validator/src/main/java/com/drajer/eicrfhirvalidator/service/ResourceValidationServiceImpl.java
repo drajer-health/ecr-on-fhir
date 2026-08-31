@@ -19,6 +19,10 @@ import org.springframework.stereotype.Service;
 
 import java.util.Objects;
 
+/**
+ * Default {@link ResourceValidationService} implementation, backed by an
+ * {@link EmbeddedHapiFhirValidator} wrapping the injected {@link ValidationEngine}.
+ */
 @Service
 public class ResourceValidationServiceImpl implements ResourceValidationService {
 
@@ -30,12 +34,12 @@ public class ResourceValidationServiceImpl implements ResourceValidationService 
 	private IFhirValidator<String, OperationOutcome> fhirValidator;
 
 	/**
-	 * Validates r4 resources
+	 * {@inheritDoc}
 	 *
-	 * @param fhirContext
-	 * @param val
-	 * @param bodyStr
-	 * @return
+	 * @param fhirContext the R4 {@link FhirContext} to validate with
+	 * @param val the HAPI {@link FhirValidator} instance to use
+	 * @param bodyStr the resource content as a JSON string
+	 * @return the HAPI {@link ValidationResult}
 	 */
 	public ValidationResult validateR4Resource(FhirContext fhirContext, FhirValidator val, String bodyStr) {
 		IBaseResource resource = null;
@@ -44,11 +48,18 @@ public class ResourceValidationServiceImpl implements ResourceValidationService 
 	}
 
 
+	/** Initializes {@link #fhirValidator} after dependency injection completes. */
 	@PostConstruct
 	public void setUp() {
 		fhirValidator = configure();
 	}
 
+	/**
+	 * Lazily creates (and caches) the {@link EmbeddedHapiFhirValidator} wrapping the injected
+	 * {@link ValidationEngine}.
+	 *
+	 * @return the configured {@link IFhirValidator} instance
+	 */
 	public synchronized IFhirValidator<String, OperationOutcome> configure() {
 		if (Objects.nonNull(fhirValidator)) {
 			return fhirValidator;
@@ -60,6 +71,12 @@ public class ResourceValidationServiceImpl implements ResourceValidationService 
 
 
 
+	/**
+	 * {@inheritDoc}
+	 *
+	 * @throws FhirServerNotAvailableException if the embedded validator has not been configured
+	 * @throws RuntimeException wrapping any other failure during validation
+	 */
 	public OperationOutcome validate(String bodyStr, String resourceProfile) {
 		try {
 			if (Objects.isNull(fhirValidator)) {

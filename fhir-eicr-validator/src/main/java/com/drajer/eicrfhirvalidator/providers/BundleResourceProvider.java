@@ -20,6 +20,15 @@ import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.beans.factory.annotation.Qualifier;
 import org.springframework.stereotype.Component;
 
+/**
+ * HAPI FHIR resource provider for {@code Bundle}, implementing the {@code $validate} operation.
+ *
+ * <p>Accepts the resource in either JSON or XML (HAPI deserializes the {@code resource}
+ * parameter based on the request's {@code Content-Type} before this provider runs), then
+ * validates it either against an explicit {@code profile} parameter, a profile declared in the
+ * Bundle's {@code meta.profile}, or falls back to base FHIR R4 structural validation when no
+ * profile is available.
+ */
 @Component
 public class BundleResourceProvider implements IResourceProvider {
     private static final Logger logger = LoggerFactory.getLogger(BundleResourceProvider.class);
@@ -40,6 +49,20 @@ public class BundleResourceProvider implements IResourceProvider {
     @Autowired
     ResourceValidationService validationService;
 
+    /**
+     * Implements the {@code Bundle/$validate} operation.
+     *
+     * <p>If {@code profile} is not supplied, it is read from the Bundle's {@code meta.profile}
+     * when present. When a profile is available (explicit or from meta), validation is delegated
+     * to {@link ResourceValidationService#validate}; otherwise the Bundle is validated with
+     * HAPI's default R4 structural validator via {@link ResourceValidationService#validateR4Resource}.
+     *
+     * @param bundle the FHIR Bundle to validate, deserialized by HAPI from the request body
+     *     (JSON or XML, per the request's {@code Content-Type})
+     * @param profile optional canonical URL of the profile to validate against
+     * @param requestDetails HAPI request metadata for the current operation invocation
+     * @return an {@link OperationOutcome} describing validation results or errors
+     */
     @Operation(name = "$validate", idempotent = true)
     public OperationOutcome validateResource(
             @OperationParam(name = "resource") Bundle bundle,

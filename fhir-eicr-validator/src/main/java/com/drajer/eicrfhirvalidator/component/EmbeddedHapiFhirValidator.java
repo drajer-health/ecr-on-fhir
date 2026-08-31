@@ -15,7 +15,9 @@ import java.util.*;
 
 
 /**
- * Class EmbeddedHapiFhirValidator TODO
+ * {@link IFhirValidator} implementation backed by an HL7 {@link ValidationEngine}, validating
+ * a resource (as a JSON or XML string, auto-detected via {@link FormatUtilities#determineFormat})
+ * against one or more implementation guide profiles.
  *
  * @author Drajer LLC
  * @since 27-04-2023
@@ -28,10 +30,20 @@ public class EmbeddedHapiFhirValidator implements IFhirValidator<String, Operati
 
     private final ValidationEngine validationEngine;
 
+    /**
+     * @param validationEngine the underlying HL7 validation engine, prepared with the
+     *     implementation guides to validate against
+     */
     public EmbeddedHapiFhirValidator(ValidationEngine validationEngine) {
         this.validationEngine = validationEngine;
     }
 
+    /**
+     * {@inheritDoc}
+     *
+     * @throws EicrException if {@link #validationEngine} is not initialized, or validation
+     *     otherwise fails
+     */
     @Override
     public Optional<OperationOutcome> validate(String resourceData, String profiles) throws EicrException {
         List<String> resourceProfiles = profiles.contains(COMMA_SEPARATOR)

@@ -2,7 +2,7 @@
 package com.drajer.eicrfhirvalidator.exception;
 
 /**
- * Class EicrException TODO
+ * Base unchecked exception for EICR/FHIR validation failures raised by this application.
  *
  * @author Drajer LLC
  * @since 23-03-2023

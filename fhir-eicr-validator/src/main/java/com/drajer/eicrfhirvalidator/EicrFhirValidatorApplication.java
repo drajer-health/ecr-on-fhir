@@ -9,17 +9,35 @@ import org.springframework.boot.web.servlet.support.SpringBootServletInitializer
 import org.springframework.context.ApplicationContext;
 import org.springframework.context.annotation.Bean;
 
+/**
+ * Spring Boot entry point for the EICR FHIR Validator service.
+ *
+ * <p>Registers a {@link com.drajer.eicrfhirvalidator.FhirRestfulServer} HAPI FHIR servlet under
+ * {@code /fhir/*}, which exposes the {@code $validate} operation used to validate FHIR Bundles
+ * (JSON or XML) against configured implementation guide profiles.
+ */
 @SpringBootApplication
 public class EicrFhirValidatorApplication extends SpringBootServletInitializer {
 
     @Autowired
     private ApplicationContext context;
 
+    /**
+     * Application entry point; boots the embedded servlet container via Spring Boot.
+     *
+     * @param args command-line arguments passed to Spring Boot
+     */
     public static void main(String[] args) {
 
         SpringApplication.run(EicrFhirValidatorApplication.class, args);
     }
 
+    /**
+     * Registers the HAPI {@link com.drajer.eicrfhirvalidator.FhirRestfulServer} servlet under the
+     * {@code /fhir/*} path mapping.
+     *
+     * @return the servlet registration for the FHIR REST endpoint
+     */
     @Bean
     public ServletRegistrationBean ServletRegistrationBean() {
         ServletRegistrationBean registration= new ServletRegistrationBean(new FhirRestfulServer(context),"/fhir/*");

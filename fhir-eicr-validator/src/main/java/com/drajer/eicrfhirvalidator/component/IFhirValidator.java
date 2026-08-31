@@ -8,10 +8,11 @@ import com.drajer.eicrfhirvalidator.exception.EicrException;
 import java.util.Optional;
 
 /**
- * Interface IFhirValidator TODO
+ * Abstraction over a FHIR resource validator, decoupling callers from the specific validation
+ * engine implementation (e.g. the embedded HL7 {@code ValidationEngine}).
  *
- * @param <I>
- * @param <O>
+ * @param <I> the input resource representation type (e.g. a JSON string)
+ * @param <O> the validation outcome type (e.g. {@code OperationOutcome})
  * @author Drajer LLC
  * @since 23-03-2023
  */
