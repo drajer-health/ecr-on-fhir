@@ -14,6 +14,10 @@ import jakarta.servlet.http.HttpServletRequest;
 import jakarta.servlet.http.HttpServletResponse;
 
 
+/**
+ * Servlet filter adding permissive CORS headers to every response and
+ * short-circuiting CORS preflight ({@code OPTIONS}) requests with a bare 200.
+ */
 @Component
 public  class CorsFilters implements Filter {
     public void doFilter(ServletRequest req, ServletResponse res, FilterChain chain) throws IOException, ServletException {

@@ -9,6 +9,9 @@ import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.stereotype.Service;
 import org.springframework.transaction.annotation.Transactional;
 
+/**
+ * Default implementation of {@link ValueSetService}, delegating to {@link ValueSetDao}.
+ */
 @Service("ValueSetService")
 @Transactional
 public class ValueSetServiceImpl implements ValueSetService{

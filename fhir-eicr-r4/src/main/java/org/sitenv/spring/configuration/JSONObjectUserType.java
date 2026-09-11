@@ -2,6 +2,7 @@ package org.sitenv.spring.configuration;
 
 import org.hibernate.HibernateException;
 import org.hibernate.engine.spi.SharedSessionContractImplementor;
+import org.hibernate.type.SqlTypes;
 import org.hibernate.usertype.UserType;
 
 import java.io.Serializable;
@@ -10,18 +11,20 @@ import java.sql.ResultSet;
 import java.sql.SQLException;
 import java.sql.Types;
 
-public class JSONObjectUserType implements UserType {
+public class JSONObjectUserType implements UserType<String> {
 
     /**
-     * Return the SQL type codes for the columns mapped by this type. The
-     * codes are defined on <tt>java.sql.Types</tt>.
+     * Return the SQL type code for the column mapped by this type.
+     * Mapped to Hibernate's dedicated JSON type so the Postgres dialect
+     * can resolve DDL for it (the "jsonb" column type); the JDBC binding
+     * itself still goes through Types.OTHER, as Postgres' driver expects.
      *
-     * @return int[] the typecodes
-     * @see java.sql.Types
+     * @return int the typecode
+     * @see org.hibernate.type.SqlTypes
      */
 	@Override
-	public int[] sqlTypes() {
-		return new int[] { Types.JAVA_OBJECT };
+	public int getSqlType() {
+		return SqlTypes.JSON;
 	}
 
     /**
@@ -43,7 +46,7 @@ public class JSONObjectUserType implements UserType {
      * @return boolean
      */
 	@Override
-	public boolean equals(Object x, Object y) throws HibernateException {
+	public boolean equals(String x, String y) throws HibernateException {
 
 		if (x == null) {
 
@@ -56,7 +59,7 @@ public class JSONObjectUserType implements UserType {
      * Get a hashcode for the instance, consistent with persistence "equality"
      */
 	@Override
-	public int hashCode(Object x) throws HibernateException {
+	public int hashCode(String x) throws HibernateException {
 
 		return x.hashCode();
 	}
@@ -66,18 +69,15 @@ public class JSONObjectUserType implements UserType {
      * should handle possibility of null values.
      *
      * @param rs a JDBC result set
-     * @param names  the column names
+     * @param position the column position
      * @param session
      * @param owner the containing entity  @return Object
      * @throws org.hibernate.HibernateException
      * @throws java.sql.SQLException
      */
     @Override
-	public Object nullSafeGet(ResultSet rs, String[] names, SharedSessionContractImplementor session, Object owner) throws HibernateException, SQLException {
-        if (rs.getString(names[0]) == null) {
-            return null;
-        }
-        return rs.getString(names[0]);
+	public String nullSafeGet(ResultSet rs, int position, SharedSessionContractImplementor session, Object owner) throws HibernateException, SQLException {
+        return rs.getString(position);
     }
 
     /**
@@ -93,7 +93,7 @@ public class JSONObjectUserType implements UserType {
      * @throws java.sql.SQLException
      */
     @Override
-	public void nullSafeSet(PreparedStatement st, Object value, int index, SharedSessionContractImplementor session) throws HibernateException, SQLException {
+	public void nullSafeSet(PreparedStatement st, String value, int index, SharedSessionContractImplementor session) throws HibernateException, SQLException {
         if (value == null) {
             st.setNull(index, Types.OTHER);
             return;
@@ -110,7 +110,7 @@ public class JSONObjectUserType implements UserType {
      * @return Object a copy
      */
     @Override
-    public Object deepCopy(Object value) throws HibernateException {
+    public String deepCopy(String value) throws HibernateException {
 
         return value;
     }
@@ -136,8 +136,8 @@ public class JSONObjectUserType implements UserType {
      * @throws org.hibernate.HibernateException
      */
     @Override
-    public Serializable disassemble(Object value) throws HibernateException {
-        return (String) this.deepCopy(value);
+    public Serializable disassemble(String value) throws HibernateException {
+        return this.deepCopy(value);
     }
 
     /**
@@ -150,8 +150,8 @@ public class JSONObjectUserType implements UserType {
      * @throws org.hibernate.HibernateException
      */
     @Override
-    public Object assemble(Serializable cached, Object owner) throws HibernateException {
-        return this.deepCopy(cached);
+    public String assemble(Serializable cached, Object owner) throws HibernateException {
+        return this.deepCopy((String) cached);
     }
 
     /**
@@ -166,7 +166,7 @@ public class JSONObjectUserType implements UserType {
      * @return the value to be merged
      */
     @Override
-    public Object replace(Object original, Object target, Object owner) throws HibernateException {
+    public String replace(String original, String target, Object owner) throws HibernateException {
         return original;
     }
 
