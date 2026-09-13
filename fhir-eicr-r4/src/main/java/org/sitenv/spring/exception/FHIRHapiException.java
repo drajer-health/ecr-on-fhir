@@ -1,5 +1,9 @@
 package org.sitenv.spring.exception;
 
+/**
+ * Checked exception used to signal FHIR/HAPI-related failures, translated by
+ * {@link EventExceptionHandler} into an HTTP error response.
+ */
 public class FHIRHapiException extends Exception {
 
     private static final long serialVersionUID = 1L;

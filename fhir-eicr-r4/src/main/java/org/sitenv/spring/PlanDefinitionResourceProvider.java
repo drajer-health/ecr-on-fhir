@@ -42,6 +42,12 @@ import org.springframework.context.annotation.AnnotationConfigApplicationContext
 import org.springframework.context.support.AbstractApplicationContext;
 import org.springframework.stereotype.Component;
 
+/**
+ * HAPI FHIR resource provider exposing the R4 PlanDefinition resource type.
+ * Delegates persistence to {@link PlanDefinitionService}, converting between
+ * the FHIR resource representation and the JSON-backed {@link DafPlanDefinition}
+ * storage entity.
+ */
 public class PlanDefinitionResourceProvider implements IResourceProvider {
 	private static final FhirContext fhirContext = FhirContext.forR4();
 
@@ -57,10 +63,22 @@ public class PlanDefinitionResourceProvider implements IResourceProvider {
 
 	public static final String VERSION_ID = "1.0";
 
+	/**
+	 * The getResourceType method comes from IResourceProvider, and must
+	 * be overridden to indicate what type of resource this provider
+	 * supplies.
+	 */
 	public Class<? extends IBaseResource> getResourceType() {
 		return (Class) PlanDefinition.class;
 	}
 
+	/**
+	 * Fetches a single PlanDefinition by its logical id.
+	 *
+	 * @param theId the resource id from the request URL
+	 * @return the matching PlanDefinition
+	 * @throws ResourceNotFoundException if the id is not a valid identifier
+	 */
 	@Read
 	public PlanDefinition readOrVread(@IdParam IdType theId) {
 		String id;
@@ -73,6 +91,13 @@ public class PlanDefinitionResourceProvider implements IResourceProvider {
 		return (PlanDefinition) fhirContext.newJsonParser().parseResource(dafPlanDefinition.getData());
 	}
 
+	/**
+	 * Creates a new PlanDefinition, assigning it a fresh id and an initial
+	 * version 1 {@link Meta}.
+	 *
+	 * @param planDefinition the resource submitted in the request body
+	 * @return the outcome carrying the newly assigned id and version
+	 */
 	@Create
 	public MethodOutcome createPlanDefinition(@ResourceParam PlanDefinition planDefinition) {
 		String uuid = getUUID();
@@ -90,6 +115,15 @@ public class PlanDefinitionResourceProvider implements IResourceProvider {
 		return retVal;
 	}
 
+	/**
+	 * Updates an existing PlanDefinition, incrementing its version and
+	 * refreshing {@code meta.lastUpdated}.
+	 *
+	 * @param planDefinition the updated resource submitted in the request body
+	 * @param theId the id of the resource being updated
+	 * @return the outcome carrying the id and new version
+	 * @throws ResourceNotFoundException if no PlanDefinition exists with the given id
+	 */
 	@Update
 	public MethodOutcome updatePlanDefinition(@ResourceParam PlanDefinition planDefinition, @IdParam IdType theId) {
 		String resourceId = theId.getIdPart();
@@ -115,6 +149,22 @@ public class PlanDefinitionResourceProvider implements IResourceProvider {
 		throw new ResourceNotFoundException(planDefinition.getId());
 	}
 
+	/**
+	 * Searches PlanDefinitions by any combination of resource id, identifier,
+	 * name, title, and publisher.
+	 *
+	 * @param theServletRequest the incoming HTTP request
+	 * @param theId optional resource id filter
+	 * @param theIdentifier optional identifier filter
+	 * @param theName optional name filter
+	 * @param theTitle optional title filter
+	 * @param thePublisher optional publisher filter
+	 * @param theRevIncludes reverse-include parameters (unused by this provider)
+	 * @param theIncludes include parameters (unused by this provider)
+	 * @param theSort sort specification (unused by this provider)
+	 * @param theCount requested page size (unused by this provider)
+	 * @return a bundle provider over the matching PlanDefinitions
+	 */
 	@Search
 	public IBundleProvider search(HttpServletRequest theServletRequest,
 			@Description(shortDefinition = "The resource identity") @OptionalParam(name = "_id") StringAndListParam theId,
@@ -168,6 +218,9 @@ public class PlanDefinitionResourceProvider implements IResourceProvider {
 		};
 	}
 
+	/**
+	 * @return a freshly generated random UUID string, used as a new resource's logical id
+	 */
 	public String getUUID() {
 		UUID uuid = UUID.randomUUID();
 		String randomUUID = uuid.toString();

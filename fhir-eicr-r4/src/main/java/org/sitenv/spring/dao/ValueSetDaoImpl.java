@@ -2,28 +2,33 @@ package org.sitenv.spring.dao;
 
 import java.util.List;
 
-import org.hibernate.Criteria;
-import org.hibernate.criterion.Restrictions;
-import org.sitenv.spring.dao.ValueSetDao;
+import org.hibernate.query.NativeQuery;
 import org.sitenv.spring.model.DafValueSet;
 import org.springframework.stereotype.Repository;
 
+/**
+ * Hibernate-backed implementation of {@link ValueSetDao}, querying the JSONB
+ * {@code data} column of the {@code valueset} table directly via native SQL.
+ */
 @Repository("ValueSetDao")
 public class ValueSetDaoImpl extends AbstractDao implements ValueSetDao{
 
 	public DafValueSet getValueSetById(String id) {
-	    Criteria criteria = getSession().createCriteria(DafValueSet.class).setResultTransformer(Criteria.DISTINCT_ROOT_ENTITY);
-	    criteria.add(Restrictions.sqlRestriction("{alias}.data->>'id' = '" + id + "' order by {alias}.data->'meta'->>'versionId' desc"));
-	    return (DafValueSet) criteria.list().get(0);
-	  }
-	  
-	  public List<DafValueSet> getAllValueSets() {
-	    Criteria criteria = getSession().createCriteria(DafValueSet.class).setResultTransformer(Criteria.DISTINCT_ROOT_ENTITY);
-	    criteria.add(Restrictions.sqlRestriction("{alias}.data->'meta'->>'versionId' desc"));
-	    return criteria.list();
-	  }
-	  
-	  public void createValueSet(DafValueSet dafValueSet) {
-	    getSession().saveOrUpdate(dafValueSet);
-	  }
+		NativeQuery<DafValueSet> query = getSession().createNativeQuery(
+				"select * from valueset where data->>'id' = :id order by data->'meta'->>'versionId' desc",
+				DafValueSet.class);
+		query.setParameter("id", id);
+		return query.list().get(0);
+	}
+
+	public List<DafValueSet> getAllValueSets() {
+		NativeQuery<DafValueSet> query = getSession().createNativeQuery(
+				"select * from valueset order by data->'meta'->>'versionId' desc",
+				DafValueSet.class);
+		return query.list();
+	}
+
+	public void createValueSet(DafValueSet dafValueSet) {
+		getSession().saveOrUpdate(dafValueSet);
+	}
 }

@@ -1,25 +1,26 @@
 package org.sitenv.spring.model;
 
 import org.hibernate.annotations.Type;
-import org.hibernate.annotations.TypeDef;
-import org.hibernate.annotations.TypeDefs;
 import org.sitenv.spring.configuration.JSONObjectUserType;
 
-import javax.persistence.*;
+import jakarta.persistence.*;
 import java.util.Date;
 
+/**
+ * JPA entity mapping the {@code valueset} table, storing a FHIR ValueSet
+ * resource as raw JSON text in {@code data} via {@link JSONObjectUserType}.
+ */
 @Entity
 @Table(name="valueset")
-@TypeDefs({@TypeDef(name = "StringJsonObject", typeClass = JSONObjectUserType.class)})
 public class DafValueSet {
-	
+
 	@Id
     @Column(name = "id")
     @GeneratedValue(strategy = GenerationType.IDENTITY)
 	private Integer id;
-	
+
 	@Column(name="data")
-	@Type(type = "StringJsonObject")
+	@Type(JSONObjectUserType.class)
 	private String data;
 	
 	@Column(name="last_updated_ts")
