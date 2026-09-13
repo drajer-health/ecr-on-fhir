@@ -71,8 +71,9 @@ public class Validator {
             Files.createDirectories(cachePath);
 
             FilesystemPackageCacheManager cacheManager =
-                    new FilesystemPackageCacheManager(
-                            FilesystemPackageCacheManager.FilesystemPackageCacheMode.USER);
+                    new FilesystemPackageCacheManager.Builder()
+                            .withCacheFolder(cachePath.toString())
+                            .build();
             String path = this.getClass().getClassLoader().getResource("packages").getPath().toString();
             File packagePath = new File(path);
             List<String> loaderSrcs = new ArrayList<>();
@@ -106,7 +107,7 @@ public class Validator {
                 igLoader.loadIg(validationEngine.getIgs(), validationEngine.getBinaries(), loaderSrc, false);
             }
 
-            validationEngine.connectToTSServer(txServer, null, FhirPublication.R4);
+            validationEngine.connectToTSServer(txServer, null, FhirPublication.R4, false);
             validationEngine.setAnyExtensionsAllowed(true);
             validationEngine.setHintAboutNonMustSupport(true);
             validationEngine.setNoExtensibleBindingMessages(true);
@@ -153,7 +154,6 @@ public class Validator {
                         .withVersion(vString)
                         .withTerminologyCachePath(terminologycachePath.toString())
                         .withNoTerminologyServer()
-                        .withTHO(false)
                         .fromSource(src)
                         .setPcm(pcm);
         return validationEngine;

@@ -31,15 +31,24 @@
 
         <java.version>17</java.version>
 
-        <!-- Keep HAPI FHIR unchanged for this remediation pass -->
-        <fhir.version>7.0.2</fhir.version>
+        <!--
+            SECURITY UPDATE:
+            HAPI FHIR bumped to reach org.hl7.fhir.core >=6.9.11, which fixes:
+            CVE-2026-34359, CVE-2026-34361 (credential leak via URL prefix-match)
+            CVE-2026-55471 (XXE in XsltUtilities)
+            CVE-2026-62295, CVE-2026-62296 (unbounded recursion DoS)
+        -->
+        <fhir.version>8.12.0</fhir.version>
+        <fhir-core.version>6.9.12</fhir-core.version>
 
         <!-- Security remediation versions -->
-        <jackson.version>2.21.4</jackson.version>
+        <jackson.version>2.21.6</jackson.version>
         <thymeleaf.version>3.1.5.RELEASE</thymeleaf.version>
         <nimbus.version>9.37.4</nimbus.version>
         <commons-compress.version>1.28.0</commons-compress.version>
         <ucum.version>1.0.10</ucum.version>
+        <okhttp.version>4.12.0</okhttp.version>
+        <org-json.version>20260814</org-json.version>
 
     </properties>
 
@@ -126,6 +135,13 @@
             <version>${fhir.version}</version>
         </dependency>
 
+        <!-- Pin to align with the rest of the org.hl7.fhir.core family (was drifting at 6.1.2.2) -->
+        <dependency>
+            <groupId>ca.uhn.hapi.fhir</groupId>
+            <artifactId>org.hl7.fhir.r4</artifactId>
+            <version>${fhir-core.version}</version>
+        </dependency>
+
         <dependency>
             <groupId>ca.uhn.hapi.fhir</groupId>
             <artifactId>hapi-fhir-structures-r5</artifactId>
@@ -170,7 +186,7 @@
         <dependency>
             <groupId>ca.uhn.hapi.fhir</groupId>
             <artifactId>org.hl7.fhir.validation</artifactId>
-            <version>6.1.16</version>
+            <version>${fhir-core.version}</version>
 
             <exclusions>
 
@@ -218,6 +234,19 @@
                     <artifactId>jackson-core</artifactId>
                 </exclusion>
 
+                <!--
+                    As of 6.9.x, HL7 core's optional OkHttp integration moved to
+                    the okhttp-jvm artifact (OkHttp 5.x), a different Maven
+                    coordinate from our own pinned okhttp 4.12.0 below, which
+                    would otherwise sit on the classpath alongside it (duplicate
+                    okhttp3.* classes from two majors). App code never calls
+                    OkHttp directly, so excluded in favor of our own okhttp:4.12.0.
+                -->
+                <exclusion>
+                    <groupId>com.squareup.okhttp3</groupId>
+                    <artifactId>okhttp-jvm</artifactId>
+                </exclusion>
+
             </exclusions>
 
         </dependency>
@@ -226,14 +255,26 @@
         <dependency>
             <groupId>ca.uhn.hapi.fhir</groupId>
             <artifactId>org.hl7.fhir.utilities</artifactId>
-            <version>6.1.16</version>
+            <version>${fhir-core.version}</version>
+            <exclusions>
+                <exclusion>
+                    <groupId>com.squareup.okhttp3</groupId>
+                    <artifactId>okhttp-jvm</artifactId>
+                </exclusion>
+            </exclusions>
         </dependency>
 
 
         <dependency>
             <groupId>ca.uhn.hapi.fhir</groupId>
             <artifactId>org.hl7.fhir.r5</artifactId>
-            <version>6.1.16</version>
+            <version>${fhir-core.version}</version>
+            <exclusions>
+                <exclusion>
+                    <groupId>com.squareup.okhttp3</groupId>
+                    <artifactId>okhttp-jvm</artifactId>
+                </exclusion>
+            </exclusions>
         </dependency>
 
 
@@ -305,7 +346,7 @@
         <dependency>
             <groupId>org.json</groupId>
             <artifactId>json</artifactId>
-            <version>20230618</version>
+            <version>${org-json.version}</version>
         </dependency>
 
 
@@ -328,17 +369,25 @@
         </dependency>
 
 
+        <!--
+            Bumped to match what commons-compress 1.28.0 was actually built
+            against. 2.13.0 predates BoundedInputStream.builder(), which
+            commons-compress's GzipCompressorInputStream calls at runtime,
+            causing a latent NoSuchMethodError only surfaced when actually
+            extracting a .tgz package (e.g. during ValidationEngine IG
+            package loading).
+        -->
         <dependency>
             <groupId>commons-io</groupId>
             <artifactId>commons-io</artifactId>
-            <version>2.13.0</version>
+            <version>2.20.0</version>
         </dependency>
 
 
         <dependency>
             <groupId>com.squareup.okhttp3</groupId>
             <artifactId>okhttp</artifactId>
-            <version>4.10.0</version>
+            <version>${okhttp.version}</version>
         </dependency>
 
 
