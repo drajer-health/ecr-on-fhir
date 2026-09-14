@@ -49,6 +49,7 @@
         <ucum.version>1.0.10</ucum.version>
         <okhttp.version>4.12.0</okhttp.version>
         <org-json.version>20260814</org-json.version>
+        <opentelemetry.version>1.62.0</opentelemetry.version>
 
     </properties>
 
@@ -117,6 +118,23 @@
                 <groupId>org.apache.commons</groupId>
                 <artifactId>commons-compress</artifactId>
                 <version>${commons-compress.version}</version>
+            </dependency>
+
+
+            <!--
+                hapi-fhir-base pulls opentelemetry-api 1.49.0 transitively.
+                Force the fixed version without changing the HAPI FHIR version.
+            -->
+            <dependency>
+                <groupId>io.opentelemetry</groupId>
+                <artifactId>opentelemetry-api</artifactId>
+                <version>${opentelemetry.version}</version>
+            </dependency>
+
+            <dependency>
+                <groupId>io.opentelemetry</groupId>
+                <artifactId>opentelemetry-context</artifactId>
+                <version>${opentelemetry.version}</version>
             </dependency>
 
         </dependencies>
