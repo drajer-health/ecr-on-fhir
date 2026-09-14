@@ -20,7 +20,9 @@ import java.nio.file.Files;
 import java.nio.file.Path;
 import java.nio.file.Paths;
 import java.util.ArrayList;
+import java.util.Collections;
 import java.util.List;
+import java.util.Set;
 
 /**
  * Builds and configures the {@link ValidationEngine} bean used for full IG-profile FHIR
@@ -70,9 +72,18 @@ public class Validator {
             Path cachePath = Paths.get(terminologycachePath+"/.fhir/packages");
             Files.createDirectories(cachePath);
 
+            // Bundled hl7.fhir.r4.core and hl7.fhir.xver-extensions are base/extension
+            // packages that ValidationEngineBuilder#fromSource(definitions) below loads
+            // directly out of the cache; they are not implementation guides, so they are
+            // added to the cache but excluded from loaderSrcs.
+            final Set<String> baseFhirPackages = Set.of("hl7.fhir.r4.core", "hl7.fhir.xver-extensions");
+
             FilesystemPackageCacheManager cacheManager =
                     new FilesystemPackageCacheManager.Builder()
                             .withCacheFolder(cachePath.toString())
+                            // No remote package servers: resolve only from the local cache
+                            // (pre-populated above) so the validator works fully offline.
+                            .withPackageServers(Collections.emptyList())
                             .build();
             String path = this.getClass().getClassLoader().getResource("packages").getPath().toString();
             File packagePath = new File(path);
@@ -91,9 +102,13 @@ public class Validator {
                     version = version.substring(0, version.length() - 1);
                     String packageName = fileName.replace(version, "");
                     packageName = packageName.substring(0, packageName.length() - 1);
-                    cacheManager.addPackageToCache(
-                            packageName, version, new FileInputStream(file), packageName);
-                    loaderSrcs.add(packageName + "#" + version);
+                    if (!cacheManager.packageExists(packageName, version)) {
+                        cacheManager.addPackageToCache(
+                                packageName, version, new FileInputStream(file), packageName);
+                    }
+                    if (!baseFhirPackages.contains(packageName)) {
+                        loaderSrcs.add(packageName + "#" + version);
+                    }
                 }
             }
 
