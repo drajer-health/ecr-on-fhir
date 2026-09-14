@@ -22,7 +22,7 @@
 
         <!-- Security overrides / direct vulnerable dependencies -->
         <jackson.version>2.21.4</jackson.version>
-        <postgresql.version>42.7.11</postgresql.version>
+        <postgresql.version>42.7.12</postgresql.version>
         <protobuf.version>4.33.1</protobuf.version>
         <gson.version>2.13.2</gson.version>
         <org-json.version>20260814</org-json.version>
@@ -32,6 +32,11 @@
         <okhttp.version>4.12.0</okhttp.version>
         <okio.version>3.18.2</okio.version>
         <aws-sdk.version>2.54.13</aws-sdk.version>
+        <nimbus-jose-jwt.version>10.0.2</nimbus-jose-jwt.version>
+        <!-- AWS SDK's apache5-client pulls in vulnerable httpclient5/httpcore5(-h2);
+             force the patched line since the AWS BOM doesn't manage them itself. -->
+        <httpclient5.version>5.6.3</httpclient5.version>
+        <httpcore5.version>5.5-beta2</httpcore5.version>
         <!-- AWS SDK's netty-nio-client naturally wants a newer Netty than Boot 3.5's
              own BOM pin (4.1.135.Final); import netty-bom ahead of spring-boot-dependencies
              so this newer, more-patched line wins for every io.netty:* module. -->
@@ -83,6 +88,24 @@
                 <groupId>net.minidev</groupId>
                 <artifactId>json-smart</artifactId>
                 <version>${json-smart.version}</version>
+            </dependency>
+
+            <!-- Force transitive httpclient5/httpcore5(-h2) (pulled in via
+                 software.amazon.awssdk:apache5-client) to the patched line. -->
+            <dependency>
+                <groupId>org.apache.httpcomponents.client5</groupId>
+                <artifactId>httpclient5</artifactId>
+                <version>${httpclient5.version}</version>
+            </dependency>
+            <dependency>
+                <groupId>org.apache.httpcomponents.core5</groupId>
+                <artifactId>httpcore5</artifactId>
+                <version>${httpcore5.version}</version>
+            </dependency>
+            <dependency>
+                <groupId>org.apache.httpcomponents.core5</groupId>
+                <artifactId>httpcore5-h2</artifactId>
+                <version>${httpcore5.version}</version>
             </dependency>
         </dependencies>
     </dependencyManagement>
@@ -240,7 +263,7 @@
         <dependency>
             <groupId>com.nimbusds</groupId>
             <artifactId>nimbus-jose-jwt</artifactId>
-            <version>9.40</version>
+            <version>${nimbus-jose-jwt.version}</version>
         </dependency>
 
         <dependency>
