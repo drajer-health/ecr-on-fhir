@@ -1,6 +1,5 @@
 package com.drajer.eicrfhirvalidator.service;
 
-import ca.uhn.fhir.context.FhirContext;
 import ca.uhn.fhir.validation.FhirValidator;
 import ca.uhn.fhir.validation.ValidationResult;
 import org.hl7.fhir.r5.model.OperationOutcome;
@@ -15,12 +14,11 @@ public interface ResourceValidationService {
 	/**
 	 * Validates a resource using HAPI's default R4 structural validator (no specific profile).
 	 *
-	 * @param r4Context the R4 {@link FhirContext} to validate with
 	 * @param validator the HAPI {@link FhirValidator} instance to use
 	 * @param bodyStr the resource content as a JSON string
 	 * @return the HAPI {@link ValidationResult}
 	 */
-	ValidationResult validateR4Resource(FhirContext r4Context, FhirValidator validator, String bodyStr);
+	ValidationResult validateR4Resource(FhirValidator validator, String bodyStr);
 
 	/**
 	 * Validates a resource against the given implementation guide profile(s) using the embedded

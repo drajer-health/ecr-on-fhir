@@ -26,12 +26,14 @@ public class FhirConfig {
     /**
      * FHIR R4 context, injected via the {@code r4FhirContext} qualifier.
      *
-     * @return a new R4 {@link FhirContext}
+     * <p>Reuses the {@link #fhirContext()} singleton rather than constructing a second
+     * {@link FhirContext}, which is an expensive reflective model scan.
+     *
+     * @return the shared R4 {@link FhirContext}
      */
     @Bean(name = "r4FhirContext")
     public FhirContext getR4FhirContext() {
-        FhirContext dstu2FhirContext = FhirContext.forR4();
-        return dstu2FhirContext;
+        return fhirContext();
     }
 
     /**

@@ -43,10 +43,6 @@ public class BundleResourceProvider implements IResourceProvider {
     private FhirContext r4Context;
 
     @Autowired
-    @Qualifier("r5FhirContext")
-    private FhirContext r5Context;
-
-    @Autowired
     ResourceValidationService validationService;
 
     /**
@@ -70,7 +66,7 @@ public class BundleResourceProvider implements IResourceProvider {
             RequestDetails requestDetails) {
 
         FhirValidator validator = r4Context.newValidator();
-        String bundleAsJsonString = r4Context.newJsonParser().setPrettyPrint(true).encodeResourceToString(bundle);
+        String bundleAsJsonString = r4Context.newJsonParser().encodeResourceToString(bundle);
 
         if(profile == null){
             if(bundle.hasMeta()) {
@@ -84,7 +80,6 @@ public class BundleResourceProvider implements IResourceProvider {
 
         if(profile != null){
             try {
-                String results;
                 logger.info("Validating with Profile : "+ profile);
                 OperationOutcome outcomes = validationService.validate(bundleAsJsonString, profile);
                 return outcomes;
@@ -97,7 +92,7 @@ public class BundleResourceProvider implements IResourceProvider {
             }
         }else{
             try {
-                ValidationResult results = validationService.validateR4Resource(r4Context, validator, bundleAsJsonString);
+                ValidationResult results = validationService.validateR4Resource(validator, bundleAsJsonString);
                 if (results instanceof ValidationResult && results.isSuccessful()) {
                     logger.info("Validation passed");
                 } else {

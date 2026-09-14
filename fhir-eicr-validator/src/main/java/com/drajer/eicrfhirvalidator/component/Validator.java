@@ -11,7 +11,6 @@ import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 import org.springframework.boot.autoconfigure.condition.ConditionalOnProperty;
 import org.springframework.context.annotation.Bean;
-import org.springframework.core.io.ResourceLoader;
 import org.springframework.stereotype.Component;
 
 import java.io.File;
@@ -34,13 +33,9 @@ public class Validator {
     private final Logger logger = LoggerFactory.getLogger(Validator.class);
 
     private final EicrValidationProperties properties;
-    private final ResourceLoader resourceLoader;
 
-    public static final String VERSION_5_0_0 = "5.0.0";
-
-    public Validator(EicrValidationProperties properties, ResourceLoader resourceLoader) {
+    public Validator(EicrValidationProperties properties) {
         this.properties = properties;
-        this.resourceLoader = resourceLoader;
     }
 
     /**

@@ -1,6 +1,7 @@
 package com.drajer.eicrfhirvalidator;
 
 
+import ca.uhn.fhir.context.FhirContext;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.boot.SpringApplication;
 import org.springframework.boot.autoconfigure.SpringBootApplication;
@@ -40,7 +41,8 @@ public class EicrFhirValidatorApplication extends SpringBootServletInitializer {
      */
     @Bean
     public ServletRegistrationBean ServletRegistrationBean() {
-        ServletRegistrationBean registration= new ServletRegistrationBean(new FhirRestfulServer(context),"/fhir/*");
+        FhirContext r4FhirContext = context.getBean("r4FhirContext", FhirContext.class);
+        ServletRegistrationBean registration= new ServletRegistrationBean(new FhirRestfulServer(context, r4FhirContext),"/fhir/*");
         registration.setName("FhirServlet");
         return registration;
     }
