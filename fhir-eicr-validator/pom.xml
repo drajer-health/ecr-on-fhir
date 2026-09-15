@@ -42,14 +42,18 @@
         <fhir-core.version>6.9.12</fhir-core.version>
 
         <!-- Security remediation versions -->
-        <jackson.version>2.21.6</jackson.version>
+        <jackson.version>2.22.2</jackson.version>
         <thymeleaf.version>3.1.5.RELEASE</thymeleaf.version>
-        <nimbus.version>9.37.4</nimbus.version>
+        <nimbus.version>10.0.2</nimbus.version>
         <commons-compress.version>1.28.0</commons-compress.version>
+        <commons-io.version>2.22.0</commons-io.version>
         <ucum.version>1.0.10</ucum.version>
         <okhttp.version>4.12.0</okhttp.version>
         <org-json.version>20260814</org-json.version>
         <opentelemetry.version>1.62.0</opentelemetry.version>
+        <commons-lang3.version>3.18.0</commons-lang3.version>
+        <log4j.version>2.26.1</log4j.version>
+        <tomcat.version>11.0.25</tomcat.version>
 
     </properties>
 
@@ -99,8 +103,6 @@
                 Fixes Nimbus vulnerabilities:
                 CVE-2023-52428
                 CVE-2025-53864
-
-                9.37.4 avoids unnecessary migration to Nimbus 10.x.
             -->
             <dependency>
                 <groupId>com.nimbusds</groupId>
@@ -135,6 +137,62 @@
                 <groupId>io.opentelemetry</groupId>
                 <artifactId>opentelemetry-context</artifactId>
                 <version>${opentelemetry.version}</version>
+            </dependency>
+
+
+            <!--
+                spring-boot-starter-parent's own BOM pins commons-lang3 to 3.17.0,
+                which overrides (downgrades) hapi-fhir-base's transitive request
+                for 3.18.0. Force the fixed version back.
+            -->
+            <dependency>
+                <groupId>org.apache.commons</groupId>
+                <artifactId>commons-lang3</artifactId>
+                <version>${commons-lang3.version}</version>
+            </dependency>
+
+
+            <!--
+                spring-boot-starter-parent's own BOM pins log4j to 2.24.3
+                (pulled in via spring-boot-starter-logging -> log4j-to-slf4j).
+                Force the fixed version for both modules.
+            -->
+            <dependency>
+                <groupId>org.apache.logging.log4j</groupId>
+                <artifactId>log4j-api</artifactId>
+                <version>${log4j.version}</version>
+            </dependency>
+
+            <dependency>
+                <groupId>org.apache.logging.log4j</groupId>
+                <artifactId>log4j-to-slf4j</artifactId>
+                <version>${log4j.version}</version>
+            </dependency>
+
+
+            <!--
+                spring-boot-starter-parent's own BOM pins the embedded Tomcat to
+                10.1.55 (provided scope only - never deployed at runtime here,
+                since the app runs on an external Tomcat; kept only so
+                `mvn spring-boot:run` and the "executable war" fallback still
+                work locally). Force the fixed version.
+            -->
+            <dependency>
+                <groupId>org.apache.tomcat.embed</groupId>
+                <artifactId>tomcat-embed-core</artifactId>
+                <version>${tomcat.version}</version>
+            </dependency>
+
+            <dependency>
+                <groupId>org.apache.tomcat.embed</groupId>
+                <artifactId>tomcat-embed-el</artifactId>
+                <version>${tomcat.version}</version>
+            </dependency>
+
+            <dependency>
+                <groupId>org.apache.tomcat.embed</groupId>
+                <artifactId>tomcat-embed-websocket</artifactId>
+                <version>${tomcat.version}</version>
             </dependency>
 
         </dependencies>
@@ -398,7 +456,7 @@
         <dependency>
             <groupId>commons-io</groupId>
             <artifactId>commons-io</artifactId>
-            <version>2.20.0</version>
+            <version>${commons-io.version}</version>
         </dependency>
 
 
