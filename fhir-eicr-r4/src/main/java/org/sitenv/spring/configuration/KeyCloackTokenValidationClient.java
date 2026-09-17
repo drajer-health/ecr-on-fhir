@@ -38,8 +38,11 @@ public class KeyCloackTokenValidationClient {
         LOGGER.info("Entry - validateToken Method in KeyCloackTokenValidationClient ");
         boolean validationResponse = false;
         final String authorizationHeaderValue = request.getHeader("Authorization");
-        if (authorizationHeaderValue != null && authorizationHeaderValue.startsWith("Bearer"));
-            String token = authorizationHeaderValue.substring(7, authorizationHeaderValue.length());
+        if (authorizationHeaderValue == null || !authorizationHeaderValue.startsWith("Bearer ")) {
+            LOGGER.error("Missing or invalid Authorization header");
+            return false;
+        }
+        String token = authorizationHeaderValue.substring(7);
 
         String url = authUrl + "/realms/" + realm + "/protocol/openid-connect/token/introspect";
 

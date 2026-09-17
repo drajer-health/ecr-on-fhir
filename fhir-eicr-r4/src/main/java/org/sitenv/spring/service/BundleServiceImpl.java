@@ -6,6 +6,9 @@ import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.stereotype.Service;
 import org.springframework.transaction.annotation.Transactional;
 
+/**
+ * Default implementation of {@link BundleService}, delegating to {@link BundleDao}.
+ */
 @Service("BundleService")
 @Transactional
 public class BundleServiceImpl implements BundleService{

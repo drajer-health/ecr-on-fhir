@@ -3,6 +3,11 @@ package org.sitenv.spring.model;
 import com.fasterxml.jackson.annotation.JsonProperty;
 
 import java.util.List;
+
+/**
+ * Deserialization target for the {@code RawFHIR-T-PH-ECR} message metadata
+ * fields (message id and sender URL) carried alongside an inbound eICR message.
+ */
 public class MetaData {
 
     @JsonProperty("RawFHIR-T-PH-ECR.messageId")

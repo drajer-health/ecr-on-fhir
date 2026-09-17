@@ -1,24 +1,26 @@
 package org.sitenv.spring.model;
 
 import org.hibernate.annotations.Type;
-import org.hibernate.annotations.TypeDef;
-import org.hibernate.annotations.TypeDefs;
 import org.sitenv.spring.configuration.JSONObjectUserType;
 
-import javax.persistence.*;
+import jakarta.persistence.*;
 import java.util.Date;
 
+/**
+ * JPA entity mapping the {@code eicr} table, which stores an inbound eICR
+ * Bundle alongside its processing/response status and validation results,
+ * each held as raw JSON text via {@link JSONObjectUserType}.
+ */
 @Entity
 @Table(name="eicr")
-@TypeDefs({@TypeDef(name = "StringJsonObject", typeClass = JSONObjectUserType.class)})
 public class DafBundle {
 	@Id
     @Column(name = "id")
     @GeneratedValue(strategy = GenerationType.IDENTITY)
 	private Integer id;
-	
+
 	@Column(name="eicr_data")
-	@Type(type = "StringJsonObject")
+	@Type(JSONObjectUserType.class)
 	private String eicrData;
 
 	@Column(name="eicr_data_process_status")
@@ -28,18 +30,18 @@ public class DafBundle {
 	private String eicrSourceEndpoint;
 
 	@Column(name="eicr_response_data")
-	@Type(type = "StringJsonObject")
+	@Type(JSONObjectUserType.class)
 	private String eicrResponseData;
 
 	@Column(name="eicr_data_response_status")
 	private String eicrDataResponseStatus;
 
 	@Column(name="eicr_validate_result")
-	@Type(type = "StringJsonObject")
+	@Type(JSONObjectUserType.class)
 	private String eicrValidateResult;
 
 	@Column(name="response_validate_result")
-	@Type(type = "StringJsonObject")
+	@Type(JSONObjectUserType.class)
 	private String responseValidateResult;
 
 	@Column(name="created_ts")

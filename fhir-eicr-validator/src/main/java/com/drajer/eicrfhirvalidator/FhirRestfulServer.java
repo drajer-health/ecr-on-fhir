@@ -6,6 +6,7 @@ import ca.uhn.fhir.rest.server.RestfulServer;
 import com.drajer.eicrfhirvalidator.providers.BundleResourceProvider;
 import jakarta.servlet.ServletException;
 import org.springframework.beans.factory.annotation.Autowired;
+import org.springframework.beans.factory.annotation.Qualifier;
 import org.springframework.context.ApplicationContext;
 import org.springframework.web.bind.annotation.RequestMapping;
 
@@ -22,13 +23,16 @@ import java.util.Arrays;
 public class FhirRestfulServer extends RestfulServer {
 
     private final ApplicationContext applicationContext;
+    private final FhirContext r4FhirContext;
 
     /**
      * @param context the Spring application context used to look up resource provider beans
+     * @param r4FhirContext the shared R4 {@link FhirContext} bean
      */
     @Autowired
-    FhirRestfulServer(ApplicationContext context) {
+    FhirRestfulServer(ApplicationContext context, @Qualifier("r4FhirContext") FhirContext r4FhirContext) {
         this.applicationContext = context;
+        this.r4FhirContext = r4FhirContext;
     }
 
     /**
@@ -40,7 +44,7 @@ public class FhirRestfulServer extends RestfulServer {
     @Override
     protected void initialize() throws ServletException{
         super.initialize();
-        setFhirContext(FhirContext.forR4());
+        setFhirContext(r4FhirContext);
         setResourceProviders(Arrays.asList(
                 applicationContext.getBean(BundleResourceProvider.class)));
     }

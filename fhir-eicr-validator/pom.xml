@@ -1,192 +1,528 @@
 <?xml version="1.0" encoding="UTF-8"?>
-<project xmlns="http://maven.apache.org/POM/4.0.0" xmlns:xsi="http://www.w3.org/2001/XMLSchema-instance"
+<project xmlns="http://maven.apache.org/POM/4.0.0"
+         xmlns:xsi="http://www.w3.org/2001/XMLSchema-instance"
          xsi:schemaLocation="http://maven.apache.org/POM/4.0.0 https://maven.apache.org/xsd/maven-4.0.0.xsd">
+
     <modelVersion>4.0.0</modelVersion>
+
     <parent>
         <groupId>org.springframework.boot</groupId>
         <artifactId>spring-boot-starter-parent</artifactId>
-        <version>3.3.4</version>
-        <relativePath/> <!-- lookup parent from repository -->
+
+        <!--
+            SECURITY UPDATE:
+            3.3.4 was flagged for CVE-2026-40973.
+            Staying on Spring Boot 3.x avoids a Boot 4 migration.
+        -->
+        <version>3.5.16</version>
+
+        <relativePath/>
     </parent>
+
     <groupId>com.drajer</groupId>
     <artifactId>fhirvalidator</artifactId>
-    <version>0.0.3-SNAPSHOT</version>
+    <version>0.0.4-SNAPSHOT</version>
     <packaging>war</packaging>
+
     <name>fhirvalidator</name>
     <description>EICR FHIR Validator</description>
 
     <properties>
+
         <java.version>17</java.version>
-        <fhir.version>7.0.2</fhir.version>
+
+        <!--
+            SECURITY UPDATE:
+            HAPI FHIR bumped to reach org.hl7.fhir.core >=6.9.11, which fixes:
+            CVE-2026-34359, CVE-2026-34361 (credential leak via URL prefix-match)
+            CVE-2026-55471 (XXE in XsltUtilities)
+            CVE-2026-62295, CVE-2026-62296 (unbounded recursion DoS)
+        -->
+        <fhir.version>8.12.0</fhir.version>
+        <fhir-core.version>6.9.12</fhir-core.version>
+
+        <!-- Security remediation versions -->
+        <jackson.version>2.22.2</jackson.version>
+        <thymeleaf.version>3.1.5.RELEASE</thymeleaf.version>
+        <nimbus.version>10.0.2</nimbus.version>
+        <commons-compress.version>1.28.0</commons-compress.version>
+        <commons-io.version>2.22.0</commons-io.version>
+        <ucum.version>1.0.10</ucum.version>
+        <okhttp.version>4.12.0</okhttp.version>
+        <org-json.version>20260814</org-json.version>
+        <opentelemetry.version>1.62.0</opentelemetry.version>
+        <commons-lang3.version>3.18.0</commons-lang3.version>
+        <log4j.version>2.26.1</log4j.version>
+        <tomcat.version>11.0.25</tomcat.version>
+
     </properties>
 
-    <!-- FHIR Dependecies -->
+
+    <!--
+        SECURITY DEPENDENCY OVERRIDES
+
+        Several vulnerable libraries are brought into the WAR transitively
+        by HAPI / HL7 dependencies.
+
+        dependencyManagement allows us to force secure versions without
+        unnecessarily changing the HAPI FHIR version.
+    -->
+    <dependencyManagement>
+        <dependencies>
+
+            <!--
+                Keep ALL Jackson 2.x modules on the same version.
+
+                Fixes jackson-core findings including:
+                GHSA-72hv-8253-57qq
+                GHSA-r7wm-3cxj-wff9
+            -->
+            <dependency>
+                <groupId>com.fasterxml.jackson</groupId>
+                <artifactId>jackson-bom</artifactId>
+                <version>${jackson.version}</version>
+                <type>pom</type>
+                <scope>import</scope>
+            </dependency>
+
+
+            <!--
+                Fixes Thymeleaf vulnerabilities including:
+                CVE-2026-40477
+                CVE-2026-40478
+                CVE-2026-41901
+            -->
+            <dependency>
+                <groupId>org.thymeleaf</groupId>
+                <artifactId>thymeleaf</artifactId>
+                <version>${thymeleaf.version}</version>
+            </dependency>
+
+
+            <!--
+                Fixes Nimbus vulnerabilities:
+                CVE-2023-52428
+                CVE-2025-53864
+            -->
+            <dependency>
+                <groupId>com.nimbusds</groupId>
+                <artifactId>nimbus-jose-jwt</artifactId>
+                <version>${nimbus.version}</version>
+            </dependency>
+
+
+            <!--
+                Fixes Commons Compress:
+                CVE-2024-25710
+                CVE-2024-26308
+            -->
+            <dependency>
+                <groupId>org.apache.commons</groupId>
+                <artifactId>commons-compress</artifactId>
+                <version>${commons-compress.version}</version>
+            </dependency>
+
+
+            <!--
+                hapi-fhir-base pulls opentelemetry-api 1.49.0 transitively.
+                Force the fixed version without changing the HAPI FHIR version.
+            -->
+            <dependency>
+                <groupId>io.opentelemetry</groupId>
+                <artifactId>opentelemetry-api</artifactId>
+                <version>${opentelemetry.version}</version>
+            </dependency>
+
+            <dependency>
+                <groupId>io.opentelemetry</groupId>
+                <artifactId>opentelemetry-context</artifactId>
+                <version>${opentelemetry.version}</version>
+            </dependency>
+
+
+            <!--
+                spring-boot-starter-parent's own BOM pins commons-lang3 to 3.17.0,
+                which overrides (downgrades) hapi-fhir-base's transitive request
+                for 3.18.0. Force the fixed version back.
+            -->
+            <dependency>
+                <groupId>org.apache.commons</groupId>
+                <artifactId>commons-lang3</artifactId>
+                <version>${commons-lang3.version}</version>
+            </dependency>
+
+
+            <!--
+                spring-boot-starter-parent's own BOM pins log4j to 2.24.3
+                (pulled in via spring-boot-starter-logging -> log4j-to-slf4j).
+                Force the fixed version for both modules.
+            -->
+            <dependency>
+                <groupId>org.apache.logging.log4j</groupId>
+                <artifactId>log4j-api</artifactId>
+                <version>${log4j.version}</version>
+            </dependency>
+
+            <dependency>
+                <groupId>org.apache.logging.log4j</groupId>
+                <artifactId>log4j-to-slf4j</artifactId>
+                <version>${log4j.version}</version>
+            </dependency>
+
+
+            <!--
+                spring-boot-starter-parent's own BOM pins the embedded Tomcat to
+                10.1.55 (provided scope only - never deployed at runtime here,
+                since the app runs on an external Tomcat; kept only so
+                `mvn spring-boot:run` and the "executable war" fallback still
+                work locally). Force the fixed version.
+            -->
+            <dependency>
+                <groupId>org.apache.tomcat.embed</groupId>
+                <artifactId>tomcat-embed-core</artifactId>
+                <version>${tomcat.version}</version>
+            </dependency>
+
+            <dependency>
+                <groupId>org.apache.tomcat.embed</groupId>
+                <artifactId>tomcat-embed-el</artifactId>
+                <version>${tomcat.version}</version>
+            </dependency>
+
+            <dependency>
+                <groupId>org.apache.tomcat.embed</groupId>
+                <artifactId>tomcat-embed-websocket</artifactId>
+                <version>${tomcat.version}</version>
+            </dependency>
+
+        </dependencies>
+    </dependencyManagement>
+
+
     <dependencies>
+
+        <!-- ========================================================= -->
+        <!-- FHIR DEPENDENCIES                                         -->
+        <!-- ========================================================= -->
+
         <dependency>
             <groupId>ca.uhn.hapi.fhir</groupId>
             <artifactId>hapi-fhir-structures-r4</artifactId>
             <version>${fhir.version}</version>
         </dependency>
+
+        <!-- Pin to align with the rest of the org.hl7.fhir.core family (was drifting at 6.1.2.2) -->
+        <dependency>
+            <groupId>ca.uhn.hapi.fhir</groupId>
+            <artifactId>org.hl7.fhir.r4</artifactId>
+            <version>${fhir-core.version}</version>
+        </dependency>
+
         <dependency>
             <groupId>ca.uhn.hapi.fhir</groupId>
             <artifactId>hapi-fhir-structures-r5</artifactId>
             <version>${fhir.version}</version>
         </dependency>
+
         <dependency>
             <groupId>ca.uhn.hapi.fhir</groupId>
             <artifactId>hapi-fhir-validation-resources-r4</artifactId>
             <version>${fhir.version}</version>
         </dependency>
+
         <dependency>
             <groupId>ca.uhn.hapi.fhir</groupId>
             <artifactId>hapi-fhir-validation-resources-r5</artifactId>
             <version>${fhir.version}</version>
         </dependency>
+
         <dependency>
             <groupId>ca.uhn.hapi.fhir</groupId>
             <artifactId>hapi-fhir-base</artifactId>
             <version>${fhir.version}</version>
         </dependency>
+
         <dependency>
             <groupId>ca.uhn.hapi.fhir</groupId>
             <artifactId>hapi-fhir-server</artifactId>
             <version>${fhir.version}</version>
         </dependency>
+
         <dependency>
             <groupId>ca.uhn.hapi.fhir</groupId>
             <artifactId>hapi-fhir-client</artifactId>
             <version>${fhir.version}</version>
         </dependency>
 
+
+        <!-- ========================================================= -->
+        <!-- HL7 FHIR CORE VALIDATOR                                   -->
+        <!-- ========================================================= -->
+
         <dependency>
             <groupId>ca.uhn.hapi.fhir</groupId>
             <artifactId>org.hl7.fhir.validation</artifactId>
-            <version>6.1.16</version>
+            <version>${fhir-core.version}</version>
+
             <exclusions>
+
                 <exclusion>
                     <groupId>info.cqframework</groupId>
                     <artifactId>cql</artifactId>
                 </exclusion>
+
                 <exclusion>
                     <groupId>info.cqframework</groupId>
                     <artifactId>model</artifactId>
                 </exclusion>
+
                 <exclusion>
                     <groupId>info.cqframework</groupId>
                     <artifactId>elm</artifactId>
                 </exclusion>
+
                 <exclusion>
                     <groupId>info.cqframework</groupId>
                     <artifactId>cql-to-elm</artifactId>
                 </exclusion>
+
                 <exclusion>
                     <groupId>info.cqframework</groupId>
                     <artifactId>quick</artifactId>
                 </exclusion>
+
                 <exclusion>
                     <groupId>info.cqframework</groupId>
                     <artifactId>qdm</artifactId>
                 </exclusion>
+
+                <!--
+                    Retaining these exclusions because Jackson
+                    is explicitly managed below.
+                -->
                 <exclusion>
                     <groupId>com.fasterxml.jackson.core</groupId>
                     <artifactId>jackson-databind</artifactId>
                 </exclusion>
+
                 <exclusion>
                     <groupId>com.fasterxml.jackson.core</groupId>
                     <artifactId>jackson-core</artifactId>
                 </exclusion>
+
+                <!--
+                    As of 6.9.x, HL7 core's optional OkHttp integration moved to
+                    the okhttp-jvm artifact (OkHttp 5.x), a different Maven
+                    coordinate from our own pinned okhttp 4.12.0 below, which
+                    would otherwise sit on the classpath alongside it (duplicate
+                    okhttp3.* classes from two majors). App code never calls
+                    OkHttp directly, so excluded in favor of our own okhttp:4.12.0.
+                -->
+                <exclusion>
+                    <groupId>com.squareup.okhttp3</groupId>
+                    <artifactId>okhttp-jvm</artifactId>
+                </exclusion>
+
             </exclusions>
+
         </dependency>
+
+
         <dependency>
             <groupId>ca.uhn.hapi.fhir</groupId>
             <artifactId>org.hl7.fhir.utilities</artifactId>
-            <version>6.1.16</version>
+            <version>${fhir-core.version}</version>
+            <exclusions>
+                <exclusion>
+                    <groupId>com.squareup.okhttp3</groupId>
+                    <artifactId>okhttp-jvm</artifactId>
+                </exclusion>
+            </exclusions>
         </dependency>
+
+
         <dependency>
             <groupId>ca.uhn.hapi.fhir</groupId>
             <artifactId>org.hl7.fhir.r5</artifactId>
-            <version>6.1.16</version>
+            <version>${fhir-core.version}</version>
+            <exclusions>
+                <exclusion>
+                    <groupId>com.squareup.okhttp3</groupId>
+                    <artifactId>okhttp-jvm</artifactId>
+                </exclusion>
+            </exclusions>
         </dependency>
+
+
+        <!-- ========================================================= -->
+        <!-- SECURITY UPDATED DEPENDENCIES                             -->
+        <!-- ========================================================= -->
+
+        <!--
+            CVE-2024-55887
+            Minimum fixed version: 1.0.9
+            Using current 1.0.10.
+        -->
         <dependency>
             <groupId>org.fhir</groupId>
             <artifactId>ucum</artifactId>
-            <version>1.0.3</version>
+            <version>${ucum.version}</version>
         </dependency>
+
+
+        <!--
+            Explicit declaration ensures Maven resolves the secure
+            transitive Commons Compress version.
+        -->
+        <dependency>
+            <groupId>org.apache.commons</groupId>
+            <artifactId>commons-compress</artifactId>
+            <version>${commons-compress.version}</version>
+        </dependency>
+
+
+        <!--
+            Explicit declaration ensures the vulnerable transitive
+            Thymeleaf 3.1.2.RELEASE is replaced.
+        -->
+        <dependency>
+            <groupId>org.thymeleaf</groupId>
+            <artifactId>thymeleaf</artifactId>
+            <version>${thymeleaf.version}</version>
+        </dependency>
+
+
+        <!--
+            Explicit declaration ensures Nimbus 9.30.2
+            cannot be packaged transitively.
+        -->
+        <dependency>
+            <groupId>com.nimbusds</groupId>
+            <artifactId>nimbus-jose-jwt</artifactId>
+            <version>${nimbus.version}</version>
+        </dependency>
+
+
+        <!-- ========================================================= -->
+        <!-- COMMON UTILITIES                                          -->
+        <!-- ========================================================= -->
+
         <dependency>
             <groupId>org.apache.commons</groupId>
             <artifactId>commons-text</artifactId>
             <version>1.10.0</version>
         </dependency>
+
         <dependency>
             <groupId>org.yaml</groupId>
             <artifactId>snakeyaml</artifactId>
             <version>2.0</version>
         </dependency>
+
         <dependency>
             <groupId>org.json</groupId>
             <artifactId>json</artifactId>
-            <version>20230618</version>
+            <version>${org-json.version}</version>
         </dependency>
+
+
+        <!-- ========================================================= -->
+        <!-- JACKSON                                                   -->
+        <!-- ========================================================= -->
+
+        <!--
+            Versions are controlled by Jackson BOM above.
+            Do NOT specify individual versions here.
+        -->
         <dependency>
             <groupId>com.fasterxml.jackson.core</groupId>
             <artifactId>jackson-core</artifactId>
-            <version>2.17.2</version>
         </dependency>
+
         <dependency>
             <groupId>com.fasterxml.jackson.core</groupId>
             <artifactId>jackson-databind</artifactId>
-            <version>2.17.2</version>
         </dependency>
+
+
+        <!--
+            Bumped to match what commons-compress 1.28.0 was actually built
+            against. 2.13.0 predates BoundedInputStream.builder(), which
+            commons-compress's GzipCompressorInputStream calls at runtime,
+            causing a latent NoSuchMethodError only surfaced when actually
+            extracting a .tgz package (e.g. during ValidationEngine IG
+            package loading).
+        -->
         <dependency>
             <groupId>commons-io</groupId>
             <artifactId>commons-io</artifactId>
-            <version>2.13.0</version>
+            <version>${commons-io.version}</version>
         </dependency>
+
+
         <dependency>
             <groupId>com.squareup.okhttp3</groupId>
             <artifactId>okhttp</artifactId>
-            <version>4.10.0</version>
+            <version>${okhttp.version}</version>
         </dependency>
 
-        <!--Spring Support Dependencies-->
+
+        <!-- ========================================================= -->
+        <!-- SPRING SUPPORT                                            -->
+        <!-- ========================================================= -->
+
         <dependency>
             <groupId>org.springframework.boot</groupId>
             <artifactId>spring-boot-configuration-processor</artifactId>
             <optional>true</optional>
         </dependency>
+
+
         <dependency>
             <groupId>org.springframework</groupId>
             <artifactId>spring-context</artifactId>
         </dependency>
+
 
         <dependency>
             <groupId>org.springframework.boot</groupId>
             <artifactId>spring-boot-starter-web</artifactId>
         </dependency>
 
+
+        <!--
+            Correct for deployment as WAR into an external Tomcat.
+            Tomcat libraries should not be bundled under WEB-INF/lib.
+        -->
         <dependency>
             <groupId>org.springframework.boot</groupId>
             <artifactId>spring-boot-starter-tomcat</artifactId>
             <scope>provided</scope>
         </dependency>
+
+
         <dependency>
             <groupId>org.springframework.boot</groupId>
             <artifactId>spring-boot-starter-test</artifactId>
             <scope>test</scope>
         </dependency>
+
     </dependencies>
 
 
     <build>
+
         <finalName>${project.artifactId}</finalName>
+
         <plugins>
-            <!-- Maven WAR Plugin -->
+
             <plugin>
                 <groupId>org.springframework.boot</groupId>
                 <artifactId>spring-boot-maven-plugin</artifactId>
             </plugin>
 
         </plugins>
+
     </build>
 
 </project>

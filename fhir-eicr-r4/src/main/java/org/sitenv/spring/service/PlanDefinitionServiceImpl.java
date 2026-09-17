@@ -8,6 +8,9 @@ import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.stereotype.Service;
 import org.springframework.transaction.annotation.Transactional;
 
+/**
+ * Default implementation of {@link PlanDefinitionService}, delegating to {@link PlanDefinitionDao}.
+ */
 @Service("PlanDefinitionService")
 @Transactional
 public class PlanDefinitionServiceImpl implements PlanDefinitionService {

@@ -5,13 +5,24 @@ import javax.crypto.spec.SecretKeySpec;
 import java.security.Key;
 import java.util.Base64;
 
+/**
+ * AES helper for encrypting/decrypting short strings using a fixed,
+ * hardcoded key, with results represented as Base64 text.
+ */
 public class AESencryption {
-    
+
      private static final String ALGO = "AES";
-    private static final byte[] keyValue = 
+    private static final byte[] keyValue =
         new byte[] { 'S', 'm', 'a', 'r', 't', 's', 't',
 'S', 'e', 'c', 'r','e', 't', 'K', 'e', 'y' };
 
+/**
+ * Encrypts a plaintext string with AES and encodes the result as Base64.
+ *
+ * @param Data the plaintext to encrypt
+ * @return the Base64-encoded ciphertext
+ * @throws Exception if the cipher cannot be initialized or the encryption fails
+ */
 public static String encrypt(String Data) throws Exception {
         Key key = generateKey();
         Cipher c = Cipher.getInstance(ALGO);
@@ -21,6 +32,13 @@ public static String encrypt(String Data) throws Exception {
         return encryptedValue;
     }
 
+    /**
+     * Decrypts a Base64-encoded AES ciphertext produced by {@link #encrypt(String)}.
+     *
+     * @param encryptedData the Base64-encoded ciphertext
+     * @return the decrypted plaintext
+     * @throws Exception if the cipher cannot be initialized or decryption fails
+     */
     public static String decrypt(String encryptedData) throws Exception {
         Key key = generateKey();
         Cipher c = Cipher.getInstance(ALGO);
@@ -30,9 +48,13 @@ public static String encrypt(String Data) throws Exception {
         String decryptedValue = new String(decValue);
         return decryptedValue;
     }
+
+    /**
+     * @return the fixed AES key used by this class
+     */
     private static Key generateKey() throws Exception {
         Key key = new SecretKeySpec(keyValue, ALGO);
         return key;
     }
-    
+
  }

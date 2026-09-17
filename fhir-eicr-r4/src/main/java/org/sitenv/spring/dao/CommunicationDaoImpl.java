@@ -1,17 +1,23 @@
 package org.sitenv.spring.dao;
 
-import org.hibernate.Criteria;
-import org.hibernate.criterion.Restrictions;
+import org.hibernate.query.NativeQuery;
 import org.sitenv.spring.model.DafCommunication;
 import org.springframework.stereotype.Repository;
 
+/**
+ * Hibernate-backed implementation of {@link CommunicationDao}, querying the
+ * JSONB {@code data} column of the {@code communication} table directly via
+ * native SQL.
+ */
 @Repository("CommunicationDao")
 public class CommunicationDaoImpl extends AbstractDao implements CommunicationDao{
 
 	public DafCommunication getCommunicationById(String id) {
-		Criteria criteria = getSession().createCriteria(DafCommunication.class).setResultTransformer(Criteria.DISTINCT_ROOT_ENTITY);
-	    criteria.add(Restrictions.sqlRestriction("{alias}.data->>'id' = '" + id + "' order by {alias}.data->'meta'->>'versionId' desc"));
-	    return (DafCommunication) criteria.list().get(0);
+		NativeQuery<DafCommunication> query = getSession().createNativeQuery(
+				"select * from communication where data->>'id' = :id order by data->'meta'->>'versionId' desc",
+				DafCommunication.class);
+		query.setParameter("id", id);
+		return query.list().get(0);
 	}
 
 	public void createCommunication(DafCommunication dafCommunication) {

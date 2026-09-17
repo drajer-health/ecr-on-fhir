@@ -19,13 +19,21 @@ import java.util.Collections;
 import java.util.Date;
 import java.util.Random;
 
+/**
+ * Assorted helpers shared across the application: random string generation,
+ * Base64 encode/decode, date parsing, and remote FHIR resource validation.
+ */
 public class CommonUtil {
 	private static final Logger logger = LoggerFactory.getLogger(CommonUtil.class);
     private static final String CHAR_LIST =
             "abcdefghijklmnopqrstuvwxyzABCDEFGHIJKLMNOPQRSTUVWXYZ1234567890-_";
-    
+
     // private static final int RANDOM_STRING_LENGTH = 250;
 
+    /**
+     * @param length the number of characters to generate
+     * @return a random string of the given length drawn from {@code CHAR_LIST}
+     */
     public static String generateRandomString(int length) {
 
         StringBuffer randStr = new StringBuffer();
@@ -37,6 +45,9 @@ public class CommonUtil {
         return randStr.toString();
     }
 
+    /**
+     * @return a random index into {@code CHAR_LIST}
+     */
     private static int getRandomNumber() {
         int randomInt = 0;
         Random randomGenerator = new Random();
@@ -48,6 +59,10 @@ public class CommonUtil {
         }
     }
 
+    /**
+     * @param string the plaintext to encode
+     * @return the Base64-encoded string
+     */
     public static String base64Encoder(String string) {
 
         //encoding  byte array into base 64
@@ -56,6 +71,10 @@ public class CommonUtil {
         return new String(encoded);
     }
 
+    /**
+     * @param dateInString a date in {@code yyyy-MM-dd} format
+     * @return the parsed date, or {@code null} if parsing failed
+     */
     public static Date convertStringToDate(String dateInString) {
 		Date date = null;
 		try {
@@ -66,6 +85,11 @@ public class CommonUtil {
 		}
 		return date;
 	}
+
+    /**
+     * @param dateInString a year in {@code yyyy} format
+     * @return the parsed date (set to that year), or {@code null} if parsing failed
+     */
     public static Date convertStringToDateYear(String dateInString) {
  		Date dateYear = null;
 		try {
@@ -77,6 +101,10 @@ public class CommonUtil {
 		return dateYear;
 	}
 
+	/**
+	 * @param dateInStr a FHIR-formatted date/time string
+	 * @return the parsed {@link DateTimeType}, or {@code null} if parsing failed
+	 */
 	public static DateTimeType convertStringToDateTimeType(String dateInStr) {
 		DateTimeType dateTimeType = null;
 		try {
@@ -87,6 +115,10 @@ public class CommonUtil {
 		return dateTimeType;
 	}
     
+	/**
+	 * @param encodedString a Base64-encoded string
+	 * @return the decoded string
+	 */
 	public static String base64Decoder(String encodedString) {
 
         //decoding byte array into base64
@@ -95,7 +127,17 @@ public class CommonUtil {
         return new String(decoded);
 
     }
-	
+
+	/**
+	 * Posts a FHIR resource to an external validator endpoint and returns its
+	 * {@link OperationOutcome}. On any failure, returns an outcome carrying a
+	 * single error issue describing what went wrong rather than throwing.
+	 *
+	 * @param resource the FHIR resource to validate
+	 * @param validatorEndpoint the URL of the FHIR validation service
+	 * @param r4Context the FHIR R4 context used to serialize the resource and parse the response
+	 * @return the validator's outcome, or a synthetic error outcome if the call failed
+	 */
 	public OperationOutcome validateResource(Resource resource,String validatorEndpoint,FhirContext r4Context) {
 		OperationOutcome outcome = new OperationOutcome();
 		try {

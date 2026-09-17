@@ -17,6 +17,11 @@ import org.springframework.transaction.annotation.EnableTransactionManagement;
 import javax.sql.DataSource;
 import java.util.Properties;
 
+/**
+ * Java-based configuration wiring up the Hibernate {@link SessionFactory},
+ * {@link DataSource}, transaction management, and the shared {@link FhirContext}
+ * bean, all sourced from {@code application.properties}.
+ */
 @Configuration
 
 @EnableTransactionManagement
@@ -27,6 +32,12 @@ public class HibernateConfiguration {
     @Autowired
     private Environment environment;
 
+    /**
+     * Builds the Hibernate {@link SessionFactory}, scanning
+     * {@code org.sitenv.spring.model} for annotated entities.
+     *
+     * @return the configured session factory bean
+     */
     @Bean
     public LocalSessionFactoryBean sessionFactory() {
         LocalSessionFactoryBean sessionFactory = new LocalSessionFactoryBean();
@@ -36,6 +47,11 @@ public class HibernateConfiguration {
         return sessionFactory;
     }
 
+    /**
+     * Builds the JDBC {@link DataSource} from the {@code jdbc.*} properties.
+     *
+     * @return the configured data source
+     */
     @Bean
     public DataSource dataSource() {
         DriverManagerDataSource dataSource = new DriverManagerDataSource();
@@ -46,6 +62,9 @@ public class HibernateConfiguration {
         return dataSource;
     }
 
+    /**
+     * @return the Hibernate properties (dialect, SQL logging, schema management) read from {@code application.properties}
+     */
     private Properties hibernateProperties() {
         Properties properties = new Properties();
         properties.put("hibernate.dialect", environment.getRequiredProperty("hibernate.dialect"));
@@ -55,13 +74,20 @@ public class HibernateConfiguration {
         return properties;
     }
 
+    /**
+     * @param s the session factory to bind the transaction manager to
+     * @return a transaction manager backed by the given Hibernate session factory
+     */
     @Bean
-    @Autowired
     public HibernateTransactionManager transactionManager(SessionFactory s) {
         HibernateTransactionManager txManager = new HibernateTransactionManager();
         txManager.setSessionFactory(s);
         return txManager;
     }
+
+    /**
+     * @return the shared FHIR R4 context used to parse and serialize resources
+     */
     @Bean
     public FhirContext fhirContext() {
        return FhirContext.forR4();
