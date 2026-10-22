@@ -9,6 +9,7 @@ import com.fasterxml.jackson.core.JsonProcessingException;
 import com.fasterxml.jackson.databind.ObjectMapper;
 
 import jakarta.annotation.PostConstruct;
+import jakarta.annotation.PreDestroy;
 
 import org.sitenv.spring.model.MetaData;
 import org.slf4j.Logger;
@@ -16,8 +17,8 @@ import org.slf4j.LoggerFactory;
 import org.springframework.beans.factory.annotation.Value;
 import org.springframework.stereotype.Service;
 
-import software.amazon.awssdk.auth.credentials.AwsBasicCredentials;
-import software.amazon.awssdk.auth.credentials.StaticCredentialsProvider;
+import software.amazon.awssdk.auth.credentials.AwsCredentialsProvider;
+import software.amazon.awssdk.auth.credentials.DefaultCredentialsProvider;
 import software.amazon.awssdk.core.exception.SdkException;
 import software.amazon.awssdk.services.s3.S3Client;
 import software.amazon.awssdk.services.s3.model.PutObjectRequest;
@@ -39,12 +40,6 @@ public class AmazonClientServiceImpl implements AmazonClientService {
     @Value("${s3.bucketName}")
     private String bucketName;
 
-    @Value("${s3.accessKeyId}")
-    private String accessKeyId;
-
-    @Value("${s3.secretKey}")
-    private String secretKey;
-
     @Value("${s3.region}")
     private String region;
 
@@ -53,11 +48,21 @@ public class AmazonClientServiceImpl implements AmazonClientService {
      */
     @PostConstruct
     private void initializeAmazon() {
-        AwsBasicCredentials credentials = AwsBasicCredentials.create(this.accessKeyId, this.secretKey);
+        AwsCredentialsProvider credentialsProvider = DefaultCredentialsProvider.builder().build();
         this.s3Client = S3Client.builder()
                 .region(Region.of(region))
-                .credentialsProvider(StaticCredentialsProvider.create(credentials))
+                .credentialsProvider(credentialsProvider)
                 .build();
+    }
+
+    /**
+     * Closes the Amazon S3 client (and its connection pool) when the service is destroyed.
+     */
+    @PreDestroy
+    private void shutdownAmazon() {
+        if (s3Client != null) {
+            s3Client.close();
+        }
     }
 
     /**
@@ -181,7 +186,7 @@ public class AmazonClientServiceImpl implements AmazonClientService {
     /**
      * Generates the S3 key for storing files in the bucket.
      *
-     * @param persistenceId The unique ID to include in the key.
+     * @param fileType      The file type category used as the top-level S3 folder prefix.
      * @param fileName      The name of the file to store.
      * @return The generated S3 key.
      */
