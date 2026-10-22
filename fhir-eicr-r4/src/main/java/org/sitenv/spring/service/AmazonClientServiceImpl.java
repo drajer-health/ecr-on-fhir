@@ -9,6 +9,7 @@ import com.fasterxml.jackson.core.JsonProcessingException;
 import com.fasterxml.jackson.databind.ObjectMapper;
 
 import jakarta.annotation.PostConstruct;
+import jakarta.annotation.PreDestroy;
 
 import org.sitenv.spring.model.MetaData;
 import org.slf4j.Logger;
@@ -16,6 +17,8 @@ import org.slf4j.LoggerFactory;
 import org.springframework.beans.factory.annotation.Value;
 import org.springframework.stereotype.Service;
 
+import software.amazon.awssdk.auth.credentials.AwsCredentialsProvider;
+import software.amazon.awssdk.auth.credentials.DefaultCredentialsProvider;
 import software.amazon.awssdk.core.exception.SdkException;
 import software.amazon.awssdk.services.s3.S3Client;
 import software.amazon.awssdk.services.s3.model.PutObjectRequest;
@@ -45,12 +48,21 @@ public class AmazonClientServiceImpl implements AmazonClientService {
      */
     @PostConstruct
     private void initializeAmazon() {
-        // Uses the AWS SDK default credentials provider chain.
-        // In AWS containers, credentials are supplied through the configured
-        //  application IAM role.
+        AwsCredentialsProvider credentialsProvider = DefaultCredentialsProvider.builder().build();
         this.s3Client = S3Client.builder()
-                        .region(Region.of(region))
-                        .build();
+                .region(Region.of(region))
+                .credentialsProvider(credentialsProvider)
+                .build();
+    }
+
+    /**
+     * Closes the Amazon S3 client (and its connection pool) when the service is destroyed.
+     */
+    @PreDestroy
+    private void shutdownAmazon() {
+        if (s3Client != null) {
+            s3Client.close();
+        }
     }
 
     /**
