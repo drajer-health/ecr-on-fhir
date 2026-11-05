@@ -2,6 +2,9 @@ package com.drajer.eicrfhirvalidator.component;
 
 
 import com.drajer.eicrfhirvalidator.configuration.EicrValidationProperties;
+import com.drajer.eicrfhirvalidator.exception.FhirServerNotAvailableException;
+import jakarta.annotation.PostConstruct;
+import jakarta.annotation.PreDestroy;
 import org.hl7.fhir.utilities.FhirPublication;
 import org.hl7.fhir.utilities.VersionUtilities;
 import org.hl7.fhir.utilities.npm.FilesystemPackageCacheManager;
@@ -9,8 +12,7 @@ import org.hl7.fhir.validation.IgLoader;
 import org.hl7.fhir.validation.ValidationEngine;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
-import org.springframework.boot.autoconfigure.condition.ConditionalOnProperty;
-import org.springframework.context.annotation.Bean;
+import org.springframework.beans.factory.annotation.Value;
 import org.springframework.stereotype.Component;
 
 import java.io.File;
@@ -22,11 +24,20 @@ import java.util.ArrayList;
 import java.util.Collections;
 import java.util.List;
 import java.util.Set;
+import java.util.concurrent.CompletableFuture;
+import java.util.concurrent.ExecutionException;
+import java.util.concurrent.TimeUnit;
+import java.util.concurrent.TimeoutException;
 
 /**
- * Builds and configures the {@link ValidationEngine} bean used for full IG-profile FHIR
- * validation, loading implementation guide packages bundled under {@code classpath:packages}
- * into the FHIR package cache.
+ * Builds and configures the {@link ValidationEngine} used for full IG-profile FHIR validation,
+ * loading implementation guide packages bundled under {@code classpath:packages} into the FHIR
+ * package cache.
+ *
+ * <p>Loading takes from ~30 seconds (warm package cache) to several minutes (cold cache), so it
+ * runs on a background thread started at application startup instead of blocking Spring/Tomcat
+ * startup. Callers obtain the engine through {@link #awaitValidationEngine()}, which waits for
+ * loading to finish.
  */
 @Component
 public class Validator {
@@ -34,8 +45,85 @@ public class Validator {
 
     private final EicrValidationProperties properties;
 
+    /** Disables profile-based validation entirely; the engine is never loaded. */
+    @Value("${eicr.fhir-validation-disable:false}")
+    private boolean fhirValidationDisabled;
+
+    /** How long a validation request waits for a still-loading engine before giving up. */
+    @Value("${eicr.validator-startup-wait-seconds:30}")
+    private long startupWaitSeconds;
+
+    private final CompletableFuture<ValidationEngine> validationEngine = new CompletableFuture<>();
+    private Thread loaderThread;
+
     public Validator(EicrValidationProperties properties) {
         this.properties = properties;
+    }
+
+    /** Starts building the {@link ValidationEngine} on a background thread. */
+    @PostConstruct
+    public void startLoading() {
+        if (fhirValidationDisabled) {
+            logger.info("FHIR profile validation is disabled (eicr.fhir-validation-disable=true)");
+            validationEngine.completeExceptionally(
+                    new FhirServerNotAvailableException("FHIR profile validation is disabled"));
+            return;
+        }
+        loaderThread = new Thread(() -> {
+            long startTime = System.currentTimeMillis();
+            ValidationEngine engine;
+            try {
+                engine = createValidationEngine();
+            } catch (Throwable t) {
+                // createValidationEngine() only catches Exception; an Error must still settle the
+                // future, or requests would wait out the timeout and report "still loading"
+                logger.error("FHIR validator failed to initialize", t);
+                engine = null;
+            }
+            if (engine == null) {
+                validationEngine.completeExceptionally(new FhirServerNotAvailableException(
+                        "FHIR validator failed to initialize; see the application log for the cause"));
+                return;
+            }
+            validationEngine.complete(engine);
+            logger.info("FHIR validator ready: IG packages loaded in {} s",
+                    (System.currentTimeMillis() - startTime) / 1000);
+        }, "fhir-validator-init");
+        // Daemon so a still-loading engine never blocks Tomcat shutdown or undeploy
+        loaderThread.setDaemon(true);
+        loaderThread.start();
+        logger.info("FHIR validator loading IG packages in the background; "
+                + "profile validation requests will wait up to {} s for it", startupWaitSeconds);
+    }
+
+    /** Stops a still-running load when the application is shut down or undeployed. */
+    @PreDestroy
+    public void stopLoading() {
+        if (loaderThread != null && loaderThread.isAlive()) {
+            loaderThread.interrupt();
+        }
+    }
+
+    /**
+     * Returns the prepared {@link ValidationEngine}, waiting up to
+     * {@code eicr.validator-startup-wait-seconds} if it is still loading.
+     *
+     * @return the prepared engine
+     * @throws FhirServerNotAvailableException if validation is disabled, loading failed, or the
+     *     engine is still loading after the wait
+     */
+    public ValidationEngine awaitValidationEngine() {
+        try {
+            return validationEngine.get(startupWaitSeconds, TimeUnit.SECONDS);
+        } catch (TimeoutException e) {
+            throw new FhirServerNotAvailableException(
+                    "FHIR validator is still loading IG packages; retry shortly");
+        } catch (ExecutionException e) {
+            throw (FhirServerNotAvailableException) e.getCause();
+        } catch (InterruptedException e) {
+            Thread.currentThread().interrupt();
+            throw new FhirServerNotAvailableException("Interrupted while waiting for the FHIR validator", e);
+        }
     }
 
     /**
@@ -44,16 +132,14 @@ public class Validator {
      * {@link FilesystemPackageCacheManager}, registers them as implementation guides, connects
      * to the FHIR terminology server, and applies the engine's validation settings.
      *
-     * <p>Disabled when the {@code eicr.fhir-validation-disable} property is {@code true}.
-     *
      * @return the prepared {@link ValidationEngine}, or {@code null} if initialization fails
      */
-    @Bean
-    @ConditionalOnProperty(prefix = "eicr", name = "fhir-validation-disable", havingValue = "false", matchIfMissing = true)
-    public ValidationEngine createValidationEngine() {
+    ValidationEngine createValidationEngine() {
         try {
-            Path terminologycachePath = Path.of(properties.getCacheDownloadFolderPath());
-            logger.info("terminologycache Path:::::{}", terminologycachePath);
+            Path terminologycachePath = Path.of(properties.getCacheDownloadFolderPath()).toAbsolutePath();
+            // Keep this folder across restarts: an empty cache means re-extracting ~120 MB of
+            // packages (minutes) instead of reusing them (seconds)
+            logger.info("FHIR package/terminology cache folder: {}", terminologycachePath);
             final String fhirSpecVersion = "4.0";
             final String definitions =
                     VersionUtilities.packageForVersion(fhirSpecVersion)
@@ -114,6 +200,15 @@ public class Validator {
 
             IgLoader igLoader = new IgLoader(cacheManager, validationEngine.getContext(), validationEngine.getVersion());
             for (String loaderSrc : loaderSrcs) {
+                // Loading an IG also loads its dependencies, so most bundled packages are
+                // already loaded by the time the loop reaches them. Skip those instead of
+                // re-reading them; load order (and so which version of a shared canonical
+                // URL wins) is unchanged.
+                String[] nameAndVersion = loaderSrc.split("#");
+                if (validationEngine.getContext().hasPackage(nameAndVersion[0], nameAndVersion[1])) {
+                    logger.debug("Skipping {}: already loaded as a dependency", loaderSrc);
+                    continue;
+                }
                 igLoader.loadIg(validationEngine.getIgs(), validationEngine.getBinaries(), loaderSrc, false);
             }
 

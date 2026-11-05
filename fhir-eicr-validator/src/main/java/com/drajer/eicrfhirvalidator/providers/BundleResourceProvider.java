@@ -6,8 +6,10 @@ import ca.uhn.fhir.rest.annotation.Operation;
 import ca.uhn.fhir.rest.annotation.OperationParam;
 import ca.uhn.fhir.rest.api.server.RequestDetails;
 import ca.uhn.fhir.rest.server.IResourceProvider;
+import ca.uhn.fhir.rest.server.exceptions.UnclassifiedServerFailureException;
 import ca.uhn.fhir.validation.FhirValidator;
 import ca.uhn.fhir.validation.ValidationResult;
+import com.drajer.eicrfhirvalidator.exception.FhirServerNotAvailableException;
 import com.drajer.eicrfhirvalidator.service.ResourceValidationService;
 import org.hl7.fhir.instance.model.api.IBaseResource;
 import org.hl7.fhir.r4.model.Bundle;
@@ -57,10 +59,11 @@ public class BundleResourceProvider implements IResourceProvider {
      *     (JSON or XML, per the request's {@code Content-Type})
      * @param profile optional canonical URL of the profile to validate against
      * @param requestDetails HAPI request metadata for the current operation invocation
-     * @return an {@link OperationOutcome} describing validation results or errors
+     * @return an OperationOutcome describing validation results or errors: R5 from the
+     *     profile-based {@code ValidationEngine} path, R4 from the base structural validator
      */
     @Operation(name = "$validate", idempotent = true)
-    public OperationOutcome validateResource(
+    public IBaseResource validateResource(
             @OperationParam(name = "resource") Bundle bundle,
             @OperationParam(name = "profile") String profile,
             RequestDetails requestDetails) {
@@ -84,6 +87,9 @@ public class BundleResourceProvider implements IResourceProvider {
                 OperationOutcome outcomes = validationService.validate(bundleAsJsonString, profile);
                 return outcomes;
 
+            } catch (FhirServerNotAvailableException e) {
+                // Engine still loading, failed to load, or disabled: not a problem with the request
+                throw new UnclassifiedServerFailureException(503, e.getMessage());
             } catch (Exception e) {
                 OperationOutcome outcomes = new OperationOutcome();
                 outcomes.addIssue().setSeverity(OperationOutcome.IssueSeverity.ERROR)
@@ -98,8 +104,9 @@ public class BundleResourceProvider implements IResourceProvider {
                 } else {
                     logger.error("Failed to validateR4Resource.");
                 }
-                OperationOutcome outcomes = (OperationOutcome) results.toOperationOutcome();
-                return outcomes;
+                // toOperationOutcome() is built by the R4 context, so it is an R4 OperationOutcome,
+                // not the R5 type imported above for the ValidationEngine path
+                return results.toOperationOutcome();
             } catch (DataFormatException e) {
                 logger.error("Exception in validateR4Resource");
                 OperationOutcome outcomes = new OperationOutcome();

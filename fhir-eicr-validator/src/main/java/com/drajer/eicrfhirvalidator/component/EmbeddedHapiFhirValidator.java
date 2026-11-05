@@ -5,6 +5,7 @@ import com.drajer.eicrfhirvalidator.exception.EicrException;
 import org.hl7.fhir.r5.elementmodel.Manager;
 import org.hl7.fhir.r5.formats.FormatUtilities;
 import org.hl7.fhir.r5.model.OperationOutcome;
+import org.hl7.fhir.r5.model.StructureDefinition;
 import org.hl7.fhir.utilities.validation.ValidationMessage;
 import org.hl7.fhir.validation.ValidationEngine;
 import org.slf4j.Logger;
@@ -46,9 +47,15 @@ public class EmbeddedHapiFhirValidator implements IFhirValidator<String, Operati
      */
     @Override
     public Optional<OperationOutcome> validate(String resourceData, String profiles) throws EicrException {
-        List<String> resourceProfiles = profiles.contains(COMMA_SEPARATOR)
-                ? Arrays.asList(profiles.split(COMMA_SEPARATOR))
-                : List.of(profiles);
+        List<String> resourceProfiles = Arrays.stream(profiles.split(COMMA_SEPARATOR))
+                .map(String::trim)
+                .toList();
+        // ValidationEngine throws java.lang.Error (not an Exception) for a profile it cannot
+        // resolve, so report unknown profiles as validation issues before calling it
+        Optional<OperationOutcome> unknownProfiles = checkProfilesExist(resourceProfiles);
+        if (unknownProfiles.isPresent()) {
+            return unknownProfiles;
+        }
         try {
             logger.debug("Fhir Validation Starts: {}", profiles);
             byte[] resourceDataBytes = resourceData.getBytes();
@@ -74,5 +81,28 @@ public class EmbeddedHapiFhirValidator implements IFhirValidator<String, Operati
                 throw new EicrException(e.getMessage(), e);
             }
         }
+    }
+
+    /**
+     * Checks that every requested profile is a StructureDefinition in the loaded implementation
+     * guides.
+     *
+     * @param resourceProfiles canonical profile URLs, optionally {@code |version}-qualified
+     * @return an {@link OperationOutcome} with one {@code not-found} error per unknown profile,
+     *     or empty if all profiles are known
+     */
+    private Optional<OperationOutcome> checkProfilesExist(List<String> resourceProfiles) {
+        OperationOutcome outcome = new OperationOutcome();
+        for (String profile : resourceProfiles) {
+            if (validationEngine.getContext().fetchResource(StructureDefinition.class, profile) == null) {
+                logger.info("Unknown profile requested: {}", profile);
+                outcome.addIssue()
+                        .setSeverity(OperationOutcome.IssueSeverity.ERROR)
+                        .setCode(OperationOutcome.IssueType.NOTFOUND)
+                        .setDiagnostics("Profile not found: " + profile
+                                + " is not defined in any of the loaded implementation guides");
+            }
+        }
+        return outcome.hasIssue() ? Optional.of(outcome) : Optional.empty();
     }
 }
