@@ -21,7 +21,7 @@ public class CommunicationDaoImpl extends AbstractDao implements CommunicationDa
 	}
 
 	public void createCommunication(DafCommunication dafCommunication) {
-		getSession().saveOrUpdate(dafCommunication);
+		saveOrUpdate(dafCommunication);
 	}
 
 }

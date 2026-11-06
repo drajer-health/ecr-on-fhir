@@ -10,6 +10,6 @@ import org.springframework.stereotype.Repository;
 public class BundleDaoImpl extends AbstractDao implements BundleDao{
 
 	public void createBundle(DafBundle dafBundle) {
-	    getSession().saveOrUpdate(dafBundle);
+	    saveOrUpdate(dafBundle);
 	  }
 }

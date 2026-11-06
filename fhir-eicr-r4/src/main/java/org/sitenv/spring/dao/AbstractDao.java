@@ -35,7 +35,26 @@ public abstract class AbstractDao {
      * @param entity the entity to delete
      */
     public void delete(Object entity) {
-        getSession().delete(entity);
+        // Hibernate 7 removed Session.delete(); remove() requires a managed instance.
+        Session session = getSession();
+        session.remove(session.contains(entity) ? entity : session.merge(entity));
+    }
+
+    /**
+     * Inserts a new entity or updates an existing one. Replaces the
+     * {@code Session.saveOrUpdate()} call removed in Hibernate 7: transient entities
+     * (no identifier yet) are persisted so the caller's instance receives the
+     * generated id; detached entities are merged.
+     *
+     * @param entity the entity to save or update
+     */
+    public void saveOrUpdate(Object entity) {
+        Session session = getSession();
+        if (sessionFactory.getPersistenceUnitUtil().getIdentifier(entity) == null) {
+            session.persist(entity);
+        } else {
+            session.merge(entity);
+        }
     }
 
 

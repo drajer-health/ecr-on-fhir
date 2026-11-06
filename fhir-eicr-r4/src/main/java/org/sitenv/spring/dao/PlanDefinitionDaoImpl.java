@@ -39,11 +39,11 @@ public class PlanDefinitionDaoImpl extends AbstractDao implements PlanDefinition
   }
 
   public void createPlanDefinition(DafPlanDefinition dafPlanDefinition) {
-    getSession().saveOrUpdate(dafPlanDefinition);
+    saveOrUpdate(dafPlanDefinition);
   }
 
   public void updatePlanDefinition(DafPlanDefinition dafPlanDefinition) {
-    getSession().saveOrUpdate(dafPlanDefinition);
+    saveOrUpdate(dafPlanDefinition);
   }
 
   /**
