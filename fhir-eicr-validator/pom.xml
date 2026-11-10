@@ -52,9 +52,10 @@
         <ucum.version>1.0.10</ucum.version>
         <okhttp.version>4.12.0</okhttp.version>
         <org-json.version>20260814</org-json.version>
-        <opentelemetry.version>1.62.0</opentelemetry.version>
+        <opentelemetry.version>1.67.0</opentelemetry.version>
         <log4j.version>2.26.1</log4j.version>
         <ognl.version>3.4.13</ognl.version>
+        <guava.version>33.8.0-jre</guava.version>
 
     </properties>
 
@@ -235,6 +236,13 @@
         </dependency>
 
 
+
+        <dependency>
+            <groupId>com.google.guava</groupId>
+            <artifactId>guava</artifactId>
+            <version>${guava.version}</version>
+        </dependency>   
+        
         <!-- ========================================================= -->
         <!-- HL7 FHIR CORE VALIDATOR                                   -->
         <!-- ========================================================= -->

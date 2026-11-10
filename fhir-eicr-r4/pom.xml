@@ -47,7 +47,7 @@
         <httpcore5.version>5.5-beta2</httpcore5.version>
         <!-- OpenTelemetry 1.62.0 (hapi-fhir-base pulls 1.49.0, Boot 4.0.9 manages 1.55.0):
              Inspector OpenTelemetry finding. Imported as a BOM so api/context/common align. -->
-        <opentelemetry.version>1.62.0</opentelemetry.version>
+        <opentelemetry.version>1.67.0</opentelemetry.version>
         <!-- log4j-api / log4j-to-slf4j 2.26.1 (Boot 4.0.9 manages 2.25.5, via
              spring-boot-starter-logging): Inspector log4j finding. -->
         <log4j.version>2.26.1</log4j.version>
@@ -55,6 +55,7 @@
              manages Netty 4.2.19. Import netty-bom ahead of spring-boot-dependencies so
              every io.netty:* module stays on the patched 4.1 line the AWS SDK supports. -->
         <netty.version>4.1.138.Final</netty.version>
+        <guava.version>33.8.0-jre</guava.version>
     </properties>
 
     <dependencyManagement>
@@ -135,6 +136,13 @@
                 <artifactId>log4j-to-slf4j</artifactId>
                 <version>${log4j.version}</version>
             </dependency>
+
+        <dependency>
+            <groupId>com.google.guava</groupId>
+            <artifactId>guava</artifactId>
+            <version>${guava.version}</version>
+        </dependency>   
+                    
         </dependencies>
     </dependencyManagement>
 
