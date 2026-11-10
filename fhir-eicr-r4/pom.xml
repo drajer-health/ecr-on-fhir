@@ -7,7 +7,7 @@
 
     <groupId>org.sitenv.fhir</groupId>
     <artifactId>r4</artifactId>
-    <version>0.0.5-SNAPSHOT</version>
+    <version>0.0.6-SNAPSHOT</version>
     <packaging>war</packaging>
     <name>r4</name>
 
@@ -27,7 +27,7 @@
              equal-or-newer versions: postgresql (42.7.14), json-smart (2.6.0),
              embedded Tomcat (11.0.27). -->
         <!-- Jackson 2 line (Boot 4.0.9's jackson-2-bom is 2.21.7): Inspector Jackson finding. -->
-        <jackson.version>2.22.2</jackson.version>
+        <jackson.version>2.22.4</jackson.version>
         <protobuf.version>4.33.1</protobuf.version>
         <gson.version>2.13.2</gson.version>
         <!-- org.json: CVE-2023-5072 and later org.json findings in the scan report. -->
