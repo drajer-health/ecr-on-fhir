@@ -7,7 +7,7 @@
 
     <groupId>org.sitenv.fhir</groupId>
     <artifactId>r4</artifactId>
-    <version>0.0.5-SNAPSHOT</version>
+    <version>0.0.6-SNAPSHOT</version>
     <packaging>war</packaging>
     <name>r4</name>
 
@@ -15,51 +15,53 @@
         <java.version>17</java.version>
         <maven.compiler.release>17</maven.compiler.release>
 
-        <!-- Keep Spring Boot 3.x / Java 17 for a lower-risk security remediation. -->
-        <spring-boot.version>3.5.16</spring-boot.version>
+        <!-- Spring Boot 4.0.9 -> Spring Framework 7.0.10: fixes CVE-2026-40973,
+             CVE-2026-47884, CVE-2026-47890. Requires Servlet 6.1 (Tomcat 11+). -->
+        <spring-boot.version>4.0.9</spring-boot.version>
+        <!-- HAPI FHIR 8.12.0; brings org.hl7.fhir.* core 6.9.12. -->
         <fhir.version>8.12.0</fhir.version>
         <org.aspectj-version>1.9.20.1</org.aspectj-version>
 
-        <!-- Security overrides / direct vulnerable dependencies -->
-        <jackson.version>2.22.2</jackson.version>
-        <postgresql.version>42.7.12</postgresql.version>
+        <!-- Security overrides / direct vulnerable dependencies.
+             Removed in the Boot 4 upgrade because the Boot 4.0.9 BOM now manages
+             equal-or-newer versions: postgresql (42.7.14), json-smart (2.6.0),
+             embedded Tomcat (11.0.27). -->
+        <!-- Jackson 2 line (Boot 4.0.9's jackson-2-bom is 2.21.7): Inspector Jackson finding. -->
+        <jackson.version>2.22.4</jackson.version>
         <protobuf.version>4.33.1</protobuf.version>
         <gson.version>2.13.2</gson.version>
+        <!-- org.json: CVE-2023-5072 and later org.json findings in the scan report. -->
         <org-json.version>20260814</org-json.version>
+        <!-- commons-io: CVE-2024-47554 and later commons-io findings in the scan report. -->
         <commons-io.version>2.22.0</commons-io.version>
         <commons-lang3.version>3.18.0</commons-lang3.version>
-        <json-smart.version>2.5.2</json-smart.version>
+        <!-- okhttp 4.12.0 (with patched okio): CVE-2023-3635 (okio). -->
         <okhttp.version>4.12.0</okhttp.version>
         <okio.version>3.18.2</okio.version>
         <aws-sdk.version>2.54.13</aws-sdk.version>
+        <!-- nimbus-jose-jwt 10.0.2: CVE-2025-53864 (deeply nested JSON DoS). -->
         <nimbus-jose-jwt.version>10.0.2</nimbus-jose-jwt.version>
         <!-- AWS SDK's apache5-client pulls in vulnerable httpclient5/httpcore5(-h2);
-             force the patched line since the AWS BOM doesn't manage them itself. -->
+             force the patched line (newer than Boot 4.0.9's 5.5.2 / 5.3.6). -->
         <httpclient5.version>5.6.3</httpclient5.version>
         <httpcore5.version>5.5-beta2</httpcore5.version>
-        <!-- hapi-fhir-base 8.12.0 pulls opentelemetry-api 1.49.0 transitively;
-             force the patched version without changing the HAPI FHIR version. -->
-        <opentelemetry.version>1.62.0</opentelemetry.version>
-        <!-- spring-boot-dependencies pins the embedded Tomcat to 10.1.55 (provided
-             scope only - never deployed at runtime here, since the app runs on an
-             external Tomcat; kept only so `mvn spring-boot:run`/the executable-war
-             fallback still work locally). Force the fixed version. -->
-        <tomcat.version>11.0.25</tomcat.version>
-        <!-- spring-boot-dependencies pins log4j to 2.24.3 (pulled in via
-             spring-boot-starter-logging -> log4j-to-slf4j). Force the fixed
-             version for both modules. -->
+        <!-- OpenTelemetry 1.62.0 (hapi-fhir-base pulls 1.49.0, Boot 4.0.9 manages 1.55.0):
+             Inspector OpenTelemetry finding. Imported as a BOM so api/context/common align. -->
+        <opentelemetry.version>1.67.0</opentelemetry.version>
+        <!-- log4j-api / log4j-to-slf4j 2.26.1 (Boot 4.0.9 manages 2.25.5, via
+             spring-boot-starter-logging): Inspector log4j finding. -->
         <log4j.version>2.26.1</log4j.version>
-        <!-- AWS SDK's netty-nio-client naturally wants a newer Netty than Boot 3.5's
-             own BOM pin (4.1.135.Final); import netty-bom ahead of spring-boot-dependencies
-             so this newer, more-patched line wins for every io.netty:* module. -->
+        <!-- AWS SDK 2.54.x's netty-nio-client is built against Netty 4.1.x; Boot 4.0.9
+             manages Netty 4.2.19. Import netty-bom ahead of spring-boot-dependencies so
+             every io.netty:* module stays on the patched 4.1 line the AWS SDK supports. -->
         <netty.version>4.1.138.Final</netty.version>
+        <guava.version>33.8.0-jre</guava.version>
     </properties>
 
     <dependencyManagement>
         <dependencies>
-            <!-- Must be declared before spring-boot-dependencies: BOM import order is
-                 first-wins for a given groupId:artifactId, and Boot 3.5.16 pins Netty
-                 to 4.1.135.Final, older than what the AWS SDK's HTTP transport wants. -->
+            <!-- BOM import order is first-wins for a given groupId:artifactId, so the
+                 BOMs that must override Boot's choices are declared before it. -->
             <dependency>
                 <groupId>io.netty</groupId>
                 <artifactId>netty-bom</artifactId>
@@ -68,9 +70,7 @@
                 <scope>import</scope>
             </dependency>
 
-            <!-- Must also be declared before spring-boot-dependencies (same first-wins
-                 rule as netty-bom above): Boot 3.5.16 pins Jackson to 2.21.4, older than
-                 the line Inspector requires. -->
+            <!-- Jackson 2.22.2 (Inspector Jackson finding); Boot 4.0.9 would give 2.21.7. -->
             <dependency>
                 <groupId>com.fasterxml.jackson</groupId>
                 <artifactId>jackson-bom</artifactId>
@@ -79,7 +79,17 @@
                 <scope>import</scope>
             </dependency>
 
-            <!-- Align Spring, Spring Security, Tomcat, Hibernate, Logback, JAXB, etc. -->
+            <!-- OpenTelemetry 1.62.0 (Inspector OpenTelemetry finding); Boot 4.0.9 would give 1.55.0. -->
+            <dependency>
+                <groupId>io.opentelemetry</groupId>
+                <artifactId>opentelemetry-bom</artifactId>
+                <version>${opentelemetry.version}</version>
+                <type>pom</type>
+                <scope>import</scope>
+            </dependency>
+
+            <!-- Align Spring, Spring Security, Tomcat, Hibernate, Logback, JAXB, etc.
+                 Boot 4.0.9 / Spring Framework 7.0.10: CVE-2026-40973, CVE-2026-47884, CVE-2026-47890. -->
             <dependency>
                 <groupId>org.springframework.boot</groupId>
                 <artifactId>spring-boot-dependencies</artifactId>
@@ -95,13 +105,6 @@
                 <version>${aws-sdk.version}</version>
                 <type>pom</type>
                 <scope>import</scope>
-            </dependency>
-
-            <!-- Force transitive json-smart away from vulnerable older releases. -->
-            <dependency>
-                <groupId>net.minidev</groupId>
-                <artifactId>json-smart</artifactId>
-                <version>${json-smart.version}</version>
             </dependency>
 
             <!-- Force transitive httpclient5/httpcore5(-h2) (pulled in via
@@ -122,33 +125,7 @@
                 <version>${httpcore5.version}</version>
             </dependency>
 
-            <dependency>
-                <groupId>io.opentelemetry</groupId>
-                <artifactId>opentelemetry-api</artifactId>
-                <version>${opentelemetry.version}</version>
-            </dependency>
-            <dependency>
-                <groupId>io.opentelemetry</groupId>
-                <artifactId>opentelemetry-context</artifactId>
-                <version>${opentelemetry.version}</version>
-            </dependency>
-
-            <dependency>
-                <groupId>org.apache.tomcat.embed</groupId>
-                <artifactId>tomcat-embed-core</artifactId>
-                <version>${tomcat.version}</version>
-            </dependency>
-            <dependency>
-                <groupId>org.apache.tomcat.embed</groupId>
-                <artifactId>tomcat-embed-el</artifactId>
-                <version>${tomcat.version}</version>
-            </dependency>
-            <dependency>
-                <groupId>org.apache.tomcat.embed</groupId>
-                <artifactId>tomcat-embed-websocket</artifactId>
-                <version>${tomcat.version}</version>
-            </dependency>
-
+            <!-- log4j 2.26.1 (Inspector log4j finding); Boot 4.0.9 would give 2.25.5. -->
             <dependency>
                 <groupId>org.apache.logging.log4j</groupId>
                 <artifactId>log4j-api</artifactId>
@@ -159,6 +136,13 @@
                 <artifactId>log4j-to-slf4j</artifactId>
                 <version>${log4j.version}</version>
             </dependency>
+
+        <dependency>
+            <groupId>com.google.guava</groupId>
+            <artifactId>guava</artifactId>
+            <version>${guava.version}</version>
+        </dependency>   
+                    
         </dependencies>
     </dependencyManagement>
 
@@ -180,7 +164,21 @@
 
         <dependency>
             <groupId>org.springframework.boot</groupId>
-            <artifactId>spring-boot-starter-web</artifactId>
+            <!-- Boot 4 renamed spring-boot-starter-web to spring-boot-starter-webmvc.
+                 spring-webmvc is kept: web.xml registers a DispatcherServlet
+                 (mvc-config.xml) and EventExceptionHandler extends
+                 ResponseEntityExceptionHandler. -->
+            <artifactId>spring-boot-starter-webmvc</artifactId>
+            <exclusions>
+                <!-- Boot 4's starter-jackson adds Jackson 3 (tools.jackson) next to
+                     Jackson 2. Nothing here uses Boot auto-config or Jackson-backed
+                     MVC/RestTemplate conversion (RestTemplate posts plain Strings),
+                     so keep a single Jackson major (2.x). -->
+                <exclusion>
+                    <groupId>org.springframework.boot</groupId>
+                    <artifactId>spring-boot-starter-jackson</artifactId>
+                </exclusion>
+            </exclusions>
         </dependency>
 
         <!-- Replaces mixed Spring ORM 5.x + Hibernate 5.6 dependencies. -->
@@ -219,7 +217,7 @@
         <dependency>
             <groupId>org.postgresql</groupId>
             <artifactId>postgresql</artifactId>
-            <version>${postgresql.version}</version>
+            <!-- Version managed by the Boot 4.0.9 BOM (42.7.14). -->
             <scope>runtime</scope>
         </dependency>
 
@@ -410,8 +408,10 @@
                 <!-- Brings in org.hl7.fhir.utilities -> okhttp-jvm (OkHttp 5.x), a
                      different Maven coordinate from our own pinned okhttp 4.12.0
                      below, which would otherwise sit on the classpath alongside it
-                     (duplicate okhttp3.* classes from two majors). App code never
-                     calls OkHttp directly, so excluded in favor of okhttp:4.12.0. -->
+                     (duplicate okhttp3.* classes from two majors). App code
+                     (KeyCloackTokenValidationClient) uses the OkHttp 4 API, and the
+                     R4 parser/server paths used here don't need OkHttp 5, so
+                     excluded in favor of okhttp:4.12.0. -->
                 <exclusion>
                     <groupId>com.squareup.okhttp3</groupId>
                     <artifactId>okhttp-jvm</artifactId>

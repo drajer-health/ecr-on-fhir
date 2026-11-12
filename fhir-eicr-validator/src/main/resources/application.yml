@@ -1,2 +1,12 @@
 eicr:
-  cacheDownloadFolderPath: /tmp
+  # FHIR package + terminology cache (eicr.cacheDownloadFolderPath). Must survive restarts:
+  # with an empty cache the ~120 MB of bundled IG packages are re-extracted on startup
+  # (minutes instead of seconds). Avoid /tmp: it is often cleared on reboot, and Tomcat
+  # under systemd (PrivateTmp=true) gets an empty /tmp on every restart.
+  #
+  # Not set here on purpose; the default comes from EicrFhirValidatorApplication:
+  #   external Tomcat (WAR):  <catalina.base>/fhir-package-cache
+  #   standalone (java -jar): ~/fhir-package-cache
+  # Override with env var EICR_CACHEDOWNLOADFOLDERPATH or -Deicr.cacheDownloadFolderPath=...
+  #
+  # cacheDownloadFolderPath: /var/lib/fhirvalidator/fhir-package-cache

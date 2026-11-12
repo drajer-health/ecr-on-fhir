@@ -29,6 +29,6 @@ public class ValueSetDaoImpl extends AbstractDao implements ValueSetDao{
 	}
 
 	public void createValueSet(DafValueSet dafValueSet) {
-		getSession().saveOrUpdate(dafValueSet);
+		saveOrUpdate(dafValueSet);
 	}
 }

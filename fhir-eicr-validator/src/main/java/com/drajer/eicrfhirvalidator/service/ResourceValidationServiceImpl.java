@@ -5,9 +5,9 @@ import ca.uhn.fhir.validation.FhirValidator;
 import ca.uhn.fhir.validation.ValidationResult;
 import com.drajer.eicrfhirvalidator.component.EmbeddedHapiFhirValidator;
 import com.drajer.eicrfhirvalidator.component.IFhirValidator;
+import com.drajer.eicrfhirvalidator.component.Validator;
 import com.drajer.eicrfhirvalidator.exception.EicrException;
 import com.drajer.eicrfhirvalidator.exception.FhirServerNotAvailableException;
-import jakarta.annotation.PostConstruct;
 import org.hl7.fhir.r5.model.OperationOutcome;
 import org.hl7.fhir.validation.ValidationEngine;
 import org.slf4j.Logger;
@@ -19,7 +19,8 @@ import java.util.Objects;
 
 /**
  * Default {@link ResourceValidationService} implementation, backed by an
- * {@link EmbeddedHapiFhirValidator} wrapping the injected {@link ValidationEngine}.
+ * {@link EmbeddedHapiFhirValidator} wrapping the {@link ValidationEngine} that {@link Validator}
+ * loads in the background.
  */
 @Service
 public class ResourceValidationServiceImpl implements ResourceValidationService {
@@ -27,9 +28,9 @@ public class ResourceValidationServiceImpl implements ResourceValidationService 
 	private static final Logger logger = LoggerFactory.getLogger(ResourceValidationService.class);
 
 	@Autowired
-	ValidationEngine validationEngine;
+	Validator validator;
 
-	private IFhirValidator<String, OperationOutcome> fhirValidator;
+	private volatile IFhirValidator<String, OperationOutcome> fhirValidator;
 
 	/**
 	 * {@inheritDoc}
@@ -43,25 +44,27 @@ public class ResourceValidationServiceImpl implements ResourceValidationService 
 	}
 
 
-	/** Initializes {@link #fhirValidator} after dependency injection completes. */
-	@PostConstruct
-	public void setUp() {
-		fhirValidator = configure();
-	}
-
 	/**
-	 * Lazily creates (and caches) the {@link EmbeddedHapiFhirValidator} wrapping the injected
-	 * {@link ValidationEngine}.
+	 * Lazily creates (and caches) the {@link EmbeddedHapiFhirValidator} wrapping the
+	 * {@link ValidationEngine}, waiting for the engine if it is still loading.
 	 *
 	 * @return the configured {@link IFhirValidator} instance
+	 * @throws FhirServerNotAvailableException if the engine is disabled, failed to load, or is
+	 *     still loading after the configured wait
 	 */
-	public synchronized IFhirValidator<String, OperationOutcome> configure() {
+	public IFhirValidator<String, OperationOutcome> configure() {
 		if (Objects.nonNull(fhirValidator)) {
 			return fhirValidator;
 		}
-		fhirValidator = new EmbeddedHapiFhirValidator(validationEngine);
-		logger.info("Fhir Validator is configured");
-		return fhirValidator;
+		// Wait outside the lock so a slow engine load does not serialize callers on this monitor
+		ValidationEngine validationEngine = validator.awaitValidationEngine();
+		synchronized (this) {
+			if (Objects.isNull(fhirValidator)) {
+				fhirValidator = new EmbeddedHapiFhirValidator(validationEngine);
+				logger.info("Fhir Validator is configured");
+			}
+			return fhirValidator;
+		}
 	}
 
 
@@ -74,9 +77,12 @@ public class ResourceValidationServiceImpl implements ResourceValidationService 
 	 */
 	public OperationOutcome validate(String bodyStr, String resourceProfile) {
 		try {
-			if (Objects.isNull(fhirValidator)) {
-				logger.error("FHIR Server is not available: {}", resourceProfile);
-				throw new FhirServerNotAvailableException("FHIR Server is not available for " + resourceProfile);
+			IFhirValidator<String, OperationOutcome> fhirValidator;
+			try {
+				fhirValidator = configure();
+			} catch (FhirServerNotAvailableException e) {
+				logger.error("FHIR Server is not available: {}: {}", resourceProfile, e.getMessage());
+				throw e;
 			}
 			logger.debug("Profile: {}", resourceProfile);
 			Long startTime = System.currentTimeMillis();
